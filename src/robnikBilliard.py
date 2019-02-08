@@ -23,6 +23,18 @@ def robnikBoundaryDefinition(lam, k, mC = None):
     z = 1 + 2 * lam * lam + 3 * lam * np.cos(alpha)
     w = dalpha * q / z
     return x, y, w
+    
+def robnikBoundarif (mC == None):
+    if (mC == None):
+        mC = 8 * m.ceil(k)
+    dalpha = m.pi / mC
+    alpha = vs.baseAngles(0, m.pi, mC)
+    x = np.cos(alpha) + lam * np.cos(2 * alpha)
+    y = np.sin(alpha) + lam * np.sin(2 * alpha)
+    q = 1 + 4 * lam * lam + 4 * lam * np.cos(alpha)
+    z = 1 + 2 * lam * lam + 3 * lam * np.cos(alpha)
+    w = dalpha * q / z
+    return x, y, wyDefinitionExtended(lam, k, mC = None):
 
 """
 asym
