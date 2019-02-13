@@ -6,10 +6,10 @@ Created on Thu Apr  6 20:49:46 2017
 @author: benjamin
 """
 
-import robnikBilliard as rb
+from ..src import robnikBilliard as rb
 import numpy as np
 import collections 
-import brodyAnalysis
+from ..src import brodyAnalysis
 import pandas as pd
 import functools as ft
 
