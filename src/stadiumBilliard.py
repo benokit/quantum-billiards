@@ -1,17 +1,12 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Apr  2 18:49:32 2017
-
-@author: benjamin
-"""
-
 import math as m
-import numpy as np
-import verginiSaraceno as vs
+
 import matplotlib.pyplot as pyp
-import spectrumUtilities as su
-import husimiFunctions as hf
+import numpy as np
+
+from . import husimiFunctions as hf
+from . import spectrumUtilities as su
+from . import verginiSaraceno as vs
+
 
 def stadiumBoundaryDefinition(eps, k):
     # upper-right quater of the billiard
@@ -238,10 +233,3 @@ def stadiumSpectrumUnfold_sym_asym(eps, energies):
 
 def stadiumPlotEig_sym_asym(eps, k, vec):
     stadiumPlotEig(eps, k, vec, vs.psi_pi2_sym_asym)
-
-
-    
-
-    
-    
-    

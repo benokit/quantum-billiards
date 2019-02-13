@@ -1,15 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Apr  6 20:49:46 2017
-
-@author: benjamin
-"""
-
-import stadiumBilliard as sb
+from ..src import stadiumBilliard as sb
 import numpy as np
 import collections 
-import brodyAnalysis
+from ..src import brodyAnalysis
 import matplotlib.pyplot as pyp
 import pandas as pd
 import functools as ft

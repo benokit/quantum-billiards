@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Feb 28 16:33:31 2017
-
-@author: benjamin
-"""
-
 import numpy as np
 import math as m
 
@@ -17,9 +9,9 @@ def baseAngles(a, b, n):
 def psi_pi2_sym_asym(k, vec, x, y):
     """
         Value of a wave function composed from a 
-        basis with a discrete symetry over x and y axis (sin(alpha), cos(alpha))
+        basis with a discrete symmetry over x and y axis (sin(alpha), cos(alpha))
         - x and y are arrays of coordinates of points on a boundary
-        - vec is an array of base coeficients
+        - vec is an array of base coefficients
         - k is a wave number
     """
     n = vec.size
@@ -37,9 +29,9 @@ def psi_pi2_sym_asym(k, vec, x, y):
 def psi_pi2_asym_sym(k, vec, x, y):
     """
         Value of a wave function composed from a 
-        basis with a discrete symetry over x and y axis (sin(alpha), cos(alpha))
+        basis with a discrete symmetry over x and y axis (sin(alpha), cos(alpha))
         - x and y are arrays of coordinates of points on a boundary
-        - vec is an array of base coeficients
+        - vec is an array of base coefficients
         - k is a wave number
     """
     n = vec.size
@@ -57,9 +49,9 @@ def psi_pi2_asym_sym(k, vec, x, y):
 def psi_pi2_asym_asym(k, vec, x, y):
     """
         Value of a wave function composed from a 
-        basis with a discrete symetry over x and y axis (sin(alpha), cos(alpha))
+        basis with a discrete symmetry over x and y axis (sin(alpha), cos(alpha))
         - x and y are arrays of coordinates of points on a boundary
-        - vec is an array of base coeficients
+        - vec is an array of base coefficients
         - k is a wave number
     """
     n = vec.size
@@ -77,9 +69,9 @@ def psi_pi2_asym_asym(k, vec, x, y):
 def psi_pi2_sym_sym(k, vec, x, y):
     """
         Value of a wave function composed from a 
-        basis with a discrete symetry over x and y axis (sin(alpha), cos(alpha))
+        basis with a discrete symmetry over x and y axis (sin(alpha), cos(alpha))
         - x and y are arrays of coordinates of points on a boundary
-        - vec is an array of base coeficients
+        - vec is an array of base coefficients
         - k is a wave number
     """
     n = vec.size
@@ -97,9 +89,9 @@ def psi_pi2_sym_sym(k, vec, x, y):
 def psi_pi_asym(k, vec, x, y):
     """
         Value of a wave function composed from a 
-        basis with a discrete symetry over x axis (sin(alpha), cos(alpha))
+        basis with a discrete symmetry over x axis (sin(alpha), cos(alpha))
         - x and y are arrays of coordinates of points on a boundary
-        - vec is an array of base coeficients
+        - vec is an array of base coefficients
         - k is a wave number
     """
     n = int(vec.size / 2)
@@ -119,9 +111,9 @@ def psi_pi_asym(k, vec, x, y):
 def psi_pi_sym(k, vec, x, y):
     """
         Value of a wave function composed from a 
-        basis with a discrete symetry over x axis (sin(alpha), cos(alpha))
+        basis with a discrete symmetry over x axis (sin(alpha), cos(alpha))
         - x and y are arrays of coordinates of points on a boundary
-        - vec is an array of base coeficients
+        - vec is an array of base coefficients
         - k is a wave number
     """
     n = int(vec.size / 2)
@@ -142,9 +134,9 @@ def psi_pi_sym(k, vec, x, y):
 def psi_2pi(k, vec, x, y):
     """
         Value of a wave function composed from a 
-        basis without a discrete symetry (sin(alpha), cos(alpha))
+        basis without a discrete symmetry (sin(alpha), cos(alpha))
         - x and y are arrays of coordinates of points on a boundary
-        - vec is an array of base coeficients
+        - vec is an array of base coefficients
         - k is a wave number
     """
     n = int(vec.size / 2)
@@ -161,9 +153,9 @@ def psi_2pi(k, vec, x, y):
 def grad_psi_pi2_sym_sym(k, vec, x, y):
     """
         Gradient of a wave function composed from a 
-        basis with a discrete symetry over x and y axis (sin(alpha), cos(alpha))
+        basis with a discrete symmetry over x and y axis (sin(alpha), cos(alpha))
         - x and y are arrays of coordinates of points on a boundary
-        - vec is an array of base coeficients
+        - vec is an array of base coefficients
         - k is a wave number
     """
     n = vec.size
@@ -185,9 +177,9 @@ def grad_psi_pi2_sym_sym(k, vec, x, y):
 def grad_psi_pi_asym(k, vec, x, y):
     """
         Gradient of a wave function composed from a 
-        basis with a discrete symetry over x axis (sin(alpha), cos(alpha))
+        basis with a discrete symmetry over x axis (sin(alpha), cos(alpha))
         - x and y are arrays of coordinates of points on a boundary
-        - vec is an array of base coeficients
+        - vec is an array of base coefficients
         - k is a wave number
     """
     n = int(vec.size / 2)
@@ -212,9 +204,9 @@ def grad_psi_pi_asym(k, vec, x, y):
 def grad_psi_pi_sym(k, vec, x, y):
     """
         Gradient of a wave function composed from a 
-        basis with a discrete symetry over x axis (sin(alpha), cos(alpha))
+        basis with a discrete symmetry over x axis (sin(alpha), cos(alpha))
         - x and y are arrays of coordinates of points on a boundary
-        - vec is an array of base coeficients
+        - vec is an array of base coefficients
         - k is a wave number
     """
     n = int(vec.size / 2)
@@ -239,9 +231,9 @@ def grad_psi_pi_sym(k, vec, x, y):
 def grad_psi_2pi(k, vec, x, y):
     """
         Gradient of a wave function composed from a 
-        basis without a discrete symetry (sin(alpha), cos(alpha))
+        basis without a discrete symmetry (sin(alpha), cos(alpha))
         - x and y are arrays of coordinates of points on a boundary
-        - vec is an array of base coeficients
+        - vec is an array of base coefficients
         - k is a wave number
     """
     n = int(vec.size / 2)
@@ -262,7 +254,7 @@ def grad_psi_2pi(k, vec, x, y):
 
 def ffk_pi2_sym_asym(n, k0, w, x, y):
     """
-        F and Fk for basis with reflection symetry over x and y axis
+        F and Fk for basis with reflection symmetry over x and y axis
         - x and y are arrays of coordinates of points on a boundary
         - w is a vector of integration weights 
         - k0 is a wave number
@@ -287,7 +279,7 @@ def ffk_pi2_sym_asym(n, k0, w, x, y):
 
 def ffk_pi2_asym_sym(n, k0, w, x, y):
     """
-        F and Fk for basis with reflection symetry over x and y axis
+        F and Fk for basis with reflection symmetry over x and y axis
         - x and y are arrays of coordinates of points on a boundary
         - w is a vector of integration weights 
         - k0 is a wave number
@@ -312,7 +304,7 @@ def ffk_pi2_asym_sym(n, k0, w, x, y):
 
 def ffk_pi2_asym_asym(n, k0, w, x, y):
     """
-        F and Fk for basis with reflection symetry over x and y axis
+        F and Fk for basis with reflection symmetry over x and y axis
         - x and y are arrays of coordinates of points on a boundary
         - w is a vector of integration weights 
         - k0 is a wave number
@@ -337,7 +329,7 @@ def ffk_pi2_asym_asym(n, k0, w, x, y):
 
 def ffk_pi2_sym_sym(n, k0, w, x, y):
     """
-        F and Fk for basis with reflection symetry over x and y axis
+        F and Fk for basis with reflection symmetry over x and y axis
         - x and y are arrays of coordinates of points on a boundary
         - w is a vector of integration weights 
         - k0 is a wave number
@@ -362,7 +354,7 @@ def ffk_pi2_sym_sym(n, k0, w, x, y):
 
 def ffk_pi_asym(n, k0, w, x, y):
     """
-        F and Fk for basis with reflection symetry over x axis
+        F and Fk for basis with reflection symmetry over x axis
         - x and y are arrays of coordinates of points on a boundary
         - w is a vector of integration weights 
         - k0 is a wave number
@@ -387,7 +379,7 @@ def ffk_pi_asym(n, k0, w, x, y):
 
 def ffk_pi_sym(n, k0, w, x, y):
     """
-        F and Fk for basis with reflection symetry over x axis
+        F and Fk for basis with reflection symmetry over x axis
         - x and y are arrays of coordinates of points on a boundary
         - w is a vector of integration weights 
         - k0 is a wave number
@@ -412,7 +404,7 @@ def ffk_pi_sym(n, k0, w, x, y):
 
 def ffk_2pi(n, k0, w, x, y):
     """
-        F and Fk for basis without a discrete symetry (sin(alpha), cos(alpha))
+        F and Fk for basis without a discrete symmetry (sin(alpha), cos(alpha))
         - x and y are arrays of coordinates of points on a boundary
         - w is a vector of integration weights 
         - k0 is a wave number
@@ -436,7 +428,7 @@ def eigvals(k0, dk, F, Fk):
     """
         calculates eigenvalues on the interval [k0-dk, k0+dk] by
         solving generalized eigenvalue problem Fk - mu * F = 0
-        originating from the vergini saraceno method
+        originating from the vergini-saraceno method
     """
     # dimension
     n, _ = F.shape
@@ -459,13 +451,13 @@ def eig(k0, dk, F, Fk):
     """
         calculates eigenvalues and eigenvectors on the interval [k0-dk, k0+dk] by
         solving generalized eigenvalue problem Fk - mu * F = 0
-        originating from the vergini saraceno method
+        originating from the vergini-saraceno method
     """
     # dimension
     n, _ = F.shape
     # eigenvalues and eigenvectors of F
     d, S = np.linalg.eigh(F)
-    # indeces of relevant eigenvectors
+    # indices of relevant eigenvectors
     ind = (d / np.max(d)) > 0.5e-16 
     q = 1 / np.sqrt(d[ind])
     print((n, n - q.size))
@@ -473,7 +465,7 @@ def eig(k0, dk, F, Fk):
     S = q * S
     Fk = np.transpose(S).dot(Fk).dot(S)
     mu, Z = np.linalg.eigh(Fk)
-    ks = k0 - 2 / mu;
+    ks = k0 - 2 / mu
     ind = np.abs(ks - k0) <= dk
     ks = ks[ind]
     Z = Z[:,ind]

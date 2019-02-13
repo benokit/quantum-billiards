@@ -1,15 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Apr  2 18:49:32 2017
-
-@author: benjamin
-"""
-
 import math as m
 import numpy as np
-import verginiSaraceno as vs
-import spectrumUtilities as su
+from . import verginiSaraceno as vs
+from . import spectrumUtilities as su
 import scipy.integrate as integrate
 import husimiFunctions as hf
 

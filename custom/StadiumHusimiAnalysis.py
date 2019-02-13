@@ -1,13 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Feb 20 18:50:29 2018
-
-@author: benjamin
-"""
-
 import pandas
-#import seaborn
 import numpy
 import matplotlib.pyplot as pyp
 from scipy.optimize import curve_fit

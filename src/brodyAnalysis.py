@@ -1,16 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu May  4 16:58:40 2017
-
-@author: benjamin
-"""
-
 import math as m
+
+import matplotlib.pyplot as pyp
 import numpy as np
 import scipy
-import tools
-import matplotlib.pyplot as pyp
+
+from . import tools
+
 
 # brody distribution
 def brodyP(beta, s):
@@ -128,6 +123,5 @@ def plotBrodyFitU(s, wsmin = 0, wsmax = 3):
     zx = scipy.interpolate.spline(brodyU(beta, zz), zz, ux)
     y = Uf(zx) - brodyU(beta,zx)
     pyp.plot(ux, y)
-    pyp.fill_between(ux, y + Uerr, y - Uerr);
+    pyp.fill_between(ux, y + Uerr, y - Uerr)
     pyp.show()
-    

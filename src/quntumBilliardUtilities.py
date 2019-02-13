@@ -1,7 +1,5 @@
-
 import numpy as np
 import math as m
-
 
 def baseAngles(a, b, n):
     alpha = np.linspace(a, b, (n + 1))

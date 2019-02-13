@@ -1,14 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar 30 17:23:27 2017
-
-@author: benjamin
-"""
-import math as m
 import numpy as np
-import verginiSaraceno as vs
-import matplotlib.pyplot as pyp
+import math as m
+from . import verginiSaraceno as vs
+from . import matplotlib.pyplot as pyp
 
 def circle_eig(k, dk):
     """

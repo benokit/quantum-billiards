@@ -1,14 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jul 16 19:08:05 2017
-
-@author: benjamin
-"""
-
-import stadiumBilliard as sb
-import spectrumUtilities as su
-import husimiFunctions as hf
+from ..src import stadiumBilliard as sb
+from ..src import spectrumUtilities as su
+from ..src import husimiFunctions as hf
 import matplotlib.pyplot as pyp
 import numpy as np
 import math as m
