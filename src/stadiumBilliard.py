@@ -9,7 +9,7 @@ from . import verginiSaraceno as vs
 
 
 def stadiumBoundaryDefinition(eps, k):
-    # upper-right quater of the billiard
+    # upper-right quarter of the billiard
     # flat part
     mE = m.ceil(14 * eps * k / (2 * m.pi))
     xE = vs.baseAngles(0, eps, mE)
@@ -30,7 +30,7 @@ def stadiumBoundaryDefinition(eps, k):
     return x, y, w
 
 def stadiumBoundaryDefinitionExtended(eps, k):
-    # upper-right quater of the billiard
+    # upper-right quarter of the billiard
     # flat part
     mE = m.ceil(14 * eps * k / (2 * m.pi))
     xE = vs.baseAngles(0, eps, mE)

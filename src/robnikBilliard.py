@@ -110,10 +110,3 @@ def robnikHusimi_sym(lam, k, vec):
     ps = vs.baseAngles(0, 1, nP)
     H = hf.husimiOnGrid(k, s2, ds2, u2, qs, ps)
     return qs, ps, H
-
-
-    
-
-    
-    
-    

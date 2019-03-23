@@ -5,4 +5,3 @@ def ecdf(z):
     n = 1 + zz.size
     f = lambda x: np.count_nonzero(zz <= x) / n
     return np.vectorize(f)
-    

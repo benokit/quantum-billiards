@@ -2,7 +2,9 @@ import math as m
 
 import matplotlib.pyplot as pyp
 import numpy as np
-import scipy
+from scipy import special
+from scipy import optimize
+from scipy import interpolate
 
 from . import tools
 
@@ -30,18 +32,18 @@ def brodyU(beta, s):
 def brodyE(beta, s):
     a = m.gamma((beta + 2)/(beta + 1)) ** (beta + 1)
     x = a * np.power(s, beta + 1)
-    return scipy.special.gammaincc(1/(beta + 1), x)
+    return special.gammaincc(1/(beta + 1), x)
 
 # Berry - Robnik brody gap probability 
 def brodyBRE(rho, beta, s):
     return np.exp(-rho * s) * brodyE(beta, (1 - rho) * s)
 
-# Berry - Robnik brody kumulative distribution
+# Berry - Robnik brody cumulative distribution
 def brodyBRW(rho, beta, s):
     a = (1 - rho) * (brodyW(beta, (1 - rho) * s) - 1) - rho * brodyE(beta, (1 - rho) * s)
     return a * np.exp(-rho * s) + 1
 
-# Berry - Robnik brody porbability density
+# Berry - Robnik brody probability density
 def brodyBRP(rho, beta, s):
     a = (rho ** 2) * brodyE(beta, (1 - rho) * s) - 2 * rho * (1 - rho) * (brodyW(beta, (1 - rho) * s) - 1) + ((1 - rho) ** 2) * brodyP(beta, (1 - rho) * s) 
     return a * np.exp(-rho * s)
@@ -57,7 +59,7 @@ def brodyFit(s):
     x = np.linspace(0, 3, 1000)
     y = Wz(x)
     funk = lambda beta: np.sum(np.power(brodyW(beta, x) - y, 2))
-    res = scipy.optimize.minimize(funk, [0], bounds = [(0,1)], method = 'L-BFGS-B')
+    res = optimize.minimize(funk, [0], bounds = [(0,1)], method = 'L-BFGS-B')
     return res.x[0]
 
 # find the best fitting beta and rho
@@ -69,11 +71,11 @@ def brodyBRFit(s, rho = 0, fixedRho = True):
     y = Wz(x)
     if (fixedRho):
         funk = lambda beta: np.sum(np.power(brodyBRW(rho, beta, x) - y, 2))
-        res = scipy.optimize.minimize(funk, [0], bounds = [(0,1)], method = 'L-BFGS-B')
+        res = optimize.minimize(funk, [0], bounds = [(0,1)], method = 'L-BFGS-B')
         return rho, res.x[0]
     else:
         funk = lambda par: np.sum(np.power(brodyBRW(par[0], par[1], x) - y, 2))
-        res = scipy.optimize.minimize(funk, [0.5, 0.5], bounds = [(0,1), (0,1)], method = 'L-BFGS-B')
+        res = optimize.minimize(funk, [0.5, 0.5], bounds = [(0,1), (0,1)], method = 'L-BFGS-B')
         return res.x[0], res.x[1]
     
 # ploting P
@@ -120,7 +122,7 @@ def plotBrodyFitU(s, wsmin = 0, wsmax = 3):
     Uerr = 1 / (m.pi * m.sqrt(z.size))
     zz = np.linspace(Zmin, Zmax, 1000)
     ux = np.linspace(Umin, Umax, 200)
-    zx = scipy.interpolate.spline(brodyU(beta, zz), zz, ux)
+    zx = interpolate.spline(brodyU(beta, zz), zz, ux)
     y = Uf(zx) - brodyU(beta,zx)
     pyp.plot(ux, y)
     pyp.fill_between(ux, y + Uerr, y - Uerr)

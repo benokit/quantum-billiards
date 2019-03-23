@@ -1,7 +1,10 @@
-import numpy as np
 import math as m
+
+import matplotlib.pyplot as pyp
+import numpy as np
+
 from . import verginiSaraceno as vs
-from . import matplotlib.pyplot as pyp
+
 
 def circle_eig(k, dk):
     """
@@ -33,8 +36,3 @@ def circle_plot_eig(k, vec):
     ind  = F > 1
     Z[ind] = 0
     pyp.contourf(X, Y, Z, cmp = pyp.cm.gray)
-    
-    
-    
-    
-    
