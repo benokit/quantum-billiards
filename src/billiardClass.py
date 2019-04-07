@@ -7,6 +7,7 @@ from scipy import optimize
 from . import husimiFunctions as hf
 from . import spectrumUtilities as su
 from . import verginiSaraceno as vs
+from . import planeWaveDecomposition as pwd
 
 def midpoints(array):
     """ helper function returns array of half distances between points in array""" 
@@ -56,8 +57,8 @@ class billiard:
         y = self.boundary_y
         nx = self.normal_x
         ny = self.normal_y
-        F, G = vs.fg_2pi(N, k0, w, wg, x, y, nx, ny)
-        return vs.eigvalsPWD(k0, F, G)
+        F, G = pwd.fg_2pi(N, k0, w, wg, x, y, nx, ny)
+        return pwd.eigvalsPWD(k0, F, G)
     
     def PWD_eigenvalue(self, N, k0, dk):
         return optimize.minimize_scalar(lambda x: self.PWD_tension(N,x), bounds=(k0-dk, k0+dk), method='bounded')
@@ -69,76 +70,7 @@ class billiard:
         bnd_y = self.boundary_y
         nx = self.normal_x
         ny = self.normal_y
-        F, G = vs.fg_2pi(N, k0, w, wg, bnd_x, bnd_y, nx, ny)
-        vec = vs.eigPWD(k0,F,G)
+        F, G = pwd.fg_2pi(N, k0, w, wg, bnd_x, bnd_y, nx, ny)
+        vec = pwd.eigPWD(k0,F,G)
         return vs.psi_2pi(k0,vec,x,y) 
         
-
-#############################################
-#           Plotting functions              #
-#############################################
-
-
-def plot_boundary(billiard):
-    x = billiard.boundary_x
-    y = billiard.boundary_y
-    nx = billiard.normal_x
-    ny = billiard.normal_y
-    xmin = np.min(x) - 0.15
-    xmax = np.max(x) + 0.15
-    ymin = np.min(y) - 0.15
-    ymax = np.max(y) + 0.15
-    plt.plot(x, y, lw = 1.5, color = "k")
-    plt.quiver(x,y,nx,ny)
-    ax = plt.gca()
-    ax.set_aspect('equal', 'box')
-    plt.xlim(xmin,xmax)
-    plt.ylim(ymin,ymax)
-    plt.tight_layout()               
-
-def plot_probability(billiard, k, grid = 400):
-    PWDMIN = 100 
-    N = max(3 * m.ceil(k / 4), PWDMIN) #number of plane waves
-    #grid size
-    boundary_x = billiard.boundary_x
-    boundary_y = billiard.boundary_y
-    xmin = np.min(boundary_x) - 0.05
-    xmax = np.max(boundary_x) + 0.05
-    ymin = np.min(boundary_y) - 0.05
-    ymax = np.max(boundary_y) + 0.05
-    
-    #coordinates for plot
-    q = np.linspace(xmin, xmax, grid+1)
-    q2  = np.linspace(ymin, ymax, grid+1)
-    Xplot = q
-    Yplot = q2
-    
-    #coordinates for wavefunction
-    q = midpoints(q) 
-    q2 = midpoints(q2)
-    x = np.tile(q, grid)
-    y = np.repeat(q2, grid)
-    X = np.reshape(x, (grid, grid))
-    Y = np.reshape(y, (grid, grid))
-    
-    #plot billiard boundary
-    col="0.5"
-    lw=1.5
-    ax = plt.gca()#plt.axes(xlim=(-1-eps-0.05, 1+eps+0.05), ylim=(-1-eps, 1+eps))
-    ax.axis('off')
-    ax.set_aspect('equal', 'box')
-    ax.plot(boundary_x,boundary_y,col,lw=lw)
-    plt.xlabel(r"x")
-    plt.ylabel(r"y")
-
-    #calculate probability    
-    psi = billiard.PWD_eigenfunction(N, k, X, Y)
-    repsi = psi.real
-    impsi = psi.imag
-    Z = repsi*repsi + impsi*impsi
-    Z = np.reshape(Z, (grid,grid))
-    vmax = np.max(Z)
-
-    #plot probability
-    ax.pcolormesh(Xplot, Yplot, Z, cmap='magma', vmin=0, vmax=vmax)
-    plt.tight_layout()
