@@ -54,11 +54,11 @@ def fg_2pi(n, k0, w, wg, x, y, nx, ny):
 def fg_pi_sym(n, k0, w, wg, x, y, nx, ny):
     """
     Plane wave decomposition F and G for basis with reflection symetry over x axis
-        - x and y are arrays of coordinates of points on a boundary
-        - w is a vector of integration weights (area/n)
-        - wg is a vector of integration weights n*r 		
-        - k0 is a wave number
-        - n is number of plane wave directions (alpha)
+    - x and y are arrays of coordinates of points on a boundary
+    - w is a vector of integration weights (area/n)
+    - wg is a vector of integration weights n*r 		
+    - k0 is a wave number
+    - n is number of plane wave directions (alpha)
     """
     alpha = baseAngles(0, m.pi/2, n)
     vx = np.cos(alpha)
@@ -69,7 +69,7 @@ def fg_pi_sym(n, k0, w, wg, x, y, nx, ny):
     SM = np.sin(k0 * argM)
     CP = np.cos(k0 * argP)
     CM = np.cos(k0 * argM)
-    B = np.concatenate((SP - SM, CP - CM))
+    B = np.concatenate((SP + SM, CP + CM))
     vx = np.concatenate((vx, vx))
     vy = np.concatenate((vy, vy))
     T = w * B
@@ -90,7 +90,53 @@ def fg_pi_sym(n, k0, w, wg, x, y, nx, ny):
     G = np.matmul(TU, np.transpose(U))  #Normalization Matrix, boundary method
     return F, G
 
-# two reflection symmetry axis versions
+# odd parity
+
+def fg_pi_asym(n, k0, w, wg, x, y, nx, ny):
+    """
+    Plane wave decomposition F and G for basis with reflection symetry over x axis
+    - x and y are arrays of coordinates of points on a boundary
+    - w is a vector of integration weights (area/n)
+    - wg is a vector of integration weights n*r 		
+    - k0 is a wave number
+    - n is number of plane wave directions (alpha)
+    """
+    alpha = baseAngles(0, m.pi/2, n)
+    vx = np.cos(alpha)
+    vy = np.sin(alpha)
+    argP = np.outer(vx, x) + np.outer(vy, y)
+    argM = np.outer(vx, x) - np.outer(vy, y)
+    SP = np.sin(k0 * argP)
+    SM = np.sin(k0 * argM)
+    CP = np.cos(k0 * argP)
+    CM = np.cos(k0 * argM)
+    B = np.concatenate((SP - SM, CP - CM))
+    vx = np.concatenate((vx, vx))
+    vy = np.concatenate((vy, vy))
+    T = w * B
+    F = np.matmul(T, np.transpose(B)) #tension matrix
+    #print(F.shape)
+    DB = np.concatenate((CP - CM, -SP + SM))
+    vx = np.concatenate((vx, vx))
+    vy = np.concatenate((vy, vy))
+    #print(len(DB))
+    
+    VX = np.reshape(np.repeat(vx, x.size), (vx.size, x.size))
+    DBVX = DB * VX
+    VY = np.reshape(np.repeat(vy, x.size), (vx.size, x.size))
+    DBVY = DB * VY
+    U = DBVX * nx + DBVY * ny  #Transposed boundary function
+    TU = wg/(k0**2) * U      #apply weights
+
+    G = np.matmul(TU, np.transpose(U))  #Normalization Matrix, boundary method
+    return F, G
+
+##############################################
+# reflection symmetry over x axis and y axis #
+##############################################
+
+# even, even parity (with respect to x and y axis)
+
 def fg_pi2_sym_sym(n, k0, w, wg, x, y, nx, ny):
     """
     Plane wave decomposition
@@ -125,6 +171,7 @@ def fg_pi2_sym_sym(n, k0, w, wg, x, y, nx, ny):
     G = np.matmul(TU, np.transpose(U))  #Normalization Matrix boundary method
     return F, G
 
+# even, odd parity (with respect to x and y axis)
 
 def fg_pi2_sym_asym(n, k0, w, wg, x, y, nx, ny):
     """
@@ -168,6 +215,7 @@ def fg_pi2_sym_asym(n, k0, w, wg, x, y, nx, ny):
     G = np.matmul(TU, np.transpose(U))  #Normalization Matrix boundary method
     return F, G
 
+# odd, even parity (with respect to x and y axis)
 
 def fg_pi2_asym_sym(n, k0, w, wg, x, y, nx, ny):
     """
@@ -211,6 +259,8 @@ def fg_pi2_asym_sym(n, k0, w, wg, x, y, nx, ny):
     G = np.matmul(TU, np.transpose(U))  #Normalization Matrix boundary method
     return F, G
 
+# odd, odd parity (with respect to x and y axis)
+
 def fg_pi2_asym_asym(n, k0, w, wg, x, y, nx, ny):
     alpha = baseAngles(0, m.pi / 2, n)
     vx = np.cos(alpha)
@@ -235,6 +285,8 @@ def fg_pi2_asym_asym(n, k0, w, wg, x, y, nx, ny):
 
     G = np.matmul(TU, np.transpose(U))  #Normalization Matrix boundary method
     return F, G
+
+# eigenvalue and eigenfunction solvers
 
 def eigvalsPWD(k0, F, G):
     """
