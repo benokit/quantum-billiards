@@ -53,10 +53,11 @@ def fg_2pi(n, k0, w, wg, x, y, nx, ny):
 
 def fg_pi_sym(n, k0, w, wg, x, y, nx, ny):
     """
-    Plane wave decomposition F and G for basis with reflection symetry over x axis
+    Plane wave decomposition F and G for basis with 
+    even parity against reflection over x axis
     - x and y are arrays of coordinates of points on a boundary
-    - w is a vector of integration weights (area/n)
-    - wg is a vector of integration weights n*r 		
+    - w is a vector of integration weights area/n
+    - wg is a vector of integration weights length/n * normal*r 		
     - k0 is a wave number
     - n is number of plane wave directions (alpha)
     """
@@ -94,10 +95,11 @@ def fg_pi_sym(n, k0, w, wg, x, y, nx, ny):
 
 def fg_pi_asym(n, k0, w, wg, x, y, nx, ny):
     """
-    Plane wave decomposition F and G for basis with reflection symetry over x axis
+    Plane wave decomposition F and G for basis with 
+    odd parity against reflection over x axis
     - x and y are arrays of coordinates of points on a boundary
-    - w is a vector of integration weights (area/n)
-    - wg is a vector of integration weights n*r 		
+    - w is a vector of integration weights area/n
+    - wg is a vector of integration weights length/n * normal*r 		
     - k0 is a wave number
     - n is number of plane wave directions (alpha)
     """
@@ -139,13 +141,14 @@ def fg_pi_asym(n, k0, w, wg, x, y, nx, ny):
 
 def fg_pi2_sym_sym(n, k0, w, wg, x, y, nx, ny):
     """
-    Plane wave decomposition
-    F and G for basis with reflection symetry over x and y axis
-        - x and y are arrays of coordinates of points on a boundary
-        - w is a vector of integration weights (area/n)
-        - wg is a vector of integration weights n*r 		
-        - k0 is a wave number
-        - n is number of plane wave directions (alpha)
+    Plane wave decomposition F and G for basis with 
+    even parity against reflection over x axis and
+    even parity against reflection over y axis
+    - x and y are arrays of coordinates of points on a boundary
+    - w is a vector of integration weights area/n
+    - wg is a vector of integration weights length/n * normal*r 		
+    - k0 is a wave number
+    - n is number of plane wave directions (alpha)
     """
     alpha = baseAngles(0, m.pi / 2, n)
     vx = np.cos(alpha)
@@ -175,12 +178,14 @@ def fg_pi2_sym_sym(n, k0, w, wg, x, y, nx, ny):
 
 def fg_pi2_sym_asym(n, k0, w, wg, x, y, nx, ny):
     """
-        Plane wave decomposition
-    F and G for basis with reflection symetry over x and y axis
-        - x and y are arrays of coordinates of points on a boundary
-        - w is a vector of integration weights (2pi/n) 
-        - k0 is a wave number
-        - n is number of plane wave directions (alpha)
+    Plane wave decomposition F and G for basis with 
+    even parity against reflection over x axis and
+    odd parity against reflection over y axis
+    - x and y are arrays of coordinates of points on a boundary
+    - w is a vector of integration weights area/n
+    - wg is a vector of integration weights length/n * normal*r 		
+    - k0 is a wave number
+    - n is number of plane wave directions (alpha)
     """
     alpha = baseAngles(0, m.pi / 2, n)
     #print("BasisDim=%s"%n)
@@ -219,12 +224,14 @@ def fg_pi2_sym_asym(n, k0, w, wg, x, y, nx, ny):
 
 def fg_pi2_asym_sym(n, k0, w, wg, x, y, nx, ny):
     """
-        Plane wave decomposition
-    F and G for basis with reflection symetry over x and y axis
-        - x and y are arrays of coordinates of points on a boundary
-        - w is a vector of integration weights (2pi/n) 
-        - k0 is a wave number
-        - n is number of plane wave directions (alpha)
+    Plane wave decomposition F and G for basis with 
+    odd parity against reflection over x axis and
+    even parity against reflection over y axis
+    - x and y are arrays of coordinates of points on a boundary
+    - w is a vector of integration weights area/n
+    - wg is a vector of integration weights length/n * normal*r 		
+    - k0 is a wave number
+    - n is number of plane wave directions (alpha)
     """
     alpha = baseAngles(0, m.pi / 2, n)
     #print("BasisDim=%s"%n)
@@ -262,6 +269,16 @@ def fg_pi2_asym_sym(n, k0, w, wg, x, y, nx, ny):
 # odd, odd parity (with respect to x and y axis)
 
 def fg_pi2_asym_asym(n, k0, w, wg, x, y, nx, ny):
+    """
+    Plane wave decomposition F and G for basis with 
+    odd parity against reflection over x axis and
+    odd parity against reflection over y axis
+    - x and y are arrays of coordinates of points on a boundary
+    - w is a vector of integration weights area/n
+    - wg is a vector of integration weights length/n * normal*r 		
+    - k0 is a wave number
+    - n is number of plane wave directions (alpha)
+    """
     alpha = baseAngles(0, m.pi / 2, n)
     vx = np.cos(alpha)
     vy = np.sin(alpha)
@@ -290,7 +307,7 @@ def fg_pi2_asym_asym(n, k0, w, wg, x, y, nx, ny):
 
 def eigvalsPWD(k0, F, G):
     """
-        PWD tension eigenvalues
+    PWD tension eigenvalues
     """
     # eigenvalues and eigenvectors of F
     d, S = np.linalg.eigh(F)
@@ -308,7 +325,7 @@ def eigvalsPWD(k0, F, G):
 
 def eigPWD(k0, F, G):
     """
-        PWD tension eigenvectors
+    PWD tension eigenvectors
     """
     # eigenvalues and eigenvectors of F
     d, S = np.linalg.eigh(F)

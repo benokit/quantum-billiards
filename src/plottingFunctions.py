@@ -11,12 +11,23 @@ def midpoints(array):
 #############################################
 #           Plotting functions              #
 #############################################
+def plot_curve(curve, M = 50):
+    x, y, nx, ny, bnd_s = curve.evaluate(M)
+    xmin = np.min(x) - 0.15
+    xmax = np.max(x) + 0.15
+    ymin = np.min(y) - 0.15
+    ymax = np.max(y) + 0.15
+    plt.plot(x, y, lw = 1.5, color = "k")
+    plt.quiver(x,y,nx,ny)
+    ax = plt.gca()
+    ax.set_aspect('equal', 'box')
+    plt.xlim(xmin,xmax)
+    plt.ylim(ymin,ymax)
+    plt.tight_layout()
 
-def plot_boundary(billiard):
-    x = billiard.boundary_x
-    y = billiard.boundary_y
-    nx = billiard.normal_x
-    ny = billiard.normal_y
+def plot_boundary(billiard, M = 10):
+    L = billiard.length
+    x, y, nx, ny, bnd_s = billiard.evaluate_boundary(2*np.pi*M/L)
     xmin = np.min(x) - 0.15
     xmax = np.max(x) + 0.15
     ymin = np.min(y) - 0.15
@@ -41,8 +52,8 @@ def plot_probability(billiard, k, grid = 400):
     PWDMIN = 100 
     N = max(3 * m.ceil(k / 4), PWDMIN) #number of plane waves
     #grid size
-    boundary_x = billiard.boundary_x
-    boundary_y = billiard.boundary_y
+    L = billiard.length
+    boundary_x, boundary_y, nx, ny, bnd_s = billiard.evaluate_boundary(2*np.pi*10/L)
     xmin = np.min(boundary_x) - 0.05
     xmax = np.max(boundary_x) + 0.05
     ymin = np.min(boundary_y) - 0.05
