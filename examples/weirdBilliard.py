@@ -4,6 +4,7 @@ import numpy as np
 from scipy import special
 
 from ..src import billiardClass as bc
+from ..src import curveClass as cv
 from ..src import plottingFunctions as pf
 
 # Our weird billiard will be constructed using line segments and circle arcs
@@ -48,22 +49,22 @@ def line_arc(t, x0 = 0, y0 = 0, x1 = 1, y1 = 1):
 # We construct 6 curves that define the border of the billiard.
 # Parameters are passed as dictionaries of key-word arguments.
 params_1 = {"angle" : np.pi/2}
-arc_1 = bc.curve(circle_r, circle_n, circle_arc, **params_1)
+arc_1 = cv.curve(circle_r, circle_n, circle_arc, **params_1)
 
 params_2 = {"x0": 0, "x1": -1, "y0": 1, "y1": 0}
-line_2 = bc.curve(line_r, line_n, line_arc, **params_2)
+line_2 = cv.curve(line_r, line_n, line_arc, **params_2)
 
 params_3 = {"x0": -1, "x1": -1, "y0": 0, "y1": -1}
-line_3 = bc.curve(line_r, line_n, line_arc, **params_3)
+line_3 = cv.curve(line_r, line_n, line_arc, **params_3)
 
 params_4 = {"x0": -1, "x1": 0.5, "y0": -1, "y1": -1}
-line_4 = bc.curve(line_r, line_n, line_arc, **params_4)
+line_4 = cv.curve(line_r, line_n, line_arc, **params_4)
 
 params_5 = {"R" : 0.5, "x0": 0.5, "y0" : -0.5 , "angle" : np.pi/2, "shift" : 3*np.pi/2}
-arc_5 = bc.curve(circle_r, circle_n, circle_arc, **params_5)
+arc_5 = cv.curve(circle_r, circle_n, circle_arc, **params_5)
 
 params_6 = {"x0": 1, "x1": 1, "y0": -0.5, "y1": 0}
-line_6 = bc.curve(line_r, line_n, line_arc, **params_6)
+line_6 = cv.curve(line_r, line_n, line_arc, **params_6)
 
 # We may check the construction of any of the curves 
 # by using the plot_curve function from the plotting functions module

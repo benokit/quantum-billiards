@@ -4,6 +4,7 @@ import numpy as np
 from scipy import special
 
 from ..src import billiardClass as bc
+from ..src import curveClass as cv
 from ..src import plottingFunctions as pf
 
 # We first define functions that define the arc of a circle.
@@ -28,7 +29,7 @@ def circle_arc(t, R = 1, angle = 2*np.pi, **kwargs):
 
 # We construct a curve that defines the border of the billiard.
 # Default key-word parameters are used in this case.
-circle = bc.curve(circle_r, circle_n, circle_arc)
+circle = cv.curve(circle_r, circle_n, circle_arc)
 
 # The border of the billiard is defined by a list of curves. 
 border = [circle]
