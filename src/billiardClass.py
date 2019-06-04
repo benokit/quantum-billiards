@@ -7,6 +7,7 @@ from scipy import optimize
 from . import husimiFunctions as hf
 from . import spectrumUtilities as su
 from . import verginiSaraceno as vs
+from . import wavefunctions as wf
 from . import planeWaveDecomposition as pwd
 
 def midpoints(array):
@@ -88,10 +89,16 @@ class billiard:
         return optimize.minimize_scalar(lambda x: self.PWD_tension(N,x), bounds=(k0-dk, k0+dk), method='bounded')
 
     def PWD_eigenfunction(self, N, k0, x, y):
+        """Wavefunction at k0 constructed using the plane wave decomposition method
+            -  N is the number of plane waves
+            -  x and y are 1d arrays of evaluation points
+        """
         bnd_x, bnd_y, normal_x, normal_y, bnd_s = self.evaluate_boundary(k0)
         weights = integration_weights(bnd_s, self.length)
         rn = (bnd_x * normal_x + bnd_y * normal_y)
         PWDweights = weights*self.area/self.length * rn
         F, G = pwd.fg_2pi(N, k0, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)
         vec = pwd.eigPWD(k0,F,G)
-        return vs.psi_2pi(k0,vec,x,y)        
+        return wf.psi_2pi(k0,vec,x,y)
+
+    def Husimi_function(self)
