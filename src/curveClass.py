@@ -1,5 +1,6 @@
 import math as m
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def midpoints(array):
@@ -37,3 +38,21 @@ class curve:
         nx, ny = np.array([self.normal(t) for t in t_values]).transpose()
         s = np.array([self.arc_length(t) for t in t_values])
         return x, y, nx, ny, s
+
+    def plot_curve(self, M = 50):
+        """Plots the curve and its normal directions. 
+        The density of the normal vectors indicates the density of points
+        - M is the number of points ploted
+        """
+        x, y, nx, ny, bnd_s = self.evaluate(M)
+        xmin = np.min(x) - 0.15
+        xmax = np.max(x) + 0.15
+        ymin = np.min(y) - 0.15
+        ymax = np.max(y) + 0.15
+        plt.plot(x, y, lw = 1.5, color = "k")
+        plt.quiver(x,y,nx,ny)
+        ax = plt.gca()
+        ax.set_aspect('equal', 'box')
+        plt.xlim(xmin,xmax)
+        plt.ylim(ymin,ymax)
+        plt.tight_layout()

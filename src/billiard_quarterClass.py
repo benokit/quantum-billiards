@@ -25,16 +25,16 @@ def integration_weights(boundary_s, L):
     left_dist = np.concatenate([ [boundary_s[0]], left_dist]) # prepend initial point
     return left_dist + right_dist
 
-class billiard:
-    """Convex quantum billiard with no reflection symmetry.
-    - curves is a list (or array like object) of curve objects. The curves should form a closed border of the billiard.
-    - area is the surface area of the billiard.
+class billiard_quarter:
+    """Convex quantum billiard with reflection symmetry over the x axis and y axis.
+    - curves is a list (or array like object) of curve objects. The curves should form a closed border of the self with the x axis and y axis.
+    - area is the surface area of the half billiard.
     - point_densities is a list of point density parameters for each curve. The number of points evaluated on each curve is density*k*length/(2pi). Default value is 10.
     """
     # It's a constructor, innit! #
     def __init__(self, curves, area, point_densities = False):
-        self.curves = curves # 
-        self.area = area # x corrdinates of boundary points
+        self.curves = curves  
+        self.area = area 
         self.length = np.sum([crv.length for crv in curves])
         if point_densities:
             self.point_densities = point_densities 
@@ -63,46 +63,88 @@ class billiard:
             bnd_s = np.concatenate([bnd_s, s])
         return bnd_x, bnd_y, normal_x, normal_y, bnd_s
     
-    def scaling_eigenvalues(self, N, k0, dk):
-        """Computes the wavenumber eigenvalues of the billiard 
+    def scaling_eigenvalues(self, N, k0, dk, sym):
+        """Computes the wavenumber eigenvalues of the self 
         in the interval [k0-dk, k0+dk] 
-        using the Vergini-Saraceno scaling method"""
+        using the Vergini-Saraceno scaling method
+        - N is the number of plane waves
+        - sym is the symmetry class of the wavefunction with respect to the x and y axis 
+        - sym = 0 for even_even
+        - sym = 1 for even_odd 
+        - sym = 2 for odd_even
+        - sym = 3 for odd_odd
+        """
         bnd_x, bnd_y, normal_x, normal_y, bnd_s = self.evaluate_boundary(k0 + dk)
         weights = integration_weights(bnd_s, self.length)
         rn = (bnd_x * normal_x + bnd_y * normal_y)
         VSweights = weights/rn
-                    
-        F, Fk = vs.ffk_2pi(N, k0, VSweights, bnd_x, bnd_y)
+        if sym == 0:
+            F, Fk = vs.ffk_pi2_sym_sym(N, k0, VSweights, bnd_x, bnd_y)
+        elif sym == 1: 
+            F, Fk = vs.ffk_pi2_sym_asym(N, k0, VSweights, bnd_x, bnd_y)
+        elif sym == 2:
+            F, Fk = vs.ffk_pi2_asym_sym(N, k0, VSweights, bnd_x, bnd_y)
+        else:
+            F, Fk = vs.ffk_pi2_asym_asym(N, k0, VSweights, bnd_x, bnd_y)
         return vs.eigvals(k0, dk, F, Fk)
     
-    def PWD_tension(self, N, k):
-        """Tension of Plane Wave Decomposition at wavenumber k. When tension reaches minimum an eigenvalue of k is found"""
-        bnd_x, bnd_y, normal_x, normal_y, bnd_s = self.evaluate_boundary(k)
-        weights = integration_weights(bnd_s, self.length)
-        rn = (bnd_x * normal_x + bnd_y * normal_y)
-        PWDweights = weights*self.area/self.length * rn
-        F, G = pwd.fg_2pi(N, k, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)
-        return pwd.eigvalsPWD(k, F, G)
-    
-    def PWD_eigenvalue(self, N, k0, dk):
-        """Uses the scipy.optimize.minimize_sclar routine to find minimum of tension in the interval [k0-dk, k0+dk]"""
-        return optimize.minimize_scalar(lambda x: self.PWD_tension(N,x), bounds=(k0-dk, k0+dk), method='bounded')
-
-    def PWD_eigenfunction(self, N, k, x, y):
-        """Wavefunction at wavenumber k constructed using the plane wave decomposition method
-            -  N is the number of plane waves
-            -  k is the eigen wavenumber 
-            -  x and y are 1d arrays of evaluation points
+    def PWD_tension(self, N, k, sym):
+        """Tension of Plane Wave Decomposition at wavenumber k. 
+        When tension reaches minimum an eigenvalue of k is found.
+        - N is the number of plane waves
+        - sym is the symmetry class of the wavefunction sym = 0 for even and sym = 1 for odd
         """
         bnd_x, bnd_y, normal_x, normal_y, bnd_s = self.evaluate_boundary(k)
         weights = integration_weights(bnd_s, self.length)
         rn = (bnd_x * normal_x + bnd_y * normal_y)
         PWDweights = weights*self.area/self.length * rn
-        F, G = pwd.fg_2pi(N, k, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)
-        vec = pwd.eigPWD(k,F,G)
-        return wf.psi_2pi(k,vec,x,y)
+        if sym == 0:
+            F, G = pwd.fg_pi2_sym_sym(N, k, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)
+        elif sym == 1: 
+            F, G = pwd.fg_pi2_sym_asym(N, k, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)
+        elif sym == 2:
+            F, G = pwd.fg_pi2_asym_sym(N, k, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)
+        else:
+            F, G = pwd.fg_pi2_asym_asym(N, k, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)   
+        return pwd.eigvalsPWD(k, F, G)
+    
+    def PWD_eigenvalue(self, N, k0, dk, sym):
+        """Uses the scipy.optimize.minimize_sclar routine to find minimum of tension in the interval [k0-dk, k0+dk]
+           - N is the number of plane waves
+           - sym is the symmetry class of the wavefunction sym = 0 for even and sym = 1 for odd
+        """
+        return optimize.minimize_scalar(lambda x: self.PWD_tension(N,x,sym), bounds=(k0-dk, k0+dk), method='bounded')
 
-    def boundary_function(self, N, k, delta = 5):
+    def PWD_eigenfunction(self, N, k, x, y, sym):
+        """Wavefunction at wavenumber k constructed using the plane wave decomposition method
+            -  N is the number of plane waves
+            -  k is the eigen wavenumber 
+            -  x and y are 1d arrays of evaluation points
+            - sym is the symmetry class of the wavefunction sym = 0 for even and sym = 1 for odd
+        """
+        bnd_x, bnd_y, normal_x, normal_y, bnd_s = self.evaluate_boundary(k)
+        weights = integration_weights(bnd_s, self.length)
+        rn = (bnd_x * normal_x + bnd_y * normal_y)
+        PWDweights = weights*self.area/self.length * rn
+        
+        if sym == 0:
+            F, G = pwd.fg_pi2_sym_sym(N, k, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)
+            vec = pwd.eigPWD(k,F,G)
+            return wf.psi_pi2_sym_sym(k,vec,x,y)
+        elif sym == 1: 
+            F, G = pwd.fg_pi2_sym_asym(N, k, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)
+            vec = pwd.eigPWD(k,F,G)
+            return wf.psi_pi2_sym_asym(k,vec,x,y)
+        elif sym == 2:
+            F, G = pwd.fg_pi2_asym_sym(N, k, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)
+            vec = pwd.eigPWD(k,F,G)
+            return wf.psi_pi2_asym_sym(k,vec,x,y)
+        else:
+            F, G = pwd.fg_pi2_asym_asym(N, k, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)   
+            vec = pwd.eigPWD(k,F,G)
+            return wf.psi_pi2_asym_asym(k,vec,x,y)
+
+    def boundary_function(self, N, k, sym, delta = 2):
         """Normal derivative of the wavefunction on the boundary at wavenumber k.
            -  N is the number of plane waves
            -  k is the eigen wavenumber 
@@ -113,14 +155,32 @@ class billiard:
         weights = integration_weights(bnd_s, self.length)
         rn = (bnd_x * normal_x + bnd_y * normal_y)
         PWDweights = weights*self.area/self.length * rn
-        F, G = pwd.fg_2pi(N, k, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)
+
+        if sym == 0:
+            F, G = pwd.fg_pi2_sym_sym(N, k, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)
+        elif sym == 1: 
+            F, G = pwd.fg_pi2_sym_asym(N, k, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)
+        elif sym == 2:
+            F, G = pwd.fg_pi2_asym_sym(N, k, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)
+        else:
+            F, G = pwd.fg_pi2_asym_asym(N, k, weights, PWDweights, bnd_x, bnd_y, normal_x, normal_y)   
+
         vec = pwd.eigPWD(k,F,G)
         #gradient
-        dpsi_x, dpsi_y = wf.grad_psi_2pi(k, vec, bnd_x, bnd_y,)
+
+        if sym == 0:
+            dpsi_x, dpsi_y = wf.grad_psi_pi2_sym_sym(k, vec, bnd_x, bnd_y,)
+        elif sym == 1: 
+            dpsi_x, dpsi_y = wf.grad_psi_pi2_sym_asym(k, vec, bnd_x, bnd_y,)
+        elif sym == 2:
+            dpsi_x, dpsi_y = wf.grad_psi_pi2_asym_sym(k, vec, bnd_x, bnd_y,)
+        else:
+            dpsi_x, dpsi_y = wf.grad_psi_pi2_asym_asym(k, vec, bnd_x, bnd_y,)   
+
         u = dpsi_x * normal_x + dpsi_y * normal_y
         return bnd_s, u
 
-    def Husimi_function(self, N, k, qs, ps, delta = 2):
+    def Husimi_function(self, N, k, qs, ps, sym, delta = 2):
         """
         Poincare-Husimi function at wavenumber k evaluated on the grid of points given by qs and ps in the quantum phase space.
         - N is the number of plane waves
@@ -128,7 +188,7 @@ class billiard:
         - ps is a 1d array of points in the cannonical momentum
         """
         L = self.length
-        s, u = self.boundary_function(N, k, delta = delta)
+        s, u = self.boundary_function(N, k, sym, delta = delta)
         ds = integration_weights(s, L)
         #periodize u
         s = np.concatenate([s-L, s, L+s])
@@ -136,6 +196,11 @@ class billiard:
         ds = np.concatenate([ds, ds, ds]) 
         H = hf.husimiOnGrid(k, s, ds, u, qs, ps)
         return H
+
+
+    #############################################
+    #           Plotting functions              #
+    #############################################
 
     def plot_boundary(self, M = 10):
         """Plots the boundary of the billiard and its normal directions. 
@@ -156,20 +221,20 @@ class billiard:
         plt.ylim(ymin,ymax)
         plt.tight_layout()
 
-    def plot_tension(self, kmin, kmax, N = 200, grid = 200):
+    def plot_tension(self, kmin, kmax, sym, N = 200, grid = 200):
         """Plots the tension as a function of the wavevector k in the interval [kmin, kmax].
         The tension is computed using the plane wave decomposition method.
         - N is the number of plane waves
         - grid is tne number of grid points
         """
         k_vals = np.linspace(kmin, kmax, grid)
-        tensions = [self.PWD_tension(N, k) for k in k_vals]
+        tensions = [self.PWD_tension(N, k, sym) for k in k_vals]
         plt.semilogy(k_vals,tensions)
         plt.xlabel("k")
         plt.tight_layout()
 
 
-    def plot_probability(self, k, grid = 400, scale = False):
+    def plot_probability(self, k, sym, grid = 400, scale = False):
         """Plots the probability distribution of the wavefunction at wavevector k.
         The wavefunction is computed using the plane wave decomposition method.
         - k is the eigen wavenumber  
@@ -180,9 +245,9 @@ class billiard:
         #grid size
         L = self.length
         boundary_x, boundary_y, nx, ny, bnd_s = self.evaluate_boundary(2*np.pi*10/L)
-        xmin = np.min(boundary_x) - 0.05
+        xmin = 0
         xmax = np.max(boundary_x) + 0.05
-        ymin = np.min(boundary_y) - 0.05
+        ymin = 0
         ymax = np.max(boundary_y) + 0.05
         
         #coordinates for plot
@@ -199,34 +264,34 @@ class billiard:
         X = np.reshape(x, (grid, grid))
         Y = np.reshape(y, (grid, grid))
         
-        #plot billiard boundary
+        #plot self boundary
         col="0.5"
         lw=1.5
         ax = plt.gca()#plt.axes(xlim=(-1-eps-0.05, 1+eps+0.05), ylim=(-1-eps, 1+eps))
         ax.axis('off')
         ax.set_aspect('equal', 'box')
         ax.plot(boundary_x,boundary_y,col,lw=lw)
-        plt.xlabel(r"$x$")
-        plt.ylabel(r"$y$")
+        plt.xlabel(r"x")
+        plt.ylabel(r"y")
 
         #calculate probability    
-        psi = self.PWD_eigenfunction(N, k, X, Y)
+        psi = self.PWD_eigenfunction(N, k, X, Y, sym)
         repsi = psi.real
         impsi = psi.imag
         Z = repsi*repsi + impsi*impsi
         Z = np.reshape(Z, (grid,grid))
         vmax = np.max(Z)
         if scale:
-            vmax = vmax * scale
+            vmax = scale* vmax
 
         #plot probability
         ax.pcolormesh(Xplot, Yplot, Z, cmap='magma', vmin=0, vmax=vmax)
         plt.tight_layout()
 
-    def plot_boundary_function(self, k , delta = 5, plot_curve_bounds = True):
+    def plot_boundary_function(self, k , sym, delta = 5, plot_curve_bounds = True):
         PWDMIN = 100 
         N = max(3 * m.ceil(k / 4), PWDMIN) #number of plane waves
-        s, u = self.boundary_function(N, k, delta = delta)
+        s, u = self.boundary_function(N, k, sym, delta = delta)
         
         # plots boundary points of the curves as vertical lines
         col = "0.75"
@@ -239,10 +304,10 @@ class billiard:
                 plt.axvline(x=L, color = col, lw=lw)
 
         plt.plot(s,u)
-        plt.xlabel(r"$q$")
-        plt.ylabel(r"$u$")
+        plt.xlabel(r"q")
+        plt.ylabel(r"u")
 
-    def plot_Husimi_function(self, k , delta = 2, q_grid = 400, p_grid = 400, plot_curve_bounds = True):
+    def plot_Husimi_function(self, k , sym, delta = 2, q_grid = 400, p_grid = 400, plot_curve_bounds = True):
         PWDMIN = 100 
         N = max(3 * m.ceil(k / 4), PWDMIN) #number of plane waves
         #grid size
@@ -257,7 +322,7 @@ class billiard:
         qs = midpoints(qs) 
         ps = midpoints(ps)
         #calculate Husimi function
-        H = self.Husimi_function(N, k, qs, ps, delta = delta)
+        H = self.Husimi_function(N, k, qs, ps, sym, delta = delta)
         vmax = np.max(H)
 
         ax = plt.gca()
@@ -274,6 +339,6 @@ class billiard:
                 L = L + crv.length
                 plt.axvline(x=L, color = col, lw=lw)
 
-        plt.xlabel(r"$q$")
-        plt.ylabel(r"$p$")
+        plt.xlabel(r"q")
+        plt.ylabel(r"p")
         plt.tight_layout()

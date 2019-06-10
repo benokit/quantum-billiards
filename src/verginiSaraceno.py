@@ -86,8 +86,8 @@ def ffk_pi_asym(n, k0, w, x, y):
     SM = np.sin(k0 * argM)
     CP = np.cos(k0 * argP)
     CM = np.cos(k0 * argM)
-    B = np.concatenate((SP - SM, CP - CM))
-    DB = np.concatenate((argP * CP - argM * CM, -argP * SP + argM * SM))
+    B = np.concatenate((-CP + CM, SP - SM))
+    DB = np.concatenate((argP * SP - argM * SM, argP * CP - argM * CM))
     T = w * B
     F = np.matmul(T, np.transpose(B))
     Fk = np.matmul(T, np.transpose(DB))

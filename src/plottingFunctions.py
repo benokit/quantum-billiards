@@ -12,6 +12,10 @@ def midpoints(array):
 #           Plotting functions              #
 #############################################
 def plot_curve(curve, M = 50):
+    """Plots the curve and its normal directions. 
+    The density of the normal vectors indicates the density of points
+    - M is the number of points ploted
+    """
     x, y, nx, ny, bnd_s = curve.evaluate(M)
     xmin = np.min(x) - 0.15
     xmax = np.max(x) + 0.15
@@ -26,6 +30,10 @@ def plot_curve(curve, M = 50):
     plt.tight_layout()
 
 def plot_boundary(billiard, M = 10):
+    """Plots the boundary of the billiard and its normal directions. 
+    The relative density of the normal vectors indicates the density of points
+    - M is the number of points ploted per curve
+    """
     L = billiard.length
     x, y, nx, ny, bnd_s = billiard.evaluate_boundary(2*np.pi*M/L)
     xmin = np.min(x) - 0.15
@@ -41,6 +49,11 @@ def plot_boundary(billiard, M = 10):
     plt.tight_layout()
 
 def plot_tension(billiard, kmin, kmax, N = 200, grid = 200):
+    """Plots the tension as a function of the wavevector k in the interval [kmin, kmax].
+    The tension is computed using the plane wave decomposition method.
+    - N is the number of plane waves
+    - grid is tne number of grid points
+    """
     k_vals = np.linspace(kmin, kmax, grid)
     tensions = [billiard.PWD_tension(N, k) for k in k_vals]
     plt.semilogy(k_vals,tensions)
@@ -49,6 +62,11 @@ def plot_tension(billiard, kmin, kmax, N = 200, grid = 200):
 
 
 def plot_probability(billiard, k, grid = 400):
+    """Plots the probability distribution of the wavefunction at wavevector k.
+    The wavefunction is computed using the plane wave decomposition method.
+    - k is the eigen wavenumber  
+    - grid is tne number of grid points in one dimension
+    """
     PWDMIN = 100 
     N = max(3 * m.ceil(k / 4), PWDMIN) #number of plane waves
     #grid size
@@ -80,8 +98,8 @@ def plot_probability(billiard, k, grid = 400):
     ax.axis('off')
     ax.set_aspect('equal', 'box')
     ax.plot(boundary_x,boundary_y,col,lw=lw)
-    plt.xlabel(r"x")
-    plt.ylabel(r"y")
+    plt.xlabel(r"$x$")
+    plt.ylabel(r"$y$")
 
     #calculate probability    
     psi = billiard.PWD_eigenfunction(N, k, X, Y)
@@ -94,3 +112,59 @@ def plot_probability(billiard, k, grid = 400):
     #plot probability
     ax.pcolormesh(Xplot, Yplot, Z, cmap='magma', vmin=0, vmax=vmax)
     plt.tight_layout()
+
+def plot_boundary_function(billiard, k , delta = 5, plot_curve_bounds = True):
+    PWDMIN = 100 
+    N = max(3 * m.ceil(k / 4), PWDMIN) #number of plane waves
+    s, u = billiard.boundary_function(N, k, delta = delta)
+    
+    # plots boundary points of the curves as vertical lines
+    col = "0.75"
+    lw = 0.75
+    if plot_curve_bounds:
+        L = 0
+        plt.axvline(x=L, color = col, lw=lw)
+        for crv in billiard.curves:
+            L = L + crv.length
+            plt.axvline(x=L, color = col, lw=lw)
+
+    plt.plot(s,u)
+    plt.xlabel(r"$q$")
+    plt.ylabel(r"$u$")
+
+def plot_Husimi_function(billiard, k , delta = 2, q_grid = 400, p_grid = 400, plot_curve_bounds = True):
+    PWDMIN = 100 
+    N = max(3 * m.ceil(k / 4), PWDMIN) #number of plane waves
+    #grid size
+    L = billiard.length
+    #coordinates for plot
+    qs = np.linspace(0, L, q_grid+1)
+    ps  = np.linspace(-1, 1, p_grid+1)
+    Qplot = qs
+    Pplot = ps
+    
+    #coordinates for Husimi function
+    qs = midpoints(qs) 
+    ps = midpoints(ps)
+    #calculate Husimi function
+    H = billiard.Husimi_function(N, k, qs, ps, delta = delta)
+    vmax = np.max(H)
+
+    ax = plt.gca()
+    #plot Husimi function
+    ax.pcolormesh(Qplot, Pplot, H, cmap='magma', vmin=0, vmax=vmax)
+
+    # plots boundary points of the curves as vertical lines
+    col = "0.75"
+    lw = 0.75
+    if plot_curve_bounds:
+        L = 0
+        plt.axvline(x=L, color = col, lw=lw)
+        for crv in billiard.curves:
+            L = L + crv.length
+            plt.axvline(x=L, color = col, lw=lw)
+
+    plt.xlabel(r"$q$")
+    plt.ylabel(r"$p$")
+    plt.tight_layout()
+

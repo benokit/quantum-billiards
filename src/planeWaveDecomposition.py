@@ -71,20 +71,15 @@ def fg_pi_sym(n, k0, w, wg, x, y, nx, ny):
     CP = np.cos(k0 * argP)
     CM = np.cos(k0 * argM)
     B = np.concatenate((SP + SM, CP + CM))
-    vx = np.concatenate((vx, vx))
-    vy = np.concatenate((vy, vy))
     T = w * B
     F = np.matmul(T, np.transpose(B)) #tension matrix
     #print(F.shape)
-    DB = np.concatenate((CP + CM, -SP - SM))
-    vx = np.concatenate((vx, vx))
-    vy = np.concatenate((vy, vy))
-    #print(len(DB))
-    
     VX = np.reshape(np.repeat(vx, x.size), (vx.size, x.size))
-    DBVX = DB * VX
-    VY = np.reshape(np.repeat(vy, x.size), (vx.size, x.size))
-    DBVY = DB * VY
+    DBVX = np.concatenate(((CP + CM)*VX, (-SP - SM)*VX))
+    
+    VY = np.reshape(np.repeat(vy, y.size), (vy.size, y.size))
+    DBVY = np.concatenate(((CP - CM)*VY, (-SP + SM)*VY))
+
     U = DBVX * nx + DBVY * ny  #Transposed boundary function
     TU = wg/(k0**2) * U      #apply weights
 
@@ -112,21 +107,16 @@ def fg_pi_asym(n, k0, w, wg, x, y, nx, ny):
     SM = np.sin(k0 * argM)
     CP = np.cos(k0 * argP)
     CM = np.cos(k0 * argM)
-    B = np.concatenate((SP - SM, CP - CM))
-    vx = np.concatenate((vx, vx))
-    vy = np.concatenate((vy, vy))
+    B = np.concatenate((CP - CM, SP - SM))
     T = w * B
     F = np.matmul(T, np.transpose(B)) #tension matrix
     #print(F.shape)
-    DB = np.concatenate((CP - CM, -SP + SM))
-    vx = np.concatenate((vx, vx))
-    vy = np.concatenate((vy, vy))
-    #print(len(DB))
-    
     VX = np.reshape(np.repeat(vx, x.size), (vx.size, x.size))
-    DBVX = DB * VX
-    VY = np.reshape(np.repeat(vy, x.size), (vx.size, x.size))
-    DBVY = DB * VY
+    DBVX = np.concatenate(((-SM + SP)*VX, (CP - CM)*VX))
+    
+    VY = np.reshape(np.repeat(vy, y.size), (vy.size, y.size))
+    DBVY = np.concatenate(((SM + SP)*VY, (CP + CM)*VY))
+
     U = DBVX * nx + DBVY * ny  #Transposed boundary function
     TU = wg/(k0**2) * U      #apply weights
 

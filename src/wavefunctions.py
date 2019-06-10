@@ -105,14 +105,11 @@ def grad_psi_pi_sym(k, vec, x, y):
     SM = np.sin(k * argM)
     CP = np.cos(k * argP)
     CM = np.cos(k * argM)
-    DB = np.concatenate((CP + CM, -SP - SM))
-    vx = np.concatenate((vx, vx))
-    vy = np.concatenate((vy, vy)) #check if correct
     VX = np.reshape(np.repeat(vx, x.size), (vx.size, x.size))
-    DBVX = DB * VX
+    DBVX = np.concatenate(((CP + CM)*VX, (-SP - SM)*VX))
     dpsi_x = np.transpose(DBVX).dot(vec)
     VY = np.reshape(np.repeat(vy, y.size), (vy.size, y.size))
-    DBVY = DB * VY
+    DBVY = np.concatenate(((CP - CM)*VY, (-SP + SM)*VY))
     dpsi_y = np.transpose(DBVY).dot(vec)
     return dpsi_x, dpsi_y
 
@@ -136,7 +133,7 @@ def psi_pi_asym(k, vec, x, y):
     SM = np.sin(k * argM)
     CP = np.cos(k * argP)
     CM = np.cos(k * argM)
-    B = np.concatenate((SP - SM, CP - CM))
+    B = np.concatenate((CP - CM, SP - SM))
     psi = np.transpose(B).dot(vec)
     return psi
 
@@ -158,14 +155,12 @@ def grad_psi_pi_asym(k, vec, x, y):
     SM = np.sin(k * argM)
     CP = np.cos(k * argP)
     CM = np.cos(k * argM)
-    DB = np.concatenate((CP - CM, -SP + SM))
-    vx = np.concatenate((vx, vx)) #expand to correct size
-    vy = np.concatenate((vy, vy))
+    
     VX = np.reshape(np.repeat(vx, x.size), (vx.size, x.size))
-    DBVX = DB * VX
+    DBVX = np.concatenate(((-SM + SP)*VX, (CP - CM)*VX))
     dpsi_x = np.transpose(DBVX).dot(vec)
     VY = np.reshape(np.repeat(vy, y.size), (vy.size, y.size))
-    DBVY = DB * VY
+    DBVY = np.concatenate(((SM + SP)*VY, (CP + CM)*VY))
     dpsi_y = np.transpose(DBVY).dot(vec)
     return dpsi_x, dpsi_y
 
