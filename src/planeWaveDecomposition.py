@@ -107,7 +107,7 @@ def fg_pi_asym(n, k0, w, wg, x, y, nx, ny):
     SM = np.sin(k0 * argM)
     CP = np.cos(k0 * argP)
     CM = np.cos(k0 * argM)
-    B = np.concatenate((CP - CM, SP - SM))
+    B = np.concatenate((-CP + CM, SP - SM))
     T = w * B
     F = np.matmul(T, np.transpose(B)) #tension matrix
     #print(F.shape)

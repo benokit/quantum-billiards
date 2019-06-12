@@ -11,7 +11,7 @@ from . import wavefunctions as wf
 from . import planeWaveDecomposition as pwd
 
 def midpoints(array):
-    """ helper function returns array of half distances between points in array""" 
+    """ Helper function returns array of half distances between points in array""" 
     return (array[1:] + array[:-1])/2
 
 def integration_weights(boundary_s, L):
@@ -24,6 +24,24 @@ def integration_weights(boundary_s, L):
     left_dist = boundary_s[1:] - mdpts #half intervals to the left
     left_dist = np.concatenate([ [boundary_s[0]], left_dist]) # prepend initial point
     return left_dist + right_dist
+
+def extend_u(s,u,ds,sym,L):
+    """
+    Helper function that extends the boundary function u from the interval (0,L) to the interval (-L,2L)
+    - s is an array of boundary coordinates
+    - u is an array of boundary function values
+    - ds is an array of differences in s used for integration
+    - sym is the symmetry class sym = 0 even, sym = 1 odd 
+    """
+    if sym == 0:
+        s2 = np.concatenate([-s[::-1], s, 2*L -s[::-1]])
+        u2 = np.concatenate([u[::-1],u, u[::-1]])
+        ds2 = np.concatenate([ds[::-1],ds, ds[::-1]])
+    else:
+        s2 = np.concatenate([-s[::-1], s, 2*L -s[::-1]])
+        u2 = np.concatenate([-u[::-1],u, -u[::-1]])
+        ds2 = np.concatenate([ds[::-1],ds, ds[::-1]])
+    return s2, u2, ds2
 
 class billiard_half:
     """Convex quantum billiard with reflection symmetry over the x axis.
@@ -124,7 +142,7 @@ class billiard_half:
             vec = pwd.eigPWD(k,F,G)
             return wf.psi_pi_asym(k,vec,x,y)
 
-    def boundary_function(self, N, k, sym, delta = 2):
+    def boundary_function(self, N, k, sym, delta = 1):
         """Normal derivative of the wavefunction on the boundary at wavenumber k.
            -  N is the number of plane waves
            -  k is the eigen wavenumber 
@@ -151,22 +169,39 @@ class billiard_half:
         u = dpsi_x * normal_x + dpsi_y * normal_y
         return bnd_s, u
 
-    def Husimi_function(self, N, k, qs, ps, sym, delta = 2):
+    def Husimi_function(self, N, k, qs, ps, sym, delta = 1):
         """
         Poincare-Husimi function at wavenumber k evaluated on the grid of points given by qs and ps in the quantum phase space.
         - N is the number of plane waves
         - qs is a 1d array of points on the billiard boundary 
         - ps is a 1d array of points in the cannonical momentum
         """
-        L = self.length
+        L = self.length 
         s, u = self.boundary_function(N, k, sym, delta = delta)
         ds = integration_weights(s, L)
-        #periodize u
-        s = np.concatenate([s-L, s, L+s])
-        u = np.concatenate([u, u, u])
-        ds = np.concatenate([ds, ds, ds]) 
+        #extend u to interval (-L, 2L)
+        s, u, ds = extend_u(s,u,ds,sym,L)
         H = hf.husimiOnGrid(k, s, ds, u, qs, ps)
         return H
+
+    def entropy_localization_measure(self, k, sym, delta = 1, q_grid = 400, p_grid = 400):
+        PWDMIN = 100 
+        N = max(3 * m.ceil(k / 4), PWDMIN) #number of plane waves
+        #grid size
+        L = self.length
+        #coordinates for plot
+        qs = np.linspace(0, L, q_grid+1)
+        ps  = np.linspace(0, 1, p_grid+1)
+        Qplot = qs
+        Pplot = ps
+
+        #coordinates for Husimi function
+        qs = midpoints(qs) 
+        ps = midpoints(ps)
+        #calculate Husimi function
+        H = self.Husimi_function(N, k, qs, ps, sym, delta = delta)
+        e = hf.entropy(H)
+        return hf.entropyCover(e, q_grid*p_grid)   
 
 
     #############################################
@@ -286,7 +321,7 @@ class billiard_half:
         L = self.length
         #coordinates for plot
         qs = np.linspace(0, L, q_grid+1)
-        ps  = np.linspace(-1, 1, p_grid+1)
+        ps  = np.linspace(0, 1, p_grid+1)
         Qplot = qs
         Pplot = ps
         

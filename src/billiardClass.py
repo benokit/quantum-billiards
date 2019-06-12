@@ -249,7 +249,7 @@ class billiard:
         L = self.length
         #coordinates for plot
         qs = np.linspace(0, L, q_grid+1)
-        ps  = np.linspace(-1, 1, p_grid+1)
+        ps  = np.linspace(0, 1, p_grid+1)
         Qplot = qs
         Pplot = ps
         

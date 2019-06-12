@@ -133,7 +133,7 @@ def psi_pi_asym(k, vec, x, y):
     SM = np.sin(k * argM)
     CP = np.cos(k * argP)
     CM = np.cos(k * argM)
-    B = np.concatenate((CP - CM, SP - SM))
+    B = np.concatenate((-CP + CM, SP - SM))
     psi = np.transpose(B).dot(vec)
     return psi
 
