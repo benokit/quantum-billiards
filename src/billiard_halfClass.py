@@ -1,6 +1,7 @@
 import math as m
 
 import matplotlib.pyplot as plt
+import matplotlib.path as mpltPath
 import numpy as np
 from scipy import optimize
 
@@ -42,6 +43,16 @@ def extend_u(s,u,ds,sym,L):
         u2 = np.concatenate([-u[::-1],u, -u[::-1]])
         ds2 = np.concatenate([ds[::-1],ds, ds[::-1]])
     return s2, u2, ds2
+
+def reflect_wavefunction(A, sym):
+    """Helper function that reflects the wavefunction according to the symmetry class"""
+    if sym == 0:
+        B = np.flipud(A)
+        C = np.concatenate((B, A), axis=0)
+    else:
+        B = -np.flipud(A)
+        C = np.concatenate((B, A), axis=0)
+    return C
 
 class billiard_half:
     """Convex quantum billiard with reflection symmetry over the x axis.
@@ -240,59 +251,72 @@ class billiard_half:
         plt.tight_layout()
 
 
-    def plot_probability(self, k, sym, grid = 400, scale = False):
+    def plot_probability(self, k, sym, grid = 400, cmap='magma', plot_full = False):
         """Plots the probability distribution of the wavefunction at wavevector k.
         The wavefunction is computed using the plane wave decomposition method.
-        - k is the eigen wavenumber  
+        - k is the eigen wavenumber
+        - sym is the symmetry class
         - grid is tne number of grid points in one dimension
         """
         PWDMIN = 100 
         N = max(3 * m.ceil(k / 4), PWDMIN) #number of plane waves
-        #grid size
         L = self.length
         boundary_x, boundary_y, nx, ny, bnd_s = self.evaluate_boundary(2*np.pi*10/L)
         xmin = np.min(boundary_x) - 0.05
         xmax = np.max(boundary_x) + 0.05
         ymin = 0
         ymax = np.max(boundary_y) + 0.05
-        
+
         #coordinates for plot
         q = np.linspace(xmin, xmax, grid+1)
         q2  = np.linspace(ymin, ymax, grid+1)
         Xplot = q
         Yplot = q2
         
+        if plot_full:
+            Yplot = np.concatenate((-q2[::-1][:-1],q2))
+            #print(len(Yplot))
+
         #coordinates for wavefunction
         q = midpoints(q) 
         q2 = midpoints(q2)
-        x = np.tile(q, grid)
-        y = np.repeat(q2, grid)
-        X = np.reshape(x, (grid, grid))
-        Y = np.reshape(y, (grid, grid))
-        
-        #plot self boundary
+        X,Y = np.meshgrid(q,q2)
+
+        # find points inside of polygon        
+        polygon = np.array([boundary_x, boundary_y]).T #array of boundary points [x,y] 
+        xx = X.ravel()
+        yy = Y.ravel()
+        points = np.array((xx, yy)).T
+        path = mpltPath.Path(polygon) 
+        inside = path.contains_points(points) #finds points inside polygon
+
+        #calculate probability
+        psi = np.zeros(grid*grid)
+        psi[inside] = self.PWD_eigenfunction(N, k, xx[inside], yy[inside], sym)
+        #print(len(psi))
+        psi = np.reshape(psi, (grid,grid))
+        if plot_full:
+            psi = reflect_wavefunction(psi,sym)
+        repsi = psi.real
+        impsi = psi.imag
+        Z = repsi*repsi + impsi*impsi
+        vmax = np.max(Z)
+
+        #plot boundary of billiard
         col="0.5"
         lw=1.5
         ax = plt.gca()#plt.axes(xlim=(-1-eps-0.05, 1+eps+0.05), ylim=(-1-eps, 1+eps))
         ax.axis('off')
         ax.set_aspect('equal', 'box')
+        if plot_full:
+            boundary_x = np.concatenate((boundary_x, boundary_x[::-1]))
+            boundary_y = np.concatenate((boundary_y, -boundary_y[::-1]))
         ax.plot(boundary_x,boundary_y,col,lw=lw)
         plt.xlabel(r"x")
         plt.ylabel(r"y")
 
-        #calculate probability    
-        psi = self.PWD_eigenfunction(N, k, X, Y, sym)
-        repsi = psi.real
-        impsi = psi.imag
-        Z = repsi*repsi + impsi*impsi
-        Z = np.reshape(Z, (grid,grid))
-        vmax = np.max(Z)
-
-        if scale:
-            vmax = scale* vmax
-
         #plot probability
-        ax.pcolormesh(Xplot, Yplot, Z, cmap='magma', vmin=0, vmax=vmax)
+        ax.pcolormesh(Xplot, Yplot, Z, cmap=cmap, vmin=0, vmax=vmax)
         plt.tight_layout()
 
     def plot_boundary_function(self, k , sym, delta = 5, plot_curve_bounds = True):
@@ -314,7 +338,7 @@ class billiard_half:
         plt.xlabel(r"$q$")
         plt.ylabel(r"$u$")
 
-    def plot_Husimi_function(self, k , sym, delta = 2, q_grid = 400, p_grid = 400, plot_curve_bounds = True):
+    def plot_Husimi_function(self, k , sym, delta = 2, q_grid = 400, p_grid = 400, plot_curve_bounds = True, cmap = 'magma', alpha =1):
         PWDMIN = 100 
         N = max(3 * m.ceil(k / 4), PWDMIN) #number of plane waves
         #grid size
@@ -334,7 +358,7 @@ class billiard_half:
 
         ax = plt.gca()
         #plot Husimi function
-        ax.pcolormesh(Qplot, Pplot, H, cmap='magma', vmin=0, vmax=vmax)
+        ax.pcolormesh(Qplot, Pplot, H, cmap=cmap, alpha = alpha, vmin=0, vmax=vmax)
 
         # plots boundary points of the curves as vertical lines
         col = "0.75"

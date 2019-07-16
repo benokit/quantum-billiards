@@ -51,6 +51,41 @@ def extend_u(s,u,ds,sym,L):
         ds2 = np.concatenate([ds[::-1],ds, ds[::-1]])
     return s2, u2, ds2
 
+def Reflections(A, sym):
+    """Helper function extends array A from upper right quadrant
+     to the whole plane using reflections in accordance with the symmetry class.
+     - sym is the symmetry class sym = 0 even_even, sym = 1 even_odd, sym=2 for odd_even and sym=3 for odd_odd 
+    Used for poltting the wavefunctions.
+    """
+    if sym == 0:
+        B= np.flipud(A)
+        C= np.concatenate((B, A), axis=0)
+        D = C[:,:]
+        F = np.fliplr(C)
+        E = np.concatenate((F, D), axis=1)
+    
+    if sym == 1:
+        B= -np.flipud(A)
+        C= np.concatenate((B, A), axis=0)
+        D = C[:,:]
+        F = np.fliplr(C)
+        E = np.concatenate((F, D), axis=1)
+        
+    if sym == 2:
+        B= np.flipud(A)
+        C= np.concatenate((B, A), axis=0)
+        D = C[:,:]
+        F = -np.fliplr(C)
+        E = np.concatenate((F, D), axis=1)
+    
+    if sym == 3:
+        B= -np.flipud(A)
+        C= np.concatenate((B, A), axis=0)
+        D = C[:,:]
+        F = -np.fliplr(C)
+        E = np.concatenate((F, D), axis=1)
+    return E
+
 class billiard_quarter:
     """Convex quantum billiard with reflection symmetry over the x axis and y axis.
     - curves is a list (or array like object) of curve objects. The curves should form a closed border of the self with the x axis and y axis.
