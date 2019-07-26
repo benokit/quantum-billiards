@@ -251,7 +251,7 @@ class billiard_half:
         plt.tight_layout()
 
 
-    def plot_probability(self, k, sym, grid = 400, cmap='magma', plot_full = False):
+    def plot_probability(self, k, sym, grid = 400, cmap='magma', plot_full = False, plot_axis = False):
         """Plots the probability distribution of the wavefunction at wavevector k.
         The wavefunction is computed using the plane wave decomposition method.
         - k is the eigen wavenumber
@@ -303,21 +303,24 @@ class billiard_half:
         vmax = np.max(Z)
 
         #plot boundary of billiard
-        col="0.5"
-        lw=1.5
-        ax = plt.gca()#plt.axes(xlim=(-1-eps-0.05, 1+eps+0.05), ylim=(-1-eps, 1+eps))
-        ax.axis('off')
-        ax.set_aspect('equal', 'box')
         if plot_full:
             boundary_x = np.concatenate((boundary_x, boundary_x[::-1]))
             boundary_y = np.concatenate((boundary_y, -boundary_y[::-1]))
+
+        col="0.5"
+        lw=1.5
+        ax = plt.gca()
+        if plot_axis:
+            plt.xlabel(r"$x$")
+            plt.ylabel(r"$y$")
+        else:
+            ax.axis('off')
+        ax.set_aspect('equal', 'box')
         ax.plot(boundary_x,boundary_y,col,lw=lw)
-        plt.xlabel(r"x")
-        plt.ylabel(r"y")
 
         #plot probability
         ax.pcolormesh(Xplot, Yplot, Z, cmap=cmap, vmin=0, vmax=vmax)
-        plt.tight_layout()
+        #plt.tight_layout()
 
     def plot_boundary_function(self, k , sym, delta = 5, plot_curve_bounds = True):
         PWDMIN = 100 
@@ -372,4 +375,4 @@ class billiard_half:
 
         plt.xlabel(r"$q$")
         plt.ylabel(r"$p$")
-        plt.tight_layout()
+        #plt.tight_layout()

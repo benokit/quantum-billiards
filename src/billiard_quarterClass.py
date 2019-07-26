@@ -1,6 +1,7 @@
 import math as m
 
 import matplotlib.pyplot as plt
+import matplotlib.path as mpltPath
 import numpy as np
 from scipy import optimize
 
@@ -51,7 +52,7 @@ def extend_u(s,u,ds,sym,L):
         ds2 = np.concatenate([ds[::-1],ds, ds[::-1]])
     return s2, u2, ds2
 
-def Reflections(A, sym):
+def reflect_wavefunction(A, sym):
     """Helper function extends array A from upper right quadrant
      to the whole plane using reflections in accordance with the symmetry class.
      - sym is the symmetry class sym = 0 even_even, sym = 1 even_odd, sym=2 for odd_even and sym=3 for odd_odd 
@@ -312,7 +313,7 @@ class billiard_quarter:
         plt.tight_layout()
 
 
-    def plot_probability(self, k, sym, grid = 400, scale = False):
+    def plot_probability(self, k, sym, grid = 400, cmap='magma', plot_full = False):
         """Plots the probability distribution of the wavefunction at wavevector k.
         The wavefunction is computed using the plane wave decomposition method.
         - k is the eigen wavenumber  
@@ -334,15 +335,44 @@ class billiard_quarter:
         Xplot = q
         Yplot = q2
         
+        if plot_full:
+            Xplot = np.concatenate((-q[::-1][:-1],q))
+            Yplot = np.concatenate((-q2[::-1][:-1],q2))
+            #print(len(Yplot))
+        
         #coordinates for wavefunction
         q = midpoints(q) 
         q2 = midpoints(q2)
-        x = np.tile(q, grid)
-        y = np.repeat(q2, grid)
-        X = np.reshape(x, (grid, grid))
-        Y = np.reshape(y, (grid, grid))
+        X,Y = np.meshgrid(q,q2)
+        
+        # find points inside of polygon        
+        polygon = np.array([boundary_x, boundary_y]).T #array of boundary points [x,y] 
+        polygon = np.append(polygon,[[0,0]],axis = 0)
+        xx = X.ravel()
+        yy = Y.ravel()
+        points = np.array((xx, yy)).T
+        path = mpltPath.Path(polygon) 
+        inside = path.contains_points(points) #finds points inside polygon
+
+        #calculate probability
+        psi = np.zeros(grid*grid)
+        psi[inside] = self.PWD_eigenfunction(N, k, xx[inside], yy[inside], sym)
+        #print(len(psi))
+        psi = np.reshape(psi, (grid,grid))
+        if plot_full:
+            psi = reflect_wavefunction(psi,sym)
+        repsi = psi.real
+        impsi = psi.imag
+        Z = repsi*repsi + impsi*impsi
+        vmax = np.max(Z)
         
         #plot self boundary
+        if plot_full:
+            boundary_x = np.concatenate((boundary_x, -boundary_x[::-1]))
+            boundary_y = np.concatenate((boundary_y, boundary_y[::-1]))
+            boundary_x = np.concatenate((boundary_x, boundary_x[::-1]))
+            boundary_y = np.concatenate((boundary_y, -boundary_y[::-1]))
+            
         col="0.5"
         lw=1.5
         ax = plt.gca()#plt.axes(xlim=(-1-eps-0.05, 1+eps+0.05), ylim=(-1-eps, 1+eps))
@@ -351,20 +381,10 @@ class billiard_quarter:
         ax.plot(boundary_x,boundary_y,col,lw=lw)
         plt.xlabel(r"x")
         plt.ylabel(r"y")
-
-        #calculate probability    
-        psi = self.PWD_eigenfunction(N, k, X, Y, sym)
-        repsi = psi.real
-        impsi = psi.imag
-        Z = repsi*repsi + impsi*impsi
-        Z = np.reshape(Z, (grid,grid))
-        vmax = np.max(Z)
-        if scale:
-            vmax = scale* vmax
-
+        
         #plot probability
         ax.pcolormesh(Xplot, Yplot, Z, cmap='magma', vmin=0, vmax=vmax)
-        plt.tight_layout()
+        #plt.tight_layout()
 
     def plot_boundary_function(self, k , sym, delta = 5, plot_curve_bounds = True):
         PWDMIN = 100 
@@ -419,4 +439,4 @@ class billiard_quarter:
 
         plt.xlabel(r"q")
         plt.ylabel(r"p")
-        plt.tight_layout()
+        #plt.tight_layout()

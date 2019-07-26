@@ -1,6 +1,7 @@
 import math as m
 
 import matplotlib.pyplot as plt
+import matplotlib.path as mpltPath
 import numpy as np
 from scipy import optimize
 
@@ -169,7 +170,7 @@ class billiard:
         plt.tight_layout()
 
 
-    def plot_probability(self, k, grid = 400, scale = False):
+    def plot_probability(self, k, grid = 400, cmap='magma'):
         """Plots the probability distribution of the wavefunction at wavevector k.
         The wavefunction is computed using the plane wave decomposition method.
         - k is the eigen wavenumber  
@@ -194,11 +195,26 @@ class billiard:
         #coordinates for wavefunction
         q = midpoints(q) 
         q2 = midpoints(q2)
-        x = np.tile(q, grid)
-        y = np.repeat(q2, grid)
-        X = np.reshape(x, (grid, grid))
-        Y = np.reshape(y, (grid, grid))
+        X,Y = np.meshgrid(q,q2)
         
+        # find points inside of polygon        
+        polygon = np.array([boundary_x, boundary_y]).T #array of boundary points [x,y] 
+        xx = X.ravel()
+        yy = Y.ravel()
+        points = np.array((xx, yy)).T
+        path = mpltPath.Path(polygon) 
+        inside = path.contains_points(points) #finds points inside polygon        
+
+        #calculate probability    
+        psi = np.zeros(grid*grid)
+        psi[inside] = self.PWD_eigenfunction(N, k, xx[inside], yy[inside])
+        psi = np.reshape(psi, (grid,grid))
+        repsi = psi.real
+        impsi = psi.imag
+        Z = repsi*repsi + impsi*impsi
+        Z = np.reshape(Z, (grid,grid))
+        vmax = np.max(Z)
+
         #plot billiard boundary
         col="0.5"
         lw=1.5
@@ -209,19 +225,9 @@ class billiard:
         plt.xlabel(r"$x$")
         plt.ylabel(r"$y$")
 
-        #calculate probability    
-        psi = self.PWD_eigenfunction(N, k, X, Y)
-        repsi = psi.real
-        impsi = psi.imag
-        Z = repsi*repsi + impsi*impsi
-        Z = np.reshape(Z, (grid,grid))
-        vmax = np.max(Z)
-        if scale:
-            vmax = vmax * scale
-
         #plot probability
-        ax.pcolormesh(Xplot, Yplot, Z, cmap='magma', vmin=0, vmax=vmax)
-        plt.tight_layout()
+        ax.pcolormesh(Xplot, Yplot, Z, cmap=cmap, vmin=0, vmax=vmax)
+        #plt.tight_layout()
 
     def plot_boundary_function(self, k , delta = 5, plot_curve_bounds = True):
         PWDMIN = 100 
