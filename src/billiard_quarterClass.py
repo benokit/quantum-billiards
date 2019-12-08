@@ -352,7 +352,7 @@ class billiard_quarter:
         yy = Y.ravel()
         points = np.array((xx, yy)).T
         path = mpltPath.Path(polygon) 
-        inside = path.contains_points(points) #finds points inside polygon
+        inside = path.contains_points(points) #indices of points inside polygon
 
         #calculate probability
         psi = np.zeros(grid*grid)
@@ -379,12 +379,12 @@ class billiard_quarter:
         ax.axis('off')
         ax.set_aspect('equal', 'box')
         ax.plot(boundary_x,boundary_y,col,lw=lw)
-        plt.xlabel(r"x")
-        plt.ylabel(r"y")
+        plt.xlabel(r"$x$")
+        plt.ylabel(r"$y$")
         
         #plot probability
-        ax.pcolormesh(Xplot, Yplot, Z, cmap='magma', vmin=0, vmax=vmax)
-        #plt.tight_layout()
+        ax.pcolormesh(Xplot, Yplot, Z, cmap=cmap, vmin=0, vmax=vmax)
+        
 
     def plot_boundary_function(self, k , sym, delta = 5, plot_curve_bounds = True):
         PWDMIN = 100 
@@ -402,8 +402,8 @@ class billiard_quarter:
                 plt.axvline(x=L, color = col, lw=lw)
 
         plt.plot(s,u)
-        plt.xlabel(r"q")
-        plt.ylabel(r"u")
+        plt.xlabel(r"$q$")
+        plt.ylabel(r"$u$")
 
     def plot_Husimi_function(self, k , sym, delta = 2, q_grid = 400, p_grid = 400, plot_curve_bounds = True):
         PWDMIN = 100 
@@ -437,6 +437,6 @@ class billiard_quarter:
                 L = L + crv.length
                 plt.axvline(x=L, color = col, lw=lw)
 
-        plt.xlabel(r"q")
-        plt.ylabel(r"p")
-        #plt.tight_layout()
+        plt.xlabel(r"$q$")
+        plt.ylabel(r"$p$")
+        

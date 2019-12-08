@@ -38,8 +38,6 @@ def husimiOnGrid(k, s, ds, u, qs, ps):
     hs = list(map(f, xs))
     return np.reshape(hs, (ps.size, qs.size)) 
 
-
-
 def entropy(H):
     H = H / np.sum(H)
     return -np.sum(H * np.log(H))
@@ -51,7 +49,3 @@ def correlation(H1, H2):
     f = 1 / (m.sqrt(np.sum(H1 * H1) * np.sum(H2 * H2)))
     return f * np.sum(H1 * H2) 
 
-def plotHusimi(H, qmin, qmax, pmin, pmax):
-    plt.imshow(H,cmap=plt.get_cmap('gray'),interpolation='bilinear',
-               origin='lower',
-               extent=(qmin,qmax,pmin,pmax))
