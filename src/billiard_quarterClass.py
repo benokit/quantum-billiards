@@ -405,7 +405,7 @@ class billiard_quarter:
         plt.xlabel(r"$q$")
         plt.ylabel(r"$u$")
 
-    def plot_Husimi_function(self, k , sym, delta = 2, q_grid = 400, p_grid = 400, plot_curve_bounds = True):
+    def plot_Husimi_function(self, k , sym, delta = 2, q_grid = 400, p_grid = 400, plot_curve_bounds = True, cmap='magma'):
         PWDMIN = 100 
         N = max(3 * m.ceil(k / 4), PWDMIN) #number of plane waves
         #grid size
@@ -425,7 +425,7 @@ class billiard_quarter:
 
         ax = plt.gca()
         #plot Husimi function
-        ax.pcolormesh(Qplot, Pplot, H, cmap='magma', vmin=0, vmax=vmax)
+        ax.pcolormesh(Qplot, Pplot, H, cmap=cmap, vmin=0, vmax=vmax)
 
         # plots boundary points of the curves as vertical lines
         col = "0.75"

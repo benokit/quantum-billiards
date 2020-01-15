@@ -157,7 +157,7 @@ class billiard:
         plt.ylim(ymin,ymax)
         plt.tight_layout()
 
-    def plot_tension(self, kmin, kmax, N = 200, grid = 200):
+    def plot_tension(self, kmin, kmax, N = 200, grid = 200, col="k"):
         """Plots the tension as a function of the wavevector k in the interval [kmin, kmax].
         The tension is computed using the plane wave decomposition method.
         - N is the number of plane waves
@@ -165,9 +165,9 @@ class billiard:
         """
         k_vals = np.linspace(kmin, kmax, grid)
         tensions = [self.PWD_tension(N, k) for k in k_vals]
-        plt.semilogy(k_vals,tensions)
+        plt.semilogy(k_vals,tensions, color=col)
         plt.xlabel("k")
-        plt.tight_layout()
+        
 
 
     def plot_probability(self, k, grid = 400, cmap='magma'):
@@ -247,7 +247,7 @@ class billiard:
         plt.xlabel(r"$q$")
         plt.ylabel(r"$u$")
 
-    def plot_Husimi_function(self, k , delta = 2, q_grid = 400, p_grid = 400, plot_curve_bounds = True):
+    def plot_Husimi_function(self, k , delta = 2, q_grid = 400, p_grid = 400, plot_curve_bounds = True, cmap='magma'):
         PWDMIN = 100 
         N = max(3 * m.ceil(k / 4), PWDMIN) #number of plane waves
         #grid size
@@ -267,7 +267,7 @@ class billiard:
 
         ax = plt.gca()
         #plot Husimi function
-        ax.pcolormesh(Qplot, Pplot, H, cmap='magma', vmin=0, vmax=vmax)
+        ax.pcolormesh(Qplot, Pplot, H, cmap=cmap, vmin=0, vmax=vmax)
 
         # plots boundary points of the curves as vertical lines
         col = "0.75"
@@ -281,4 +281,4 @@ class billiard:
 
         plt.xlabel(r"$q$")
         plt.ylabel(r"$p$")
-        plt.tight_layout()
+        
