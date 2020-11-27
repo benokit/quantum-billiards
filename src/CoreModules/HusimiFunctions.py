@@ -36,10 +36,10 @@ def husimiOnGrid(k, s, ds, u, qs, ps):
     def f(x): 
         return husimiAtPoint(k, s, ds, u, x[0], x[1]) 
     hs = list(map(f, xs))
-    return np.reshape(hs, (ps.size, qs.size)) 
+    H = np.reshape(hs, (ps.size, qs.size)) 
+    return H / np.sum(H)
 
 def entropy(H):
-    H = H / np.sum(H)
     return -np.sum(H * np.log(H))
 
 def entropyCover(entr, ncels):
