@@ -6,6 +6,33 @@ import matplotlib.pyplot as plt
 
 
 def glueSpectra(leftSpectrum, rightSpectrum, leftTension, rightTension, tolerance = None):
+    """Determines the overlaping levels between two spectral intervals 
+    and merges the two spectra by keeping the most accurate of the overlaping levels.  
+    
+    This function is used in the spectrum class.
+
+    Parameters
+    ----------
+    leftSpectrum : numpy array
+        An array of eigenenergies or eigenwavenumbers 
+        in the lower spectral interval.
+    rightSpectrum : numpy array
+        An array of eigenenergies or eigenwavenumbers 
+        in the higher spectral interval.
+    leftTension : numpy array
+        An array of tensions characterising the eigenfunctions 
+        in the lower spectral interval.
+    rightTension : numpy array
+        An array of tensions characterising the eigenfunctions 
+        in the higher spectral interval.
+    
+    Returns
+    -------
+    final_spec : numpy array
+        The merged spectrum.
+    final_tension : numpy array
+        The merged tensions.    
+    """
     sz_l = leftSpectrum.size
     sz_r = rightSpectrum.size
     #print("initial")
@@ -77,6 +104,32 @@ def glueSpectra(leftSpectrum, rightSpectrum, leftTension, rightTension, toleranc
 
 
 class spectrum:
+    """ A class used to represent the billiard eigenvalue problem and compute the spectrum.
+
+    Attributes
+    ----------
+    billiard : billiard object
+        A billiard object that represents the billiard table.
+    basis : basis object
+        A basis object that represents the basis of the Hilbert space.
+
+    Methods
+    -------
+    compute_k(k0, dk, solver = "DM", point_density = 100, Mi= 100,
+                scale_basis = None, eps = 0.5e-15 )
+
+    plot_tension(kmin, kmax, solver = "DM", point_density = 100, Mi= 100,
+                 grid = 200, plot_params = {}, log = True, scale_basis = None, eps = 0.5e-15)
+
+    compute_spectrum(self, k1, k2, dk, overlap = 0.3, point_density = 100, scale_basis = None, 
+                    eps = 0.5e-15, tolerance=None, return_tensions = True)
+
+    test_sm(self, k0 ,dk, point_density = 100, scale_basis = None, eps = 0.5e-15)
+
+
+    correct_spectrum(self, ks, dk, solver= "DM", point_density = 100, Mi= 100,
+                     scale_basis = None, eps = False, return_tensions = True)
+    """
 
     def __init__(self, billiard, basis):
         self.billiard = billiard
@@ -220,7 +273,7 @@ class spectrum:
 
 
 
-    def correct_spectrum(self, ks, dk, solver= "DM", point_density = 100, Mi= 100 , scale_basis = None, eps = False, return_tensions = True):
+    def :
         res = [self.compute_k(k0, dk, solver = solver, point_density = point_density,
                             Mi= Mi, scale_basis = scale_basis, eps = eps) for k0 in ks]
         s, t = np.transpose(np.array(res))

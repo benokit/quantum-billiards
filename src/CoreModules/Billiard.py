@@ -6,7 +6,28 @@ from . import Utils as ut
 
 
 class points:
+    """A class used to represent points on the boundary.
+    
+    Attributes
+    ----------
+    x : numpy array
+        The x coordiantes of the points on the boundary.
+    y : numpy array
+        The y coordiantes of the points on the boundary.
+    nx : numpy array
+        The x components of the normal vectors on the boundary.
+    ny : numpy array
+        The y components of the normal vectors on the boundary.
+    s : numpy array
+        The arc lengths corresponding to the points 
+        on the boundary.
+    ds : numpy array
+        The integration weights.
+
+    All attributes default to None if not specified.
+    """
     def __init__(self, x=None, y=None, nx=None, ny=None, s=None, ds=None):
+
         self.x = x 
         self.y = y
         self.nx = nx
@@ -15,13 +36,60 @@ class points:
         self.ds = ds
 
 class billiard:
-    """Convex quantum billiard with no reflection symmetry.
-    - curves is a list (or array like object) of curve objects. The curves should form a closed border of the billiard.
-    - area is the surface area of the billiard.
-    - point_densities is a list of point density parameters for each curve. The number of points evaluated on each curve is density*k*length/(2pi). Default value is 10.
+    """A class used to represent a billiard table.
+    
+    A billiard object is a collection of curves that enclose
+    a region in the plane.  
+    The billiard object is passed as an argument to the spectrum and wavefunction classes.
+
+    Attributes
+    ----------
+    curves : list of curve objects
+        The curves that form the boundary of the billiard table.
+        The curves should be listed in order, so that they enclose a
+        region in the plane in the positive (counterclockwise) direction. 
+        Each curve should begin where the previous curve ends.
+        Use virtual virtual curves if the boundary conditions are automatically satisfied
+        by the basis on part of the boundary. (see the curve class)
+        Use symmetry = True to define a reflection symmetry axis.
+    area : float
+        The area of the billiard table.
+    length : float
+        The length of the billiard boundary. 
+
+    Methods
+    -------
+    evaluate_boundary(density, evaluate_virtual = False, evaluate_sym = False,
+                      midpts = True, normal = True, weights = False)
+        Evaluates points on the boundary with given point density.
+
+    random_interior_points(self, M, bnd_pts_dens = 20)
+        Evaluates a number of random points inside the billiard table.
+
+    interior_points(self, M, bnd_pts_dens = 20)
+        Evaluates a number of points inside the billiard table on a grid.
+
+    plot_boundary(self, M = 10, normal = True, color = "k", origin = True)
+        Visualisation function. Plots the billiard table boundary.
     """
     # It's a constructor, innit! #
-    def __init__(self, curves, area, point_densities = False):
+    def __init__(self, curves, area):
+        """
+        Parameters
+        ----------
+        curves : list of curve objects
+            The curves that form the boundary of the billiard table.
+            The curves should be listed in order, so that they enclose a
+            region in the plane in the positive (counterclockwise) direction. 
+            Each curve should begin where the previous curve ends.
+            Use virtual virtual curves if the boundary conditions are 
+            automatically satisfied by the basis on part of the boundary.
+            (see the curve class)
+            Use symmetry = True to define a reflection symmetry axis.
+        area : float
+            The area of the billiard table.
+        """
+
         self.curves = curves # 
         self.area = area # x corrdinates of boundary points
         self.length = 0
@@ -32,7 +100,34 @@ class billiard:
         
     
     def evaluate_boundary(self, density, evaluate_virtual = False, evaluate_sym = False,  midpts = True, normal = True, weights = False):
-        """Helper function that evaluates the whole boundary and concatenates result"""
+        """Evaluates points on the boundary with given point density.
+        
+        Parameters
+        ----------
+        density : float
+            The linear density of points that is desired.
+        evaluate_virtual : bool
+            If True the points are evaluated also on the virtual curves.
+            (default is False)
+        evaluate_sym : bool
+            If True the points are evaluated also on the symmetry curves.
+            (default is False)
+        midpts : bool
+            If True the endpoints of each curve are excluded.
+            (default is True)
+        normal : bool
+            If True the normal vector is also evaluated.
+            (default is True)
+        wieghts : bool
+            If True the integration weights according to the 
+            weight_function of each curve are computed.
+            (default is False)
+        Returns
+        -------
+        pts : points object
+            A points object that represents the boundary points.
+
+        """
         bnd_x = np.array([])
         bnd_y = np.array([])
         normal_x = np.array([])
@@ -92,6 +187,24 @@ class billiard:
         return points(bnd_x, bnd_y, normal_x, normal_y, bnd_s, bnd_ds)
 
     def random_interior_points(self, M, bnd_pts_dens = 20):
+        """Evaluates a number of random points inside the billiard table.
+        
+        The boundary of the billiard is represented as a polygon
+        in order to determine if points are in the interior.
+        
+        Parameters
+        ----------
+        M : int
+            Number of points that is desired.
+        bnd_pts_dens : float
+            Density of the points on the boundary used to define the polygon.
+            (default is 20)
+        
+        Returns
+        -------
+        pts : points object
+            A points object that represents the interior points.
+        """
         L = self.length
         res = self.evaluate_boundary(2*np.pi*bnd_pts_dens/L)
         boundary_x = res.x
@@ -102,7 +215,7 @@ class billiard:
         ymin = np.min(boundary_y) 
         ymax = np.max(boundary_y) 
         polygon = np.array([boundary_x, boundary_y]).T #array of boundary points [x,y] 
-        n_int_pts = int((xmax-xmin)*(ymax-ymin)/self.area * M)
+        n_int_pts = int(np.sqrt((xmax-xmin)*(ymax-ymin)/self.area * M))
         xx = np.random.uniform(xmin,xmax, n_int_pts)
         yy = np.random.uniform(ymin,ymax, n_int_pts)
         pts = np.array((xx, yy)).T
@@ -111,6 +224,24 @@ class billiard:
         return points(xx[inside], yy[inside])
     
     def interior_points(self, M, bnd_pts_dens = 20):
+        """Evaluates a number of points inside the billiard table on a grid.
+
+        The boundary of the billiard is represented as a polygon
+        in order to determine if points are in the interior.
+        
+        Parameters
+        ----------
+        M : int
+            Number of points that is desired.
+        bnd_pts_dens : float
+            Density of the points on the boundary used to define the polygon.
+            (default is 20)
+        
+        Returns
+        -------
+        pts : points object
+            A points object that represents the interior points.
+        """
         L = self.length
         res = self.evaluate_boundary(2*np.pi*bnd_pts_dens/L)
         boundary_x = res.x
@@ -135,9 +266,22 @@ class billiard:
         return points(X[inside], Y[inside])
     
     def plot_boundary(self, M = 10, normal = True, color = "k", origin = True):
-        """Plots the boundary of the billiard and its normal directions. 
-        The relative density of the normal vectors indicates the density of points
-        - M is the number of points ploted per curve
+        """Visualisation function. Plots the billiard table boundary.
+
+        Parameters
+        ----------
+        M : int
+            Number of boundary points.
+            (default = 10)
+        normal : bool
+            If True the normal vectors are ploted.
+            (default is True)
+        color : string
+            Set the color of the plot, using matplotlib color options.
+        origin : bool
+            If True plots location of origin as an x.
+            (default is True)
+
         """
         L = self.length
         bnd_pts = self.evaluate_boundary(2*np.pi*M/L, evaluate_virtual = False,  
