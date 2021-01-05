@@ -1,9 +1,10 @@
 import numpy as np
-from scipy import special
+from ..cython_functions import Jv, Jvp, Sin, Cos
 import sys
 sys.path.append("..")
 from ..CoreModules import BasisFunction as bf
 from ..CoreModules import Basis as ba
+
 
 # circular waves
 
@@ -11,28 +12,31 @@ def fb_0(i,k,x,y,x0=0,y0=0):
     X = x-x0
     Y = y-y0
     r = np.sqrt(X**2 + Y**2)
+    r[r==0] = 1e-16
     angle = np.arctan2(Y,X) 
     idx = i
-    return special.jv(idx, k*r)*np.cos(idx*angle)
+    return Jv(idx, k*r)*Cos(idx*angle)
 
 def fb_1(i,k,x,y,x0=0,y0=0):
     X = x-x0
     Y = y-y0
     r = np.sqrt(X**2 + Y**2)
+    r[r==0] = 1e-16
     angle = np.arctan2(Y,X)
     idx = i+1 
-    return special.jv(idx, k*r)*np.sin(idx*angle)
+    return Jv(idx, k*r)*Sin(idx*angle)
 
 def fb_0_grad(i,k,x,y,x0=0,y0=0):
     X = x-x0
     Y = y-y0
     r = np.sqrt(X**2 + Y**2)
+    r[r==0] = 1e-16
     angle = np.arctan2(Y,X) 
     idx = i
-    j = special.jv(idx, k*r)
-    dj = special.jvp(idx, k*r)
-    c = np.cos(idx*angle)
-    s = np.sin(idx*angle)
+    j = Jv(idx, k*r)
+    dj = Jvp(idx, k*r)
+    c = Cos(idx*angle)
+    s = Sin(idx*angle)
     dx = dj*k*X/r*c + j*s*Y/(X**2+Y**2)*idx
     dy = dj*k*Y/r*c - j*s*X/(X**2+Y**2)*idx
     return dx, dy
@@ -41,12 +45,13 @@ def fb_1_grad(i,k,x,y,x0=0,y0=0):
     X = x-x0
     Y = y-y0
     r = np.sqrt(X**2 + Y**2)
+    r[r==0] = 1e-16
     angle = np.arctan2(Y,X) 
     idx = i+1
-    j = special.jv(idx, k*r)
-    dj = special.jvp(idx, k*r)
-    c = np.cos(idx*angle)
-    s = np.sin(idx*angle)
+    j = Jv(idx, k*r)
+    dj = Jvp(idx, k*r)
+    c = Cos(idx*angle)
+    s = Sin(idx*angle)
     dx = dj*k*X/r*s - j*c*Y/(X**2+Y**2)*idx
     dy = dj*k*Y/r*s + j*c*X/(X**2+Y**2)*idx
     return dx, dy
@@ -55,17 +60,19 @@ def fb_0_dk(i,k,x,y,x0=0,y0=0):
     X = x-x0
     Y = y-y0
     r = np.sqrt(X**2 + Y**2)
+    r[r==0] = 1e-16
     angle = np.arctan2(Y,X) 
     idx = i
-    return r*special.jvp(idx, k*r)*np.cos(idx*angle)
+    return r*Jvp(idx, k*r)*Cos(idx*angle)
 
 def fb_1_dk(i,k,x,y,x0=0,y0=0):
     X = x-x0
     Y = y-y0
     r = np.sqrt(X**2 + Y**2)
+    r[r==0] = 1e-16
     angle = np.arctan2(Y,X) 
     idx = i+1
-    return r*special.jvp(idx, k*r)*np.sin(idx*angle)
+    return r*Jvp(idx, k*r)*Sin(idx*angle)
 
 def make_FB_basis(pars = {"x0":0, "y0" : 0}):
     basis_functions = []
@@ -84,7 +91,7 @@ def fb_ca(i,k,x,y, nu=1, x0=0, y0 = 0, phi0 = 0, sym = None):
     X = x-x0
     Y = y-y0
     r = np.sqrt(X**2 + Y**2)
-    #r[r==0] = 1e-16
+    r[r==0] = 1e-16
     angle = np.arctan2(Y,X) - phi0
     if sym == None:
         idx = i+1
@@ -92,14 +99,14 @@ def fb_ca(i,k,x,y, nu=1, x0=0, y0 = 0, phi0 = 0, sym = None):
         idx = 2*i+1
     if sym == "even":
         idx = 2*i + 2
-    #angle = np.arcaos(np.sign(Y)*X/r)
-    return special.jv(nu*idx, k*r)*np.sin(nu*idx*angle)
+    return Jv(nu*idx, k*r)*Sin(nu*idx*angle)
+
 
 def fb_ca_grad(i,k,x,y, nu=1, x0=0, y0 = 0, phi0 = 0, sym = None):
     X = x-x0
     Y = y-y0
     r = np.sqrt(X**2 + Y**2)
-    #r[r==0] = 1e-16
+    r[r==0] = 1e-16
     angle = np.arctan2(Y,X) - phi0
     if sym == None:
         idx = i+1
@@ -107,10 +114,10 @@ def fb_ca_grad(i,k,x,y, nu=1, x0=0, y0 = 0, phi0 = 0, sym = None):
         idx = 2*i+1
     if sym == "even":
         idx = 2*i + 2
-    j = special.jv(idx*nu, k*r)
-    dj = special.jvp(idx*nu, k*r)
-    c = np.cos(nu*idx*angle)
-    s = np.sin(nu*idx*angle)
+    j = Jv(idx*nu, k*r)
+    dj = Jvp(idx*nu, k*r)
+    c = Cos(nu*idx*angle)
+    s = Sin(nu*idx*angle)
     dx = dj*k*X/r*s - j*c*Y/(X**2+Y**2)*nu*idx
     dy = dj*k*Y/r*s + j*c*X/(X**2+Y**2)*nu*idx
     return dx, dy
@@ -120,7 +127,7 @@ def fb_ca_dk(i,k,x,y, nu=1, x0=0, y0 = 0, phi0 = 0, sym = None):
     X = x-x0
     Y = y-y0
     r = np.sqrt(X**2 + Y**2)
-    #r[r==0] = 1e-16
+    r[r==0] = 1e-16
     angle = np.arctan2(Y,X) - phi0
     if sym == None:
         idx = i+1
@@ -128,8 +135,8 @@ def fb_ca_dk(i,k,x,y, nu=1, x0=0, y0 = 0, phi0 = 0, sym = None):
         idx = 2*i+1
     if sym == "even":
         idx = 2*i + 2
-    s = np.sin(nu*idx*angle)
-    return r*special.jvp(nu*idx, k*r)*s
+    s = Sin(nu*idx*angle)
+    return r*Jvp(nu*idx, k*r)*s
 
 
 def make_FBca_basis(par_list = [{"nu":1, "x0":0, "y0" : 0, "phi0" : 0 , "sym" : None}]):

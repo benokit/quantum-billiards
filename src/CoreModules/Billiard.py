@@ -284,7 +284,7 @@ class billiard:
 
         """
         L = self.length
-        bnd_pts = self.evaluate_boundary(2*np.pi*M/L, evaluate_virtual = False,  
+        bnd_pts = self.evaluate_boundary(2*np.pi*M/L, evaluate_virtual = True,  
                                                         midpts = True, normal = False, weights = False)
         x = bnd_pts.x
         y = bnd_pts.y

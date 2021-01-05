@@ -16,9 +16,13 @@ class wavefunctions:
         self.sym_x = sym_x
         self.sym_y = sym_y
 
-    def eigenvector(self, k, bnd_pts, Mi = 100):
+    def eigenvector(self, k, bnd_pts = None, delta = 5, Mi = 100):
         L = self.billiard.length
         A = self.billiard.area
+        if bnd_pts is None:
+            density = delta*k/(2*np.pi)
+            bnd_pts = self.billiard.evaluate_boundary(density, evaluate_virtual = False,
+                                                      midpts = True, normal = True, weights = True)
         if self.solver == "DM":
             ten, vec = sol.decomposition_method(k, self.basis, bnd_pts, L, A, eps = self.eps, return_vector = True)
         if self.solver == "PSM":
@@ -26,54 +30,56 @@ class wavefunctions:
             ten, vec = sol.particular_solutions_method(k, self.basis, bnd_pts, int_pts, eps = self.eps, return_vector = True)
         return vec
 
-    
-    def psi(self,k,x,y, delta = 5):
+        
+    def psi(self,k,x,y, delta = 5, vec = None):
         L = self.billiard.length
         n_funct = len(self.basis.basis_functions)
         
-        if self.scale_basis is not None:
-            if not isinstance(self.scale_basis, list):
-                b = np.array([self.scale_basis for i in range(n_funct)])
-                #print("is not list")
-                #print(b)
-            else:
-                b = self.scale_basis
-                #print(b)
-            self.basis.set_basis_size([int(np.ceil(k*L*i/(2*np.pi))) for i in b])
-        
-        density = delta*k/(2*np.pi)
-        Mi = density*L/2
-        bnd_pts = self.billiard.evaluate_boundary(density, evaluate_virtual = False,  midpts = True, normal = True, weights = True)
+        if vec is None:
+            if self.scale_basis is not None:
+                if not isinstance(self.scale_basis, list):
+                    b = np.array([self.scale_basis for i in range(n_funct)])
+                    #print("is not list")
+                    #print(b)
+                else:
+                    b = self.scale_basis
+                    #print(b)
+                self.basis.set_basis_size([int(np.ceil(k*L*i/(2*np.pi))) for i in b])
+            
+            density = delta*k/(2*np.pi)
+            Mi = density*L/2
+            bnd_pts = self.billiard.evaluate_boundary(density, evaluate_virtual = False,  midpts = True, normal = True, weights = True)
 
-        vec = self.eigenvector(k, bnd_pts, Mi=Mi)
+            vec = self.eigenvector(k, bnd_pts, Mi=Mi)
                                                     
         B = self.basis.evaluate_basis(k, x, y)
         psi = np.transpose(B).dot(vec)
         return psi
 
             
-    def u(self,k, delta = 5, midpts = True):
+    def u(self,k, delta = 5, vec = None, midpts = True):
 
         density = delta*k/(2*np.pi)
         bnd_pts = self.billiard.evaluate_boundary(density, evaluate_virtual = True,  midpts = midpts, normal = True, weights = True)
         bnd_x, bnd_y, nx, ny, bnd_s, weights = bnd_pts.x, bnd_pts.y, bnd_pts.nx, bnd_pts.ny, bnd_pts.s, bnd_pts.ds
 
-        L = self.billiard.length
-        #A = self.billiard.area
-        n_funct = len(self.basis.basis_functions)
-        Mi = density*L/2
+        if vec is None:
+            L = self.billiard.length
+            #A = self.billiard.area
+            n_funct = len(self.basis.basis_functions)
+            Mi = density*L/2
 
-        if self.scale_basis is not None:
-            if not isinstance(self.scale_basis, list):
-                b = np.array([self.scale_basis for i in range(n_funct)])
-                #print("is not list")
-                #print(b)
-            else:
-                b = self.scale_basis
-                #print(b)
-            self.basis.set_basis_size([int(np.ceil(k*L*i/(2*np.pi))) for i in b])
-                        
-        vec = self.eigenvector(k, bnd_pts, Mi=Mi)
+            if self.scale_basis is not None:
+                if not isinstance(self.scale_basis, list):
+                    b = np.array([self.scale_basis for i in range(n_funct)])
+                    #print("is not list")
+                    #print(b)
+                else:
+                    b = self.scale_basis
+                    #print(b)
+                self.basis.set_basis_size([int(np.ceil(k*L*i/(2*np.pi))) for i in b])
+                            
+            vec = self.eigenvector(k, bnd_pts, Mi=Mi)
     
         #construct normalization matrix
         U = self.basis.evaluate_u(k, bnd_x, bnd_y, nx, ny)  #Transposed boundary function
@@ -141,7 +147,7 @@ class wavefunctions:
             ds2 = np.concatenate([ds[::-1],ds, ds[::-1]])
             return s2, u2, ds2
 
-    def norm(self, k, method = "boundary", delta = 5, Mi = 1e5):
+    def norm(self, k, method = "boundary", delta = 5, vec = None , Mi = 1e5):
         L = self.billiard.length
         A = self.billiard.area
     
@@ -153,18 +159,19 @@ class wavefunctions:
             L = self.billiard.length
             A = self.billiard.area
             n_funct = len(self.basis.basis_functions)
-
-            if self.scale_basis is not None:
-                if not isinstance(self.scale_basis, list):
-                    b = np.array([self.scale_basis for i in range(n_funct)])
-                    #print("is not list")
-                    #print(b)
-                else:
-                    b = self.scale_basis
-                    #print(b)
-                self.basis.set_basis_size([int(np.ceil(k*L*i/(2*np.pi))) for i in b])
-                        
-            ten, vec = sol.decomposition_method(k, self.basis, bnd_pts, L, A, eps = self.eps, return_vector = True)
+            if vec is None:
+                if self.scale_basis is not None:
+                    if not isinstance(self.scale_basis, list):
+                        b = np.array([self.scale_basis for i in range(n_funct)])
+                        #print("is not list")
+                        #print(b)
+                    else:
+                        b = self.scale_basis
+                        #print(b)
+                    self.basis.set_basis_size([int(np.ceil(k*L*i/(2*np.pi))) for i in b])
+                            
+                ten, vec = sol.decomposition_method(k, self.basis, bnd_pts, L, A, eps = self.eps, return_vector = True)
+            
             #construct normalization matrix
             U = self.basis.evaluate_u(k, bnd_x, bnd_y, nx, ny)  #Transposed boundary function
             u = np.transpose(U).dot(vec)
@@ -184,9 +191,9 @@ class wavefunctions:
             return np.sqrt(scalar_product)*A
 
     #not yet final version!!!!!!!!!!!!!!!!
-    def Husimi(self, k, qs, ps, delta = 2):
+    def Husimi(self, k, qs, ps, delta = 5, vec = None):
         #L = self.billiard.length 
-        s, u, ds = self.u(k, delta = delta)
+        s, u, ds = self.u(k, vec = vec, delta = delta)
         #periodize u
         s, u, ds = self.continue_u(s, u, ds)
         H = hf.husimiOnGrid(k, s, ds, u, qs, ps)
@@ -195,7 +202,7 @@ class wavefunctions:
     
 
 
-    def plot_probability(self, k, grid = 400, cmap='binary', plot_exterior = False, delta = 5, plot_full=False, axis=False):
+    def plot_probability(self, k, vec = None, grid = 400, cmap='binary', plot_exterior = False, delta = 5, plot_full=False, axis=False):
         """Plots the probability distribution of the wavefunction at wavevector k.
         The wavefunction is computed using the plane wave decomposition method.
         - k is the eigen wavenumber  
@@ -229,7 +236,7 @@ class wavefunctions:
         inside = path.contains_points(points) #indices of points inside polygon
 
         if plot_exterior:
-            psi = self.psi(k, xx, yy, delta=delta)
+            psi = self.psi(k, xx, yy, delta=delta, vec = vec)
             repsi = psi.real
             impsi = psi.imag
             Z = repsi*repsi + impsi*impsi
@@ -245,7 +252,7 @@ class wavefunctions:
         else:
             #calculate probability    
             psi = np.zeros(grid*grid)
-            psi[inside] = self.psi(k, xx[inside], yy[inside], delta=delta)
+            psi[inside] = self.psi(k, xx[inside], yy[inside], delta=delta, vec = vec)
             psi = np.reshape(psi, (grid,grid))
             if plot_full:
                 psi = ut.reflect_wavefunction(psi, sym_x, sym_y)
@@ -282,8 +289,8 @@ class wavefunctions:
         plt.pcolormesh(Xplot, Yplot, Z, cmap=cmap, vmin=0, vmax=vmax)
 
     #not yet final version!!!!!!!!!!!!!!!!
-    def plot_boundary_function(self, k, delta = 5, plot_curve_bounds = True, midpts=False):
-        s, u, ds = self.u(k, delta = delta, midpts=midpts)
+    def plot_boundary_function(self, k, delta = 5, vec = None, plot_curve_bounds = True, midpts=False):
+        s, u, ds = self.u(k, delta = delta, vec = vec, midpts=midpts)
         # plots boundary points of the curves as vertical lines
         col = "0.75"
         lw = 0.75
@@ -303,7 +310,7 @@ class wavefunctions:
         plt.ylabel(r"$u$")
     
     #not yet final version!!!!!!!!!!!!!!!
-    def plot_Husimi_function(self, k , delta = 5, q_grid = 400, p_grid = 400, plot_curve_bounds = True, cmap='binary'):
+    def plot_Husimi_function(self, k , delta = 5, vec = None, q_grid = 400, p_grid = 400, plot_curve_bounds = True, cmap='binary'):
         #grid size
         L = self.billiard.length
         #coordinates for plot
@@ -316,7 +323,7 @@ class wavefunctions:
         qs = ut.midpoints(qs) 
         ps = ut.midpoints(ps)
         #calculate Husimi function
-        H = self.Husimi(k, qs, ps, delta = delta)
+        H = self.Husimi(k, qs, ps, delta = delta, vec = vec)
         vmax = np.max(H)
 
         ax = plt.gca()

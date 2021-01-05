@@ -273,7 +273,7 @@ class spectrum:
 
 
 
-    def :
+    def correct_spectrum(self, ks, dk, solver= "DM", point_density = 100, Mi= 100 , scale_basis = None, eps = False, return_tensions = True):
         res = [self.compute_k(k0, dk, solver = solver, point_density = point_density,
                             Mi= Mi, scale_basis = scale_basis, eps = eps) for k0 in ks]
         s, t = np.transpose(np.array(res))
