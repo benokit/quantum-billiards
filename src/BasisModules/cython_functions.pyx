@@ -8,6 +8,7 @@ from cython.parallel cimport prange
 import numpy as np
 cimport scipy.special.cython_special as csc
 
+cdef int n_threads = 12
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -15,7 +16,7 @@ cdef void _parallel_G(double k, double[:,:] x, double[:,:] y,
                       double complex[:,:] out) nogil:
     cdef int i, j
 
-    for i in prange(x.shape[0]):
+    for i in prange(x.shape[0], num_threads = n_threads):
         for j in range(y.shape[0]):
             out[i,j] = 0.25j*csc.hankel1(0, k*fabs(x[i,j] - y[i,j]))
 
@@ -31,17 +32,8 @@ def parallel_G(k, x, y):
 cdef void bessel_parallel(double order, double[:] arg,
                           double[:] out) nogil:
     cdef int i
-    for i in prange(arg.shape[0]):
+    for i in prange(arg.shape[0], num_threads = n_threads):
         out[i] = csc.jv(order, arg[i])
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef void bessel_parallel_2d(double order, double[:,:] arg,
-                          double[:,:] out) nogil:
-    cdef int i, j
-    for i in prange(arg.shape[0]):
-        for j in range(arg.shape[1]):
-            out[i, j] = csc.jv(order, arg[i, j])
 
 def Jv(order, arg):
     sh = arg.shape
@@ -63,7 +55,7 @@ def Jv(order, arg):
 cdef void bessel_derivative_parallel(double order, double[:] arg,
                           double[:] out) nogil:
     cdef int i
-    for i in prange(arg.shape[0]):
+    for i in prange(arg.shape[0], num_threads = n_threads):
         out[i] = 0.5*(csc.jv(order-1, arg[i])-csc.jv(order+1, arg[i]))
 
 
@@ -88,7 +80,7 @@ def Jvp(order, arg):
 cdef void sin_parallel( double[:] arg,
                           double[:] out) nogil:
     cdef int i
-    for i in prange(arg.shape[0]):
+    for i in prange(arg.shape[0], num_threads = n_threads):
         out[i] = sin(arg[i])
 
 def Sin(arg):
@@ -108,7 +100,7 @@ def Sin(arg):
 cdef void cos_parallel( double[:] arg,
                           double[:] out) nogil:
     cdef int i
-    for i in prange(arg.shape[0]):
+    for i in prange(arg.shape[0], num_threads = n_threads):
         out[i] = cos(arg[i])
 
 def Cos(arg):

@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 from scipy import optimize
 from . import Utils as ut
 from . import Solvers as solvers
@@ -25,6 +26,9 @@ def glueSpectra(leftSpectrum, rightSpectrum, leftTension, rightTension, toleranc
     rightTension : numpy array
         An array of tensions characterising the eigenfunctions 
         in the higher spectral interval.
+    tolerance : float or None
+        If not None the overlap interval is extended by tolerance on each side.
+        (default is None)
     
     Returns
     -------
@@ -110,35 +114,103 @@ class spectrum:
     ----------
     billiard : billiard object
         A billiard object that represents the billiard table.
+        (see billiard module and examples for more information)
     basis : basis object
-        A basis object that represents the basis of the Hilbert space.
+        A basis object that represents the basis of the Hilbert space used for the solution.
+        (see basis module and examples for more information)
 
     Methods
     -------
     compute_k(k0, dk, solver = "DM", point_density = 100, Mi= 100,
                 scale_basis = None, eps = 0.5e-15 )
 
+        Computes the minimal tension solution on given wavenumber interval by using the selected method.
+
     plot_tension(kmin, kmax, solver = "DM", point_density = 100, Mi= 100,
                  grid = 200, plot_params = {}, log = True, scale_basis = None, eps = 0.5e-15)
+        
+        Visualisation function. Computes and plots the tension on a grid of points
+        in the given wavenumber interval. 
 
     compute_spectrum(self, k1, k2, dk, overlap = 0.3, point_density = 100, scale_basis = None, 
                     eps = 0.5e-15, tolerance=None, return_tensions = True)
+        
+        Computes the spectrum of the billiard on the given wavenumber interval by 
+        successively using the scaling method to find local solutions.
 
-    test_sm(self, k0 ,dk, point_density = 100, scale_basis = None, eps = 0.5e-15)
+    compute_scaling_metod(self, k0 ,dk, point_density = 100, scale_basis = None, eps = 0.5e-15)
+
+        Computes the spectrum of the billiard on the given wavenumber interval by 
+        using the scaling method. 
 
 
     correct_spectrum(self, ks, dk, solver= "DM", point_density = 100, Mi= 100,
                      scale_basis = None, eps = False, return_tensions = True)
+                
+        Corrects the values of the given eigenvalues by locally minimizing the tension.
+        
     """
 
     def __init__(self, billiard, basis):
-        self.billiard = billiard
-        self.basis = basis
+        """
+        Parameters
+        ----------
+        billiard : billiard object
+            A billiard object that represents the billiard table.
+            (see billiard module and examples for more information)
+        basis : basis object
+            A basis object that represents the basis of the Hilbert space used for the solution.
+            (see basis module and examples for more information)
+        """
+        self.billiard = copy.deepcopy(billiard)
+        self.basis = copy.deepcopy(basis)
 
     def compute_k(self, k0, dk, solver = "DM", point_density = 100, Mi= 100, scale_basis = None, eps = 0.5e-15 ):
+        """Computes the minimal tension solution on given wavenumber interval by using the selected method.
+
+        The function is a wrapper for all the implemented solver functions in the solver module.
+        The solver is chosen by solver argument. If required the tension is minimized by using the
+        scipy.optimize.minimize metohod to find the eigenstate.
+        
+        Parameters
+        ----------
+        k0 : float
+            The centre of the wavenumber interval.
+        dk : float
+            Half width of wavenumber interval on which we search for the eigenstate.
+        solver : string
+            The solver used in the solution. Select from:
+            "DM" - for decompostition method (default),
+            "SM" - for scaling method,
+            "PSM" - for particular solutions method.
+        point_density : float
+            The linear density of points evaluated on the boundary.
+            (default is 100)
+        Mi : float
+            The number of interior points used for normalization.
+            Only used in the particular solutions method.
+            (default is 100)
+        scale_basis : None or float or list
+            If not None the basis is scaled according to include 
+            scale_basis*k*L basis functions, where L is the length of the billiard boundary. 
+            One may select a different scaling for each kind of basis function 
+            by using a list instead of a single float.
+            (default is None)
+        eps : float or None
+            If not None the matrices are regularized by truncating the eigenvalues < eps
+            We suggest using the default value.
+            (default is 0.5e-15)
+        
+        Returns
+        -------
+        k : float
+            The wavenumber of the best computed state.
+        ten : float
+            The tension of the best computed state.    
+        """
         #adjust basis size
         L = self.billiard.length
-        A = self.billiard.area
+        #A = self.billiard.area
         n_funct = len(self.basis.basis_functions)
         if scale_basis is not None:
             if not isinstance(scale_basis, list):
@@ -154,7 +226,7 @@ class spectrum:
 
         if solver == "DM":
             res = optimize.minimize_scalar(lambda k: solvers.decomposition_method
-                                                    (k, self.basis, bnd_pts, L, A, eps = eps), 
+                                                    (k, self.basis, bnd_pts, L, eps = eps), 
                                                     bounds=(k0-dk, k0+dk), method='bounded')
             return res.x, res.fun
         
@@ -173,7 +245,53 @@ class spectrum:
             return 0, 0
 
     def plot_tension(self, kmin, kmax, solver = "DM", point_density = 100, Mi= 100, grid = 200, plot_params = {}, log = True, scale_basis = None, eps = 0.5e-15):
-                
+        """Visualisation function. Computes and plots the tension on a grid of points
+        in the given wavenumber interval. 
+
+        Parameters
+        ----------
+        kmin : float
+            The begining of the wavenumber interval.
+        kmax : float
+            The end of the wavenumber interval.
+        solver : string
+            The solver used in the solution. Select from:
+            "DM" - for decompostition method (default),
+            "SM" - for scaling method,
+            "PSM" - for particular solutions method.
+        point_density : float
+            The linear density of points evaluated on the boundary.
+            (default is 100)
+        Mi : float
+            The number of interior points used for normalization.
+            Only used in the particular solutions method.
+            (default is 100)
+        grid : int
+            Number of evaluation points. The evaluation points are uniformly distributed.
+            (default is 200)
+        plot_params : dictionary
+            A dictionary used to pass keyword arguments to the plot function.
+        log : bool
+            If true the y axis is logarithmic.
+            (default is True)
+        scale_basis : None or float or list
+            If not None the basis is scaled according to include 
+            scale_basis*k*L basis functions, where L is the length of the billiard boundary. 
+            One may select a different scaling for each kind of basis function 
+            by using a list instead of a single float.
+            (default is None)
+        eps : float or None
+            If not None the matrices are regularized by truncating the eigenvalues < eps
+            We suggest using the default value.
+            (default is 0.5e-15)
+
+        Returns
+        -------
+        k_vals : float
+            The wavenumber evaluation points
+        tensions : float
+            The tension at the evaluation points.    
+        """        
         bnd_pts = self.billiard.evaluate_boundary(point_density, evaluate_virtual = False, midpts = True, normal = True, weights = True)
         
         L = self.billiard.length
@@ -191,9 +309,9 @@ class spectrum:
 
         if solver == "DM":
             L = self.billiard.length
-            A = self.billiard.area
+            #A = self.billiard.area
             k_vals = np.linspace(kmin, kmax, grid)
-            tensions = [solvers.decomposition_method(k, self.basis, bnd_pts, L, A, eps = eps) for k in k_vals]
+            tensions = [solvers.decomposition_method(k, self.basis, bnd_pts, L, eps = eps) for k in k_vals]
             if log:
                 plt.semilogy(k_vals,tensions,**plot_params)
             else:
@@ -218,7 +336,56 @@ class spectrum:
 
 
     def compute_spectrum(self, k1, k2, dk, overlap = 0.3, point_density = 100, scale_basis = None, eps = 0.5e-15, tolerance=None, return_tensions = True):
+        """Computes the spectrum of the billiard on the given wavenumber interval by 
+        successively using the scaling method to find local solutions.
+
+        The function uses the scaling method to find local spectra in overlaping intervals.
+        The local spectrum is computed in successive steps and combined by using the glueSpectra method.
+        At each step the central wavenumber is increased by dk until reaching the end of the interval.  
         
+        Parameters
+        ----------
+        k1 : float
+            The begining of the wavenumber interval.
+        k2 : float
+            The end of the wavenumber interval.
+        dk : float
+            The wavenumber step size. At each step the central wavenumber
+            where we compute the eigenvalues is moved by dk.
+        overlap : float
+            The overlap of the successive computation intervals.
+            Set any value from 0 to 1. If set to 1 the right half
+            of the previous evaluation subinterval fully overlaps the
+            left half of the next subinterval. 
+        point_density : float
+            The linear density of points evaluated on the boundary.
+            (default is 100)
+        scale_basis : None or float or list
+            If not None the basis is scaled according to include 
+            scale_basis*k*L basis functions, where L is the length of the billiard boundary. 
+            One may select a different scaling for each kind of basis function 
+            by using a list instead of a single float.
+            (default is None)
+        eps : float or None
+            If not None the matrices are regularized by truncating the eigenvalues < eps
+            We suggest using the default value.
+            (default is 0.5e-15)
+        tolerance : float or None
+            If not None the overlap interval is extended by tolerance 
+            on each side when merging the subintervals.
+            (default is None)
+        return_tensions : bool
+            If True returns the tensions of the states as well.
+
+        Returns
+        -------
+        spect : numpy array
+            The wavenumbers of the found eigenstates.
+        tensions : numpy array
+            (optional) The tensions of the found eigenstates.
+        """
+
+
         bnd_pts = self.billiard.evaluate_boundary(point_density, evaluate_virtual = False, midpts = True, normal = True, weights = True)
         
         L = self.billiard.length
@@ -254,7 +421,38 @@ class spectrum:
         else:
             return spect[spect < k2]
 
-    def test_sm(self, k0 ,dk, point_density = 100, scale_basis = None, eps = 0.5e-15):
+    def compute_scaling_method(self, k0 ,dk, point_density = 100, scale_basis = None, eps = 0.5e-15):
+        """Computes the spectrum of the billiard on the given wavenumber interval by 
+        using the scaling method.
+        
+        Parameters
+        ----------
+        k0 : float
+            The centre of the wavenumber interval.
+        dk : float
+            Half width of wavenumber interval on which we search for the eigenstates.
+        point_density : float
+            The linear density of points evaluated on the boundary.
+            (default is 100)
+        scale_basis : None or float or list
+            If not None the basis is scaled according to include 
+            scale_basis*k*L basis functions, where L is the length of the billiard boundary. 
+            One may select a different scaling for each kind of basis function 
+            by using a list instead of a single float.
+            (default is None)
+        eps : float or None
+            If not None the matrices are regularized by truncating the eigenvalues < eps
+            We suggest using the default value.
+            (default is 0.5e-15)
+      
+        Returns
+        -------
+        spect : numpy array
+            The wavenumbers of the found eigenstates.
+        tensions : numpy array
+            The tensions of the found eigenstates.
+        """
+
         bnd_pts = self.billiard.evaluate_boundary(point_density, evaluate_virtual = False, midpts = True, normal = True, weights = True)
         k2 = k0
         L = self.billiard.length
@@ -273,9 +471,50 @@ class spectrum:
 
 
 
-    def correct_spectrum(self, ks, dk, solver= "DM", point_density = 100, Mi= 100 , scale_basis = None, eps = False, return_tensions = True):
+    def correct_spectrum(self, ks, dk, solver= "DM", point_density = 100, Mi= 100 , scale_basis = None, eps = False):
+        """Corrects the values of the given eigenvalues by locally minimizing the tension.
+
+        !!!Beta version!!!
+        
+        Parameters
+        ----------
+        ks : numpy array
+            An array of wavenumbers.
+        dk : float
+            Half width of wavenumber interval on which we search for the eigenstates.
+        solver : string
+            The solver used in the solution. Select from:
+            "DM" - for decompostition method (default),
+            "SM" - for scaling method,
+            "PSM" - for particular solutions method.
+        point_density : float
+            The linear density of points evaluated on the boundary.
+            (default is 100)
+        Mi : float
+            The number of interior points used for normalization.
+            Only used in the particular solutions method.
+            (default is 100)
+        scale_basis : None or float or list
+            If not None the basis is scaled according to include 
+            scale_basis*k*L basis functions, where L is the length of the billiard boundary. 
+            One may select a different scaling for each kind of basis function 
+            by using a list instead of a single float.
+            (default is None)
+        eps : float or None
+            If not None the matrices are regularized by truncating the eigenvalues < eps
+            We suggest using the default value.
+            (default is 0.5e-15)
+      
+        Returns
+        -------
+        spect : numpy array
+            The wavenumbers of the found eigenstates.
+        tensions : numpy array
+            The tensions of the found eigenstates.
+        """
+        
         res = [self.compute_k(k0, dk, solver = solver, point_density = point_density,
                             Mi= Mi, scale_basis = scale_basis, eps = eps) for k0 in ks]
-        s, t = np.transpose(np.array(res))
-        return s, t
+        spect, tensions = np.transpose(np.array(res))
+        return spect, tensions
 

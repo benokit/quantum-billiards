@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 import matplotlib.pyplot as plt
 import matplotlib.path as mpltPath
 from . import Utils as ut
@@ -8,8 +9,8 @@ from . import HusimiFunctions as hf
 class wavefunctions:
 
     def __init__(self, billiard, basis, solver = "DM", scale_basis = None, eps = 0.5e-15, sym_x = None, sym_y = None):
-        self.billiard = billiard
-        self.basis = basis
+        self.billiard = copy.deepcopy(billiard)
+        self.basis = copy.deepcopy(basis)
         self.scale_basis = scale_basis
         self.eps = eps
         self.solver = solver
@@ -24,7 +25,7 @@ class wavefunctions:
             bnd_pts = self.billiard.evaluate_boundary(density, evaluate_virtual = False,
                                                       midpts = True, normal = True, weights = True)
         if self.solver == "DM":
-            ten, vec = sol.decomposition_method(k, self.basis, bnd_pts, L, A, eps = self.eps, return_vector = True)
+            ten, vec = sol.decomposition_method(k, self.basis, bnd_pts, L,  eps = self.eps, return_vector = True)
         if self.solver == "PSM":
             int_pts = self.billiard.random_interior_points(Mi)
             ten, vec = sol.particular_solutions_method(k, self.basis, bnd_pts, int_pts, eps = self.eps, return_vector = True)
@@ -170,7 +171,7 @@ class wavefunctions:
                         #print(b)
                     self.basis.set_basis_size([int(np.ceil(k*L*i/(2*np.pi))) for i in b])
                             
-                ten, vec = sol.decomposition_method(k, self.basis, bnd_pts, L, A, eps = self.eps, return_vector = True)
+                ten, vec = sol.decomposition_method(k, self.basis, bnd_pts, L, eps = self.eps, return_vector = True)
             
             #construct normalization matrix
             U = self.basis.evaluate_u(k, bnd_x, bnd_y, nx, ny)  #Transposed boundary function
