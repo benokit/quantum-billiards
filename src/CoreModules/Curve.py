@@ -192,9 +192,9 @@ class curve:
         #ymin = np.min(y) - 0.15
         #ymax = np.max(y) + 0.15
         if self.virtual:
-            plt.plot(x, y, lw = 1.0, color = color, ls="--")
+            plt.plot(x, y, color = color, ls="--")
         else:
-            plt.plot(x, y, lw = 1.5, color = color)
+            plt.plot(x, y, color = color)
             if normal:
                 plt.quiver(x,y,nx,ny)
         #ax = plt.gca()

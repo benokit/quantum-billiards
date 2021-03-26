@@ -1,8 +1,10 @@
+import time
 import numpy as np
 import copy
 from scipy import optimize
 from . import Utils as ut
 from . import Solvers as solvers
+from . import Weyl as weyl
 import matplotlib.pyplot as plt
 
 
@@ -244,7 +246,7 @@ class spectrum:
         else:
             return 0, 0
 
-    def plot_tension(self, kmin, kmax, solver = "DM", point_density = 100, Mi= 100, grid = 200, plot_params = {}, log = True, scale_basis = None, eps = 0.5e-15):
+    def plot_tension(self, kmin, kmax, solver = "DM", delta = 5, Mi= 100, grid = 200, plot_params = {}, log = True, scale_basis = None, eps = 0.5e-15):
         """Visualisation function. Computes and plots the tension on a grid of points
         in the given wavenumber interval. 
 
@@ -291,8 +293,10 @@ class spectrum:
             The wavenumber evaluation points
         tensions : float
             The tension at the evaluation points.    
-        """        
-        bnd_pts = self.billiard.evaluate_boundary(point_density, evaluate_virtual = False, midpts = True, normal = True, weights = True)
+        """ 
+
+        M =  kmax*delta/(2*np.pi)       
+        bnd_pts = self.billiard.evaluate_boundary(M, evaluate_virtual = False, midpts = True, normal = True, weights = True)
         
         L = self.billiard.length
         n_funct = len(self.basis.basis_functions)
@@ -335,7 +339,7 @@ class spectrum:
             return 0
 
 
-    def compute_spectrum(self, k1, k2, dk, overlap = 0.3, point_density = 100, scale_basis = None, eps = 0.5e-15, tolerance=None, return_tensions = True):
+    def compute_spectrum(self, k1, k2, dk, overlap = 0.3, delta = 5, scale_basis = 1.2, eps = 0.5e-15, tolerance=None, return_tensions = True, print_info = False):
         """Computes the spectrum of the billiard on the given wavenumber interval by 
         successively using the scaling method to find local solutions.
 
@@ -357,9 +361,10 @@ class spectrum:
             Set any value from 0 to 1. If set to 1 the right half
             of the previous evaluation subinterval fully overlaps the
             left half of the next subinterval. 
-        point_density : float
-            The linear density of points evaluated on the boundary.
-            (default is 100)
+        delta : float
+            Controls the linear density of points evaluated on the boundary.
+            The density is M =  k2*delta/(2*np.pi).
+            (default is 5)
         scale_basis : None or float or list
             If not None the basis is scaled according to include 
             scale_basis*k*L basis functions, where L is the length of the billiard boundary. 
@@ -385,11 +390,14 @@ class spectrum:
             (optional) The tensions of the found eigenstates.
         """
 
+        L = self.billiard.length      
+        #compute boundary points
+        M =  k2*delta/(2*np.pi)
 
-        bnd_pts = self.billiard.evaluate_boundary(point_density, evaluate_virtual = False, midpts = True, normal = True, weights = True)
+        bnd_pts = self.billiard.evaluate_boundary(M, evaluate_virtual = False, midpts = True, normal = True, weights = True)
         
-        L = self.billiard.length
         n_funct = len(self.basis.basis_functions)
+
         if scale_basis is not None:
             if not isinstance(scale_basis, list):
                 b = np.array([scale_basis for i in range(n_funct)])
@@ -400,7 +408,7 @@ class spectrum:
                 #print(b)
             self.basis.set_basis_size([int(np.ceil(k2*L*i/(2*np.pi))) for i in b])
 
-        spect0, tensions = solvers.scaling_method(k1, dk*(1+overlap),  self.basis, bnd_pts, eps = eps)
+        spect0, tensions = solvers.scaling_method(k1, dk*(1+overlap),  self.basis, bnd_pts, eps = eps, print_info = print_info )
         spect = spect0[spect0 > k1]
         tensions = tensions[spect0 > k1]
         #print(len(spect),len(tensions))
@@ -421,7 +429,7 @@ class spectrum:
         else:
             return spect[spect < k2]
 
-    def compute_scaling_method(self, k0 ,dk, point_density = 100, scale_basis = None, eps = 0.5e-15):
+    def compute_scaling_method(self, k0 ,dk, delta = 5, scale_basis = 1.5, eps = 0.5e-15, show_matrix=False, print_info = False):
         """Computes the spectrum of the billiard on the given wavenumber interval by 
         using the scaling method.
         
@@ -444,6 +452,9 @@ class spectrum:
             If not None the matrices are regularized by truncating the eigenvalues < eps
             We suggest using the default value.
             (default is 0.5e-15)
+        show_matrix : bool
+            If True plots the tension matrix by using the plot_matrix function.
+            (default is False)
       
         Returns
         -------
@@ -452,10 +463,14 @@ class spectrum:
         tensions : numpy array
             The tensions of the found eigenstates.
         """
-
-        bnd_pts = self.billiard.evaluate_boundary(point_density, evaluate_virtual = False, midpts = True, normal = True, weights = True)
+        L = self.billiard.length      
+        #compute boundary points
+        M =  k0*delta/(2*np.pi)
+        start_time = time.time()
+        bnd_pts = self.billiard.evaluate_boundary(M, evaluate_virtual = False, midpts = True, normal = True, weights = True)
+        if print_info:
+            print("Boundary points evaluation time: %s s" % (time.time() - start_time), flush=True)
         k2 = k0
-        L = self.billiard.length
         n_funct = len(self.basis.basis_functions)
         if scale_basis is not None:
             if not isinstance(scale_basis, list):
@@ -467,11 +482,11 @@ class spectrum:
                 #print(b)
             self.basis.set_basis_size([int(np.ceil(k2*L*i/(2*np.pi))) for i in b])
 
-        return solvers.scaling_method(k0, dk,  self.basis, bnd_pts, eps = eps)
+        return solvers.scaling_method(k0, dk,  self.basis, bnd_pts, eps = eps, show_matrix=show_matrix, print_info = print_info)
 
 
 
-    def correct_spectrum(self, ks, dk, solver= "DM", point_density = 100, Mi= 100 , scale_basis = None, eps = False):
+    def correct_spectrum(self, ks, dk, solver= "DM", point_density = 100, Mi= 100 , scale_basis = None, eps = 1e-16):
         """Corrects the values of the given eigenvalues by locally minimizing the tension.
 
         !!!Beta version!!!
@@ -518,3 +533,4 @@ class spectrum:
         spect, tensions = np.transpose(np.array(res))
         return spect, tensions
 
+    

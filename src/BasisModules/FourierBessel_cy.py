@@ -1,7 +1,7 @@
 import numpy as np
-from ..cython_functions import Jv, Jvp, Sin, Cos
 import sys
 sys.path.append("..")
+from ..cython_functions import Jv, Jvp, Sin, Cos
 from ..CoreModules import BasisFunction as bf
 from ..CoreModules import Basis as ba
 
@@ -146,4 +146,55 @@ def make_FBca_basis(par_list = [{"nu":1, "x0":0, "y0" : 0, "phi0" : 0 , "sym" : 
                             gradient = fb_ca_grad,
                             k_derivative = fb_ca_dk)
         basis_functions.append(fb_function)
+    return ba.basis(basis_functions)
+
+
+def fb_ee(i,k,x,y, x0=0, y0 = 0):
+    if i == 0:
+        return fb_0(i,k,x,y,x0=0,y0=0)
+    else:
+        return fb_0(2*i,k,x,y,x0=x0,y0=0)
+
+def fb_ee_grad(i,k,x,y, x0=0, y0 = 0):
+    if i == 0:
+        return fb_0_grad(i,k,x,y,x0=x0,y0=0)
+    else:
+        return fb_0_grad(2*i,k,x,y,x0=x0,y0=0)
+
+def fb_ee_dk(i,k,x,y, x0=0, y0 = 0):
+    if i == 0:
+        return fb_0_dk(i,k,x,y,x0=x0,y0=y0)
+    else:
+        return fb_0_dk(2*i,k,x,y,x0=x0,y0=0)
+
+def make_FBq_basis(sym_x, sym_y):
+    basis_functions = []
+    if sym_x == "odd" and sym_y == "odd":
+        pars = {"nu":2, "x0":0, "y0" : 0, "phi0" : 0 , "sym" : None}
+        fb_function = bf.basis_function(fb_ca, pars, 
+                    gradient = fb_ca_grad,
+                    k_derivative = fb_ca_dk)
+        basis_functions.append(fb_function)
+
+    if sym_x == "even" and sym_y == "even":
+        pars = { "x0":0, "y0" : 0}
+        fb_function = bf.basis_function(fb_ee, pars, 
+                    gradient = fb_ee_grad,
+                    k_derivative = fb_ee_dk)
+        basis_functions.append(fb_function)
+
+    if sym_x == "odd" and sym_y == "even":
+        pars = {"nu":1, "x0":0, "y0" : 0, "phi0" : 0 , "sym" : "odd"}
+        fb_function = bf.basis_function(fb_ca, pars, 
+                    gradient = fb_ca_grad,
+                    k_derivative = fb_ca_dk)
+        basis_functions.append(fb_function)
+
+    if sym_x == "even" and sym_y == "odd":
+        pars = {"nu":1, "x0":0, "y0" : 0, "phi0" : -np.pi/2 , "sym" : "odd"}
+        fb_function = bf.basis_function(fb_ca, pars, 
+                    gradient = fb_ca_grad,
+                    k_derivative = fb_ca_dk)
+        basis_functions.append(fb_function)
+
     return ba.basis(basis_functions)

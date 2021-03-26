@@ -48,7 +48,7 @@ class basis:
 
     
     # It's a constructor, innit! #
-    def __init__(self, basis_functions, min_size = 10):
+    def __init__(self, basis_functions, min_size = 200):
         """
         Parameters
         ----------
@@ -60,6 +60,7 @@ class basis:
             Number of each kind of basis function at initialization.
             (default is 10)
         """
+        self.min_size = min_size
         self.basis_functions = basis_functions
         self.basis_size = [min_size for i in range (len(basis_functions))]
         
@@ -78,7 +79,12 @@ class basis:
             The size of the list of integers must corespond to the size of the list of basis functions.
             This allows for different sizes for different basis functions.   
         """
-        self.basis_size = ns
+        bs = self.basis_size
+        new = [self.min_size for i in range(len(bs))]
+        for i in range(len(bs)):
+            if ns[i]> self.min_size:
+                new[i] = ns[i]
+        self.basis_size = new
         
     def evaluate_basis(self, k, x, y):
         """
@@ -106,9 +112,9 @@ class basis:
         for i in range(sz):
             n = self.basis_size[i]
             bf = self.basis_functions[i]
-            #A =  np.array([bf.f(j,k,x,y,n = n) for j in range(n)])/np.sqrt(n)
-            js = [j for j in range(n)]
-            A = np.array(list(map(lambda j: bf.f(j,k,x,y,n = n), js)))/np.sqrt(n)
+            A =  np.array([bf.f(j,k,x,y,n = n) for j in range(n)])/np.sqrt(n)
+            #js = [j for j in range(n)]
+            #A = np.array(list(map(lambda j: bf.f(j,k,x,y,n = n), js)))/np.sqrt(n)
             result.append(A)
     
         return np.concatenate(result)
@@ -183,7 +189,7 @@ class basis:
     
         return np.concatenate(result)
     
-    def plot_basis_function(self,i,kind,k):
+    def plot_basis_function(self,i,kind,k, cmap='RdBu', xlim = (-1,1), ylim= (-1,1)):
         """Visualisation function. Plots selected basis function.
 
         Parameters
@@ -196,7 +202,7 @@ class basis:
         k : float
             The wavenumber.
         """
-        self.basis_functions[kind].plot_fun(i,k)
+        self.basis_functions[kind].plot_fun(i,k, cmap=cmap, xlim = xlim, ylim= ylim)
 
     def plot_basis(self, k):
         """Visualisation function. Plots first 9 basis functions of each kind.
@@ -220,7 +226,7 @@ class basis:
                 bf.plot_fun(i, k, n = bs)
             plt.tight_layout()
     
-    def add_basis_function(self, basis_fun, min_size = 10):
+    def add_basis_function(self, basis_fun, min_size = 300):
         """Adds basis function to basis.
         
         Parameters

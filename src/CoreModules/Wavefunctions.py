@@ -184,6 +184,10 @@ class wavefunctions:
         if method == "montecarlo":
             int_pts = self.billiard.random_interior_points(Mi, bnd_pts_dens = 20)
             x,y = int_pts.x, int_pts.y
+            Mint = len(x)
+            plt.plot(x,y, ".")
+            print(Mint/Mi)
+            self.billiard.plot_boundary()
             psi = self.psi(k, x, y, delta=delta)
             repsi = psi.real
             impsi = psi.imag
@@ -200,7 +204,51 @@ class wavefunctions:
         H = hf.husimiOnGrid(k, s, ds, u, qs, ps)
         return H
 
-    
+    def plot_amplitude_histogram(self, k, vec = None, grid = 400, bins = 20, delta = 5, kind = "square"):
+        #grid size
+        L = self.billiard.length
+        sym_x = self.sym_x
+        sym_y = self.sym_y
+        bnd_pts = self.billiard.evaluate_boundary(2*np.pi*10/L, 
+                                                evaluate_virtual = True, evaluate_sym=True, normal=False, midpts = False)
+        boundary_x, boundary_y = bnd_pts.x, bnd_pts.y
+        xmin, xmax, ymin, ymax = ut.define_plot_area(boundary_x, boundary_y, sym_x, sym_y)
+        #coordinates for plot
+        q = np.linspace(xmin, xmax, grid+1)
+        q2  = np.linspace(ymin, ymax, grid+1)
+          
+        #coordinates for wavefunction
+        q = ut.midpoints(q) 
+        q2 = ut.midpoints(q2)
+        X,Y = np.meshgrid(q,q2)
+
+        # find points inside of polygon        
+        polygon = np.array([boundary_x, boundary_y]).T #array of boundary points [x,y] 
+        xx = X.ravel()
+        yy = Y.ravel()
+        points = np.array((xx, yy)).T
+        path = mpltPath.Path(polygon) 
+        inside = path.contains_points(points) #indices of points inside polygon
+        
+        #calculate probability    
+        psi = np.zeros(grid*grid)
+        psi[inside] = self.psi(k, xx[inside], yy[inside], delta=delta, vec = vec)
+        
+        repsi = psi[inside].real
+        impsi = psi[inside].imag
+        Z = repsi*repsi + impsi*impsi
+
+        if kind == "square":
+            h, bins = np.histogram(Z, bins=bins, density=True)
+            plt.plot((bins[1:] + bins[:-1])/2, h) 
+        if kind == "imag":
+            h, bins = np.histogram(impsi, bins=bins, density=True)
+            plt.plot((bins[1:] + bins[:-1])/2, h) 
+        if kind == "real":
+            h, bins = np.histogram(repsi, bins=bins, density=True)
+            plt.plot((bins[1:] + bins[:-1])/2, h) 
+        #vmax = np.max(Z)
+
 
 
     def plot_probability(self, k, vec = None, grid = 400, cmap='binary', plot_exterior = False, delta = 5, plot_full=False, axis=False):
@@ -260,7 +308,8 @@ class wavefunctions:
             repsi = psi.real
             impsi = psi.imag
             Z = repsi*repsi + impsi*impsi
-            vmax = np.max(Z)
+            vmax = np.max(Z)*0.5
+
 
         if plot_full:
             Xplot, Yplot = ut.reflect_plot_area(Xplot, Yplot, sym_x, sym_y)

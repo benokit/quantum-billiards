@@ -106,7 +106,7 @@ class basis_function:
         self.par_fun = par_fun
         
             
-    def f(self, i, k, x, y, n = None):
+    def f(self, i, k, x, y, n = None, **kwargs):
         """Evaluates basis function with index i and wavenumber k at point (x, y).
             
         Parameters
@@ -131,14 +131,14 @@ class basis_function:
         """
 
         if self.par_fun  is not None:
-            scaled_params = self.par_fun(i, n)
+            scaled_params = self.par_fun(i, n, **kwargs)
             par = {**self.static_params, **scaled_params}
         else: 
             par = self.static_params
         #print(par)
         return self.fun(i, k, x, y, **par)
     
-    def grad_f(self, i, k, x, y, n = None):
+    def grad_f(self, i, k, x, y, n = None, **kwargs):
         """Evaluates gradient of the basis function,
         with index i and wavenumber k at point (x, y).
             
@@ -166,14 +166,14 @@ class basis_function:
         """
 
         if self.par_fun  is not None:
-            scaled_params = self.par_fun(i, n)
+            scaled_params = self.par_fun(i, n, **kwargs)
             par = {**self.static_params, **scaled_params}
         else: 
             par = self.static_params
         #print(par)
         return self.gradient(i, k, x, y, **par)
     
-    def u_f(self, i, k, x, y, nx, ny, n = None):
+    def u_f(self, i, k, x, y, nx, ny, n = None, **kwargs):
         """Evaluates directional dervative of basis function,
         with index i and wavenumber k at point (x, y),
         with regard to the vector (nx, ny).
@@ -206,7 +206,7 @@ class basis_function:
         grd_x, grd_y = self.grad_f( i, k, x, y, n = n)
         return nx*grd_x + ny*grd_y
     
-    def df_dk(self, i, k, x, y, n = None):
+    def df_dk(self, i, k, x, y, n = None, **kwargs):
         """Evaluates dervative of basis function with regard to k,
         with index i and wavenumber k at point (x, y).
         
@@ -231,14 +231,14 @@ class basis_function:
             Array of k derivative values, with the same shape as x and y.
         """
         if self.par_fun is not None:
-            scaled_params = self.par_fun(i, n)
+            scaled_params = self.par_fun(i, n, **kwargs)
             par = {**self.static_params, **scaled_params}
         else: 
             par = self.static_params
         #print(par)
         return self.k_derivative(i, k, x, y, **par)
     
-    def plot_fun(self, i, k, n = None, grid = 400, cmap='RdBu', xlim = (-1,1), ylim= (-1,1)):
+    def plot_fun(self, i, k, n = None,  grid = 400, cmap='RdBu', xlim = (-1,1), ylim= (-1,1),**kwargs):
         """Visualisation function. Plots the basis function with index i and wavenumber k.
         Uses the matplotlib pcolormap function. 
         
@@ -282,7 +282,7 @@ class basis_function:
         X,Y = np.meshgrid(q,q2)
 
         #calculate probability    
-        Z = self.f(i, k, X, Y, n = n)
+        Z = self.f(i, k, X, Y, n = n, **kwargs)
         Z = np.reshape(Z, (grid,grid))
         #vmax = np.max(Z)
      

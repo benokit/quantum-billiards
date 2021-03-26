@@ -4,6 +4,14 @@ def midpoints(array):
     """ helper function returns array of half distances between points in array""" 
     return (array[1:] + array[:-1])/2
 
+def angle(u,v):
+    "Returns angle between vectors"
+    x1, y1 = u
+    x2, y2 = v
+    dot = x1*x2 + y1*y2      # dot product between [x1, y1] and [x2, y2]
+    det = x1*y2 - y1*x2 
+    return np.arctan2(det, dot)
+
 def find_nearest(array, value):
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()

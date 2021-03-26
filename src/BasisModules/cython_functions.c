@@ -1400,6 +1400,15 @@ static CYTHON_INLINE int __pyx_sub_acquisition_count_locked(
 static CYTHON_INLINE void __Pyx_INC_MEMVIEW(__Pyx_memviewslice *, int, int);
 static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *, int, int);
 
+/* IncludeStringH.proto */
+#include <string.h>
+
+/* BytesEquals.proto */
+static CYTHON_INLINE int __Pyx_PyBytes_Equals(PyObject* s1, PyObject* s2, int equals);
+
+/* UnicodeEquals.proto */
+static CYTHON_INLINE int __Pyx_PyUnicode_Equals(PyObject* s1, PyObject* s2, int equals);
+
 /* PyCFunctionFastCall.proto */
 #if CYTHON_FAST_PYCCALL
 static CYTHON_INLINE PyObject *__Pyx_PyCFunction_FastCall(PyObject *func, PyObject **args, Py_ssize_t nargs);
@@ -1449,15 +1458,6 @@ static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *nam
 
 /* RaiseException.proto */
 static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause);
-
-/* IncludeStringH.proto */
-#include <string.h>
-
-/* BytesEquals.proto */
-static CYTHON_INLINE int __Pyx_PyBytes_Equals(PyObject* s1, PyObject* s2, int equals);
-
-/* UnicodeEquals.proto */
-static CYTHON_INLINE int __Pyx_PyUnicode_Equals(PyObject* s1, PyObject* s2, int equals);
 
 /* StrEquals.proto */
 #if PY_MAJOR_VERSION >= 3
@@ -1860,6 +1860,9 @@ static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsds__
 /* ObjectToMemviewSlice.proto */
 static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_double(PyObject *, int writable_flag);
 
+/* ObjectToMemviewSlice.proto */
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_float(PyObject *, int writable_flag);
+
 /* CheckBinaryVersion.proto */
 static int __Pyx_check_binary_version(void);
 
@@ -1905,9 +1908,12 @@ static int __pyx_memoryview_thread_locks_used;
 static PyThread_type_lock __pyx_memoryview_thread_locks[8];
 static void __pyx_f_16cython_functions__parallel_G(double, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
 static void __pyx_f_16cython_functions_bessel_parallel(double, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
+static void __pyx_f_16cython_functions_bessel_parallel32(float, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
 static void __pyx_f_16cython_functions_bessel_derivative_parallel(double, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
 static void __pyx_f_16cython_functions_sin_parallel(__Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
+static void __pyx_f_16cython_functions_sin_parallel32(__Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
 static void __pyx_f_16cython_functions_cos_parallel(__Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
+static void __pyx_f_16cython_functions_cos_parallel32(__Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
 static struct __pyx_array_obj *__pyx_array_new(PyObject *, Py_ssize_t, char *, char *, char *); /*proto*/
 static void *__pyx_align_pointer(void *, size_t); /*proto*/
 static PyObject *__pyx_memoryview_new(PyObject *, int, int, __Pyx_TypeInfo *); /*proto*/
@@ -1943,6 +1949,7 @@ static void __pyx_memoryview__slice_assign_scalar(char *, Py_ssize_t *, Py_ssize
 static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, PyObject *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_double = { "double", NULL, sizeof(double), { 0 }, 0, 'R', 0, 0 };
 static __Pyx_TypeInfo __Pyx_TypeInfo___pyx_t_double_complex = { "double complex", NULL, sizeof(__pyx_t_double_complex), { 0 }, 0, 'C', 0, 0 };
+static __Pyx_TypeInfo __Pyx_TypeInfo_float = { "float", NULL, sizeof(float), { 0 }, 0, 'R', 0, 0 };
 #define __Pyx_MODULE_NAME "cython_functions"
 extern int __pyx_module_is_main_cython_functions;
 int __pyx_module_is_main_cython_functions = 0;
@@ -1975,6 +1982,7 @@ static const char __pyx_k_obj[] = "obj";
 static const char __pyx_k_out[] = "out";
 static const char __pyx_k_base[] = "base";
 static const char __pyx_k_dict[] = "__dict__";
+static const char __pyx_k_dtyp[] = "dtyp";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_mode[] = "mode";
 static const char __pyx_k_name[] = "name";
@@ -2105,6 +2113,7 @@ static PyObject *__pyx_n_s_cython_functions;
 static PyObject *__pyx_n_s_d;
 static PyObject *__pyx_n_s_dict;
 static PyObject *__pyx_n_u_double;
+static PyObject *__pyx_n_s_dtyp;
 static PyObject *__pyx_n_s_dtype;
 static PyObject *__pyx_n_s_dtype_is_object;
 static PyObject *__pyx_n_s_empty_like;
@@ -2264,7 +2273,7 @@ static PyObject *__pyx_codeobj__28;
 static PyObject *__pyx_codeobj__35;
 /* Late includes */
 
-/* "cython_functions.pyx":14
+/* "cython_functions.pyx":15
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * cdef void _parallel_G(double k, double[:,:] x, double[:,:] y,             # <<<<<<<<<<<<<<
@@ -2291,14 +2300,14 @@ static void __pyx_f_16cython_functions__parallel_G(double __pyx_v_k, __Pyx_memvi
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
 
-  /* "cython_functions.pyx":18
+  /* "cython_functions.pyx":19
  *     cdef int i, j
  * 
- *     for i in prange(x.shape[0]):             # <<<<<<<<<<<<<<
+ *     for i in prange(x.shape[0], num_threads = None):             # <<<<<<<<<<<<<<
  *         for j in range(y.shape[0]):
  *             out[i,j] = 0.25j*csc.hankel1(0, k*fabs(x[i,j] - y[i,j]))
  */
-  if (unlikely(!__pyx_v_x.memview)) { __Pyx_RaiseUnboundMemoryviewSliceNogil("x"); __PYX_ERR(0, 18, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_x.memview)) { __Pyx_RaiseUnboundMemoryviewSliceNogil("x"); __PYX_ERR(0, 19, __pyx_L1_error) }
   __pyx_t_1 = (__pyx_v_x.shape[0]);
   if ((1 == 0)) abort();
   {
@@ -2324,9 +2333,9 @@ static void __pyx_f_16cython_functions__parallel_G(double __pyx_v_k, __Pyx_memvi
                       /* Initialize private variables to invalid values */
                       __pyx_v_j = ((int)0xbad0bad0);
 
-                      /* "cython_functions.pyx":19
+                      /* "cython_functions.pyx":20
  * 
- *     for i in prange(x.shape[0]):
+ *     for i in prange(x.shape[0], num_threads = None):
  *         for j in range(y.shape[0]):             # <<<<<<<<<<<<<<
  *             out[i,j] = 0.25j*csc.hankel1(0, k*fabs(x[i,j] - y[i,j]))
  * 
@@ -2336,8 +2345,8 @@ static void __pyx_f_16cython_functions__parallel_G(double __pyx_v_k, __Pyx_memvi
                       for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
                         __pyx_v_j = __pyx_t_6;
 
-                        /* "cython_functions.pyx":20
- *     for i in prange(x.shape[0]):
+                        /* "cython_functions.pyx":21
+ *     for i in prange(x.shape[0], num_threads = None):
  *         for j in range(y.shape[0]):
  *             out[i,j] = 0.25j*csc.hankel1(0, k*fabs(x[i,j] - y[i,j]))             # <<<<<<<<<<<<<<
  * 
@@ -2363,7 +2372,7 @@ static void __pyx_f_16cython_functions__parallel_G(double __pyx_v_k, __Pyx_memvi
       #define unlikely(x) __builtin_expect(!!(x), 0)
   #endif
 
-  /* "cython_functions.pyx":14
+  /* "cython_functions.pyx":15
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * cdef void _parallel_G(double k, double[:,:] x, double[:,:] y,             # <<<<<<<<<<<<<<
@@ -2378,7 +2387,7 @@ static void __pyx_f_16cython_functions__parallel_G(double __pyx_v_k, __Pyx_memvi
   __pyx_L0:;
 }
 
-/* "cython_functions.pyx":22
+/* "cython_functions.pyx":23
  *             out[i,j] = 0.25j*csc.hankel1(0, k*fabs(x[i,j] - y[i,j]))
  * 
  * def parallel_G(k, x, y):             # <<<<<<<<<<<<<<
@@ -2424,17 +2433,17 @@ static PyObject *__pyx_pw_16cython_functions_1parallel_G(PyObject *__pyx_self, P
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("parallel_G", 1, 3, 3, 1); __PYX_ERR(0, 22, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("parallel_G", 1, 3, 3, 1); __PYX_ERR(0, 23, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_y)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("parallel_G", 1, 3, 3, 2); __PYX_ERR(0, 22, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("parallel_G", 1, 3, 3, 2); __PYX_ERR(0, 23, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "parallel_G") < 0)) __PYX_ERR(0, 22, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "parallel_G") < 0)) __PYX_ERR(0, 23, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -2449,7 +2458,7 @@ static PyObject *__pyx_pw_16cython_functions_1parallel_G(PyObject *__pyx_self, P
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("parallel_G", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 22, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("parallel_G", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 23, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("cython_functions.parallel_G", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2479,27 +2488,27 @@ static PyObject *__pyx_pf_16cython_functions_parallel_G(CYTHON_UNUSED PyObject *
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("parallel_G", 0);
 
-  /* "cython_functions.pyx":23
+  /* "cython_functions.pyx":24
  * 
  * def parallel_G(k, x, y):
  *     out = np.empty_like(x, dtype='complex128')             # <<<<<<<<<<<<<<
  *     _parallel_G(k, x, y, out)
  *     return out
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_v_x);
   __Pyx_GIVEREF(__pyx_v_x);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_x);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_n_u_complex128) < 0) __PYX_ERR(0, 23, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 23, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_n_u_complex128) < 0) __PYX_ERR(0, 24, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -2507,17 +2516,17 @@ static PyObject *__pyx_pf_16cython_functions_parallel_G(CYTHON_UNUSED PyObject *
   __pyx_v_out = __pyx_t_4;
   __pyx_t_4 = 0;
 
-  /* "cython_functions.pyx":24
+  /* "cython_functions.pyx":25
  * def parallel_G(k, x, y):
  *     out = np.empty_like(x, dtype='complex128')
  *     _parallel_G(k, x, y, out)             # <<<<<<<<<<<<<<
  *     return out
  * 
  */
-  __pyx_t_5 = __pyx_PyFloat_AsDouble(__pyx_v_k); if (unlikely((__pyx_t_5 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 24, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_v_x, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 24, __pyx_L1_error)
-  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_v_y, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 24, __pyx_L1_error)
-  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_dsds___pyx_t_double_complex(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 24, __pyx_L1_error)
+  __pyx_t_5 = __pyx_PyFloat_AsDouble(__pyx_v_k); if (unlikely((__pyx_t_5 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_v_x, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_v_y, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_dsds___pyx_t_double_complex(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 25, __pyx_L1_error)
   __pyx_f_16cython_functions__parallel_G(__pyx_t_5, __pyx_t_6, __pyx_t_7, __pyx_t_8);
   __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
   __pyx_t_6.memview = NULL;
@@ -2529,19 +2538,19 @@ static PyObject *__pyx_pf_16cython_functions_parallel_G(CYTHON_UNUSED PyObject *
   __pyx_t_8.memview = NULL;
   __pyx_t_8.data = NULL;
 
-  /* "cython_functions.pyx":25
+  /* "cython_functions.pyx":26
  *     out = np.empty_like(x, dtype='complex128')
  *     _parallel_G(k, x, y, out)
  *     return out             # <<<<<<<<<<<<<<
  * 
- * #pralellized bessel function
+ * 
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_out);
   __pyx_r = __pyx_v_out;
   goto __pyx_L0;
 
-  /* "cython_functions.pyx":22
+  /* "cython_functions.pyx":23
  *             out[i,j] = 0.25j*csc.hankel1(0, k*fabs(x[i,j] - y[i,j]))
  * 
  * def parallel_G(k, x, y):             # <<<<<<<<<<<<<<
@@ -2567,7 +2576,7 @@ static PyObject *__pyx_pf_16cython_functions_parallel_G(CYTHON_UNUSED PyObject *
   return __pyx_r;
 }
 
-/* "cython_functions.pyx":31
+/* "cython_functions.pyx":34
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * cdef void bessel_parallel(double order, double[:] arg,             # <<<<<<<<<<<<<<
@@ -2586,14 +2595,14 @@ static void __pyx_f_16cython_functions_bessel_parallel(double __pyx_v_order, __P
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
 
-  /* "cython_functions.pyx":34
+  /* "cython_functions.pyx":37
  *                           double[:] out) nogil:
  *     cdef int i
- *     for i in prange(arg.shape[0]):             # <<<<<<<<<<<<<<
+ *     for i in prange(arg.shape[0], num_threads = None):             # <<<<<<<<<<<<<<
  *         out[i] = csc.jv(order, arg[i])
  * 
  */
-  if (unlikely(!__pyx_v_arg.memview)) { __Pyx_RaiseUnboundMemoryviewSliceNogil("arg"); __PYX_ERR(0, 34, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_arg.memview)) { __Pyx_RaiseUnboundMemoryviewSliceNogil("arg"); __PYX_ERR(0, 37, __pyx_L1_error) }
   __pyx_t_1 = (__pyx_v_arg.shape[0]);
   if ((1 == 0)) abort();
   {
@@ -2617,9 +2626,9 @@ static void __pyx_f_16cython_functions_bessel_parallel(double __pyx_v_order, __P
                   {
                       __pyx_v_i = (int)(0 + 1 * __pyx_t_2);
 
-                      /* "cython_functions.pyx":35
+                      /* "cython_functions.pyx":38
  *     cdef int i
- *     for i in prange(arg.shape[0]):
+ *     for i in prange(arg.shape[0], num_threads = None):
  *         out[i] = csc.jv(order, arg[i])             # <<<<<<<<<<<<<<
  * 
  * @cython.boundscheck(False)
@@ -2639,7 +2648,7 @@ static void __pyx_f_16cython_functions_bessel_parallel(double __pyx_v_order, __P
       #define unlikely(x) __builtin_expect(!!(x), 0)
   #endif
 
-  /* "cython_functions.pyx":31
+  /* "cython_functions.pyx":34
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * cdef void bessel_parallel(double order, double[:] arg,             # <<<<<<<<<<<<<<
@@ -2654,39 +2663,33 @@ static void __pyx_f_16cython_functions_bessel_parallel(double __pyx_v_order, __P
   __pyx_L0:;
 }
 
-/* "cython_functions.pyx":39
+/* "cython_functions.pyx":42
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
- * cdef void bessel_parallel_2d(double order, double[:,:] arg,             # <<<<<<<<<<<<<<
- *                           double[:,:] out) nogil:
- *     cdef int i, j
+ * cdef void bessel_parallel32(float order, float[:] arg,             # <<<<<<<<<<<<<<
+ *                           float[:] out) nogil:
+ *     cdef int i
  */
 
-static void __pyx_f_16cython_functions_bessel_parallel_2d(double __pyx_v_order, __Pyx_memviewslice __pyx_v_arg, __Pyx_memviewslice __pyx_v_out) {
+static void __pyx_f_16cython_functions_bessel_parallel32(float __pyx_v_order, __Pyx_memviewslice __pyx_v_arg, __Pyx_memviewslice __pyx_v_out) {
   int __pyx_v_i;
-  int __pyx_v_j;
   Py_ssize_t __pyx_t_1;
   Py_ssize_t __pyx_t_2;
   Py_ssize_t __pyx_t_3;
   Py_ssize_t __pyx_t_4;
   Py_ssize_t __pyx_t_5;
-  int __pyx_t_6;
-  Py_ssize_t __pyx_t_7;
-  Py_ssize_t __pyx_t_8;
-  Py_ssize_t __pyx_t_9;
-  Py_ssize_t __pyx_t_10;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
 
-  /* "cython_functions.pyx":42
- *                           double[:,:] out) nogil:
- *     cdef int i, j
- *     for i in prange(arg.shape[0]):             # <<<<<<<<<<<<<<
- *         for j in range(arg.shape[1]):
- *             out[i, j] = csc.jv(order, arg[i, j])
+  /* "cython_functions.pyx":45
+ *                           float[:] out) nogil:
+ *     cdef int i
+ *     for i in prange(arg.shape[0], num_threads = None):             # <<<<<<<<<<<<<<
+ *         out[i] = csc.jv(order, arg[i])
+ * 
  */
-  if (unlikely(!__pyx_v_arg.memview)) { __Pyx_RaiseUnboundMemoryviewSliceNogil("arg"); __PYX_ERR(0, 42, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_arg.memview)) { __Pyx_RaiseUnboundMemoryviewSliceNogil("arg"); __PYX_ERR(0, 45, __pyx_L1_error) }
   __pyx_t_1 = (__pyx_v_arg.shape[0]);
   if ((1 == 0)) abort();
   {
@@ -2700,43 +2703,26 @@ static void __pyx_f_16cython_functions_bessel_parallel_2d(double __pyx_v_order, 
       if (__pyx_t_3 > 0)
       {
           #ifdef _OPENMP
-          #pragma omp parallel private(__pyx_t_10, __pyx_t_4, __pyx_t_5, __pyx_t_6, __pyx_t_7, __pyx_t_8, __pyx_t_9)
+          #pragma omp parallel private(__pyx_t_4, __pyx_t_5)
           #endif /* _OPENMP */
           {
               #ifdef _OPENMP
-              #pragma omp for firstprivate(__pyx_v_i) lastprivate(__pyx_v_i) lastprivate(__pyx_v_j)
+              #pragma omp for firstprivate(__pyx_v_i) lastprivate(__pyx_v_i)
               #endif /* _OPENMP */
               for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_3; __pyx_t_2++){
                   {
                       __pyx_v_i = (int)(0 + 1 * __pyx_t_2);
-                      /* Initialize private variables to invalid values */
-                      __pyx_v_j = ((int)0xbad0bad0);
 
-                      /* "cython_functions.pyx":43
- *     cdef int i, j
- *     for i in prange(arg.shape[0]):
- *         for j in range(arg.shape[1]):             # <<<<<<<<<<<<<<
- *             out[i, j] = csc.jv(order, arg[i, j])
- * 
- */
-                      __pyx_t_4 = (__pyx_v_arg.shape[1]);
-                      __pyx_t_5 = __pyx_t_4;
-                      for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
-                        __pyx_v_j = __pyx_t_6;
-
-                        /* "cython_functions.pyx":44
- *     for i in prange(arg.shape[0]):
- *         for j in range(arg.shape[1]):
- *             out[i, j] = csc.jv(order, arg[i, j])             # <<<<<<<<<<<<<<
+                      /* "cython_functions.pyx":46
+ *     cdef int i
+ *     for i in prange(arg.shape[0], num_threads = None):
+ *         out[i] = csc.jv(order, arg[i])             # <<<<<<<<<<<<<<
  * 
  * def Jv(order, arg):
  */
-                        __pyx_t_7 = __pyx_v_i;
-                        __pyx_t_8 = __pyx_v_j;
-                        __pyx_t_9 = __pyx_v_i;
-                        __pyx_t_10 = __pyx_v_j;
-                        *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_out.data + __pyx_t_9 * __pyx_v_out.strides[0]) ) + __pyx_t_10 * __pyx_v_out.strides[1]) )) = __pyx_fuse_1__pyx_f_5scipy_7special_14cython_special_jv(__pyx_v_order, (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_arg.data + __pyx_t_7 * __pyx_v_arg.strides[0]) ) + __pyx_t_8 * __pyx_v_arg.strides[1]) ))), 0);
-                      }
+                      __pyx_t_4 = __pyx_v_i;
+                      __pyx_t_5 = __pyx_v_i;
+                      *((float *) ( /* dim=0 */ (__pyx_v_out.data + __pyx_t_5 * __pyx_v_out.strides[0]) )) = __pyx_fuse_1__pyx_f_5scipy_7special_14cython_special_jv(__pyx_v_order, (*((float *) ( /* dim=0 */ (__pyx_v_arg.data + __pyx_t_4 * __pyx_v_arg.strides[0]) ))), 0);
                   }
               }
           }
@@ -2749,23 +2735,23 @@ static void __pyx_f_16cython_functions_bessel_parallel_2d(double __pyx_v_order, 
       #define unlikely(x) __builtin_expect(!!(x), 0)
   #endif
 
-  /* "cython_functions.pyx":39
+  /* "cython_functions.pyx":42
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
- * cdef void bessel_parallel_2d(double order, double[:,:] arg,             # <<<<<<<<<<<<<<
- *                           double[:,:] out) nogil:
- *     cdef int i, j
+ * cdef void bessel_parallel32(float order, float[:] arg,             # <<<<<<<<<<<<<<
+ *                           float[:] out) nogil:
+ *     cdef int i
  */
 
   /* function exit code */
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("cython_functions.bessel_parallel_2d", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
+  __Pyx_WriteUnraisable("cython_functions.bessel_parallel32", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
   __pyx_L0:;
 }
 
-/* "cython_functions.pyx":46
- *             out[i, j] = csc.jv(order, arg[i, j])
+/* "cython_functions.pyx":48
+ *         out[i] = csc.jv(order, arg[i])
  * 
  * def Jv(order, arg):             # <<<<<<<<<<<<<<
  *     sh = arg.shape
@@ -2807,11 +2793,11 @@ static PyObject *__pyx_pw_16cython_functions_3Jv(PyObject *__pyx_self, PyObject 
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_arg)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("Jv", 1, 2, 2, 1); __PYX_ERR(0, 46, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("Jv", 1, 2, 2, 1); __PYX_ERR(0, 48, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "Jv") < 0)) __PYX_ERR(0, 46, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "Jv") < 0)) __PYX_ERR(0, 48, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -2824,7 +2810,7 @@ static PyObject *__pyx_pw_16cython_functions_3Jv(PyObject *__pyx_self, PyObject 
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("Jv", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 46, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("Jv", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 48, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("cython_functions.Jv", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2840,6 +2826,7 @@ static PyObject *__pyx_pw_16cython_functions_3Jv(PyObject *__pyx_self, PyObject 
 static PyObject *__pyx_pf_16cython_functions_2Jv(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_order, PyObject *__pyx_v_arg) {
   PyObject *__pyx_v_sh = NULL;
   Py_ssize_t __pyx_v_d;
+  PyObject *__pyx_v_dtyp = NULL;
   PyObject *__pyx_v_out = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -2852,65 +2839,80 @@ static PyObject *__pyx_pf_16cython_functions_2Jv(CYTHON_UNUSED PyObject *__pyx_s
   double __pyx_t_7;
   __Pyx_memviewslice __pyx_t_8 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_t_9 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  float __pyx_t_10;
+  __Pyx_memviewslice __pyx_t_11 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_t_12 = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("Jv", 0);
   __Pyx_INCREF(__pyx_v_arg);
 
-  /* "cython_functions.pyx":47
+  /* "cython_functions.pyx":49
  * 
  * def Jv(order, arg):
  *     sh = arg.shape             # <<<<<<<<<<<<<<
  *     d = len(sh)
- *     if d ==1:
+ *     dtyp = arg.dtype
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_arg, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 47, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_arg, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 49, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_sh = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "cython_functions.pyx":48
+  /* "cython_functions.pyx":50
  * def Jv(order, arg):
  *     sh = arg.shape
  *     d = len(sh)             # <<<<<<<<<<<<<<
+ *     dtyp = arg.dtype
  *     if d ==1:
- *         out = np.empty_like(arg, dtype='double')
  */
-  __pyx_t_2 = PyObject_Length(__pyx_v_sh); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 48, __pyx_L1_error)
+  __pyx_t_2 = PyObject_Length(__pyx_v_sh); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 50, __pyx_L1_error)
   __pyx_v_d = __pyx_t_2;
 
-  /* "cython_functions.pyx":49
+  /* "cython_functions.pyx":51
  *     sh = arg.shape
  *     d = len(sh)
+ *     dtyp = arg.dtype             # <<<<<<<<<<<<<<
+ *     if d ==1:
+ *         out = np.empty_like(arg, dtype=dtyp )
+ */
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_arg, __pyx_n_s_dtype); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_v_dtyp = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "cython_functions.pyx":52
+ *     d = len(sh)
+ *     dtyp = arg.dtype
  *     if d ==1:             # <<<<<<<<<<<<<<
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_parallel(order, arg, out)
+ *         out = np.empty_like(arg, dtype=dtyp )
+ *         if dtyp == 'double':
  */
   __pyx_t_3 = ((__pyx_v_d == 1) != 0);
   if (__pyx_t_3) {
 
-    /* "cython_functions.pyx":50
- *     d = len(sh)
+    /* "cython_functions.pyx":53
+ *     dtyp = arg.dtype
  *     if d ==1:
- *         out = np.empty_like(arg, dtype='double')             # <<<<<<<<<<<<<<
- *         bessel_parallel(order, arg, out)
- *     if d == 2:
+ *         out = np.empty_like(arg, dtype=dtyp )             # <<<<<<<<<<<<<<
+ *         if dtyp == 'double':
+ *             bessel_parallel(order, arg, out)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 50, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 53, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 50, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 53, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 50, __pyx_L1_error)
+    __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 53, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_INCREF(__pyx_v_arg);
     __Pyx_GIVEREF(__pyx_v_arg);
     PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_arg);
-    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 50, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 53, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_n_u_double) < 0) __PYX_ERR(0, 50, __pyx_L1_error)
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 50, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_v_dtyp) < 0) __PYX_ERR(0, 53, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 53, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -2918,53 +2920,94 @@ static PyObject *__pyx_pf_16cython_functions_2Jv(CYTHON_UNUSED PyObject *__pyx_s
     __pyx_v_out = __pyx_t_6;
     __pyx_t_6 = 0;
 
-    /* "cython_functions.pyx":51
+    /* "cython_functions.pyx":54
  *     if d ==1:
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_parallel(order, arg, out)             # <<<<<<<<<<<<<<
+ *         out = np.empty_like(arg, dtype=dtyp )
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             bessel_parallel(order, arg, out)
+ *         else:
+ */
+    __pyx_t_3 = (__Pyx_PyUnicode_Equals(__pyx_v_dtyp, __pyx_n_u_double, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 54, __pyx_L1_error)
+    if (__pyx_t_3) {
+
+      /* "cython_functions.pyx":55
+ *         out = np.empty_like(arg, dtype=dtyp )
+ *         if dtyp == 'double':
+ *             bessel_parallel(order, arg, out)             # <<<<<<<<<<<<<<
+ *         else:
+ *             bessel_parallel32(order, arg, out)
+ */
+      __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_v_order); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 55, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 55, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 55, __pyx_L1_error)
+      __pyx_f_16cython_functions_bessel_parallel(__pyx_t_7, __pyx_t_8, __pyx_t_9);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
+      __pyx_t_8.memview = NULL;
+      __pyx_t_8.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
+      __pyx_t_9.memview = NULL;
+      __pyx_t_9.data = NULL;
+
+      /* "cython_functions.pyx":54
+ *     if d ==1:
+ *         out = np.empty_like(arg, dtype=dtyp )
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             bessel_parallel(order, arg, out)
+ *         else:
+ */
+      goto __pyx_L4;
+    }
+
+    /* "cython_functions.pyx":57
+ *             bessel_parallel(order, arg, out)
+ *         else:
+ *             bessel_parallel32(order, arg, out)             # <<<<<<<<<<<<<<
  *     if d == 2:
  *         arg = np.ravel(arg)
  */
-    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_v_order); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 51, __pyx_L1_error)
-    __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 51, __pyx_L1_error)
-    __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 51, __pyx_L1_error)
-    __pyx_f_16cython_functions_bessel_parallel(__pyx_t_7, __pyx_t_8, __pyx_t_9);
-    __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
-    __pyx_t_8.memview = NULL;
-    __pyx_t_8.data = NULL;
-    __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
-    __pyx_t_9.memview = NULL;
-    __pyx_t_9.data = NULL;
+    /*else*/ {
+      __pyx_t_10 = __pyx_PyFloat_AsFloat(__pyx_v_order); if (unlikely((__pyx_t_10 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 57, __pyx_L1_error)
+      __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 57, __pyx_L1_error)
+      __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 57, __pyx_L1_error)
+      __pyx_f_16cython_functions_bessel_parallel32(__pyx_t_10, __pyx_t_11, __pyx_t_12);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_11, 1);
+      __pyx_t_11.memview = NULL;
+      __pyx_t_11.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_12, 1);
+      __pyx_t_12.memview = NULL;
+      __pyx_t_12.data = NULL;
+    }
+    __pyx_L4:;
 
-    /* "cython_functions.pyx":49
- *     sh = arg.shape
+    /* "cython_functions.pyx":52
  *     d = len(sh)
+ *     dtyp = arg.dtype
  *     if d ==1:             # <<<<<<<<<<<<<<
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_parallel(order, arg, out)
+ *         out = np.empty_like(arg, dtype=dtyp )
+ *         if dtyp == 'double':
  */
   }
 
-  /* "cython_functions.pyx":52
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_parallel(order, arg, out)
+  /* "cython_functions.pyx":58
+ *         else:
+ *             bessel_parallel32(order, arg, out)
  *     if d == 2:             # <<<<<<<<<<<<<<
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')
+ *         out = np.empty_like(arg, dtype=dtyp )
  */
   __pyx_t_3 = ((__pyx_v_d == 2) != 0);
   if (__pyx_t_3) {
 
-    /* "cython_functions.pyx":53
- *         bessel_parallel(order, arg, out)
+    /* "cython_functions.pyx":59
+ *             bessel_parallel32(order, arg, out)
  *     if d == 2:
  *         arg = np.ravel(arg)             # <<<<<<<<<<<<<<
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_parallel(order, arg, out)
+ *         out = np.empty_like(arg, dtype=dtyp )
+ *         if dtyp == 'double':
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 53, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 59, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ravel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 53, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ravel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 59, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_5 = NULL;
@@ -2979,33 +3022,33 @@ static PyObject *__pyx_pf_16cython_functions_2Jv(CYTHON_UNUSED PyObject *__pyx_s
     }
     __pyx_t_6 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_5, __pyx_v_arg) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_v_arg);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 53, __pyx_L1_error)
+    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 59, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF_SET(__pyx_v_arg, __pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "cython_functions.pyx":54
+    /* "cython_functions.pyx":60
  *     if d == 2:
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')             # <<<<<<<<<<<<<<
- *         bessel_parallel(order, arg, out)
- *         out.reshape(sh)
+ *         out = np.empty_like(arg, dtype=dtyp )             # <<<<<<<<<<<<<<
+ *         if dtyp == 'double':
+ *             bessel_parallel(order, arg, out)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 60, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 60, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 60, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_INCREF(__pyx_v_arg);
     __Pyx_GIVEREF(__pyx_v_arg);
     PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_v_arg);
-    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 60, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_n_u_double) < 0) __PYX_ERR(0, 54, __pyx_L1_error)
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_6, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 54, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_v_dtyp) < 0) __PYX_ERR(0, 60, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_6, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 60, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -3013,32 +3056,73 @@ static PyObject *__pyx_pf_16cython_functions_2Jv(CYTHON_UNUSED PyObject *__pyx_s
     __Pyx_XDECREF_SET(__pyx_v_out, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "cython_functions.pyx":55
+    /* "cython_functions.pyx":61
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_parallel(order, arg, out)             # <<<<<<<<<<<<<<
+ *         out = np.empty_like(arg, dtype=dtyp )
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             bessel_parallel(order, arg, out)
+ *         else:
+ */
+    __pyx_t_3 = (__Pyx_PyUnicode_Equals(__pyx_v_dtyp, __pyx_n_u_double, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 61, __pyx_L1_error)
+    if (__pyx_t_3) {
+
+      /* "cython_functions.pyx":62
+ *         out = np.empty_like(arg, dtype=dtyp )
+ *         if dtyp == 'double':
+ *             bessel_parallel(order, arg, out)             # <<<<<<<<<<<<<<
+ *         else:
+ *             bessel_parallel32(order, arg, out)
+ */
+      __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_v_order); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 62, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 62, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 62, __pyx_L1_error)
+      __pyx_f_16cython_functions_bessel_parallel(__pyx_t_7, __pyx_t_9, __pyx_t_8);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
+      __pyx_t_9.memview = NULL;
+      __pyx_t_9.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
+      __pyx_t_8.memview = NULL;
+      __pyx_t_8.data = NULL;
+
+      /* "cython_functions.pyx":61
+ *         arg = np.ravel(arg)
+ *         out = np.empty_like(arg, dtype=dtyp )
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             bessel_parallel(order, arg, out)
+ *         else:
+ */
+      goto __pyx_L6;
+    }
+
+    /* "cython_functions.pyx":64
+ *             bessel_parallel(order, arg, out)
+ *         else:
+ *             bessel_parallel32(order, arg, out)             # <<<<<<<<<<<<<<
  *         out.reshape(sh)
  *     return out
  */
-    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_v_order); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 55, __pyx_L1_error)
-    __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 55, __pyx_L1_error)
-    __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 55, __pyx_L1_error)
-    __pyx_f_16cython_functions_bessel_parallel(__pyx_t_7, __pyx_t_9, __pyx_t_8);
-    __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
-    __pyx_t_9.memview = NULL;
-    __pyx_t_9.data = NULL;
-    __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
-    __pyx_t_8.memview = NULL;
-    __pyx_t_8.data = NULL;
+    /*else*/ {
+      __pyx_t_10 = __pyx_PyFloat_AsFloat(__pyx_v_order); if (unlikely((__pyx_t_10 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 64, __pyx_L1_error)
+      __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 64, __pyx_L1_error)
+      __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 64, __pyx_L1_error)
+      __pyx_f_16cython_functions_bessel_parallel32(__pyx_t_10, __pyx_t_12, __pyx_t_11);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_12, 1);
+      __pyx_t_12.memview = NULL;
+      __pyx_t_12.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_11, 1);
+      __pyx_t_11.memview = NULL;
+      __pyx_t_11.data = NULL;
+    }
+    __pyx_L6:;
 
-    /* "cython_functions.pyx":56
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_parallel(order, arg, out)
+    /* "cython_functions.pyx":65
+ *         else:
+ *             bessel_parallel32(order, arg, out)
  *         out.reshape(sh)             # <<<<<<<<<<<<<<
  *     return out
  * 
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_out, __pyx_n_s_reshape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 56, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_out, __pyx_n_s_reshape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_6 = NULL;
     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_5))) {
@@ -3052,35 +3136,35 @@ static PyObject *__pyx_pf_16cython_functions_2Jv(CYTHON_UNUSED PyObject *__pyx_s
     }
     __pyx_t_4 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_6, __pyx_v_sh) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_v_sh);
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 56, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "cython_functions.pyx":52
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_parallel(order, arg, out)
+    /* "cython_functions.pyx":58
+ *         else:
+ *             bessel_parallel32(order, arg, out)
  *     if d == 2:             # <<<<<<<<<<<<<<
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')
+ *         out = np.empty_like(arg, dtype=dtyp )
  */
   }
 
-  /* "cython_functions.pyx":57
- *         bessel_parallel(order, arg, out)
+  /* "cython_functions.pyx":66
+ *             bessel_parallel32(order, arg, out)
  *         out.reshape(sh)
  *     return out             # <<<<<<<<<<<<<<
  * 
  * #pralellized bessel derivative function
  */
   __Pyx_XDECREF(__pyx_r);
-  if (unlikely(!__pyx_v_out)) { __Pyx_RaiseUnboundLocalError("out"); __PYX_ERR(0, 57, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_out)) { __Pyx_RaiseUnboundLocalError("out"); __PYX_ERR(0, 66, __pyx_L1_error) }
   __Pyx_INCREF(__pyx_v_out);
   __pyx_r = __pyx_v_out;
   goto __pyx_L0;
 
-  /* "cython_functions.pyx":46
- *             out[i, j] = csc.jv(order, arg[i, j])
+  /* "cython_functions.pyx":48
+ *         out[i] = csc.jv(order, arg[i])
  * 
  * def Jv(order, arg):             # <<<<<<<<<<<<<<
  *     sh = arg.shape
@@ -3095,10 +3179,13 @@ static PyObject *__pyx_pf_16cython_functions_2Jv(CYTHON_UNUSED PyObject *__pyx_s
   __Pyx_XDECREF(__pyx_t_6);
   __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_11, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_12, 1);
   __Pyx_AddTraceback("cython_functions.Jv", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_sh);
+  __Pyx_XDECREF(__pyx_v_dtyp);
   __Pyx_XDECREF(__pyx_v_out);
   __Pyx_XDECREF(__pyx_v_arg);
   __Pyx_XGIVEREF(__pyx_r);
@@ -3106,7 +3193,7 @@ static PyObject *__pyx_pf_16cython_functions_2Jv(CYTHON_UNUSED PyObject *__pyx_s
   return __pyx_r;
 }
 
-/* "cython_functions.pyx":63
+/* "cython_functions.pyx":72
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * cdef void bessel_derivative_parallel(double order, double[:] arg,             # <<<<<<<<<<<<<<
@@ -3126,14 +3213,14 @@ static void __pyx_f_16cython_functions_bessel_derivative_parallel(double __pyx_v
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
 
-  /* "cython_functions.pyx":66
+  /* "cython_functions.pyx":75
  *                           double[:] out) nogil:
  *     cdef int i
- *     for i in prange(arg.shape[0]):             # <<<<<<<<<<<<<<
+ *     for i in prange(arg.shape[0], num_threads = None):             # <<<<<<<<<<<<<<
  *         out[i] = 0.5*(csc.jv(order-1, arg[i])-csc.jv(order+1, arg[i]))
  * 
  */
-  if (unlikely(!__pyx_v_arg.memview)) { __Pyx_RaiseUnboundMemoryviewSliceNogil("arg"); __PYX_ERR(0, 66, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_arg.memview)) { __Pyx_RaiseUnboundMemoryviewSliceNogil("arg"); __PYX_ERR(0, 75, __pyx_L1_error) }
   __pyx_t_1 = (__pyx_v_arg.shape[0]);
   if ((1 == 0)) abort();
   {
@@ -3157,12 +3244,12 @@ static void __pyx_f_16cython_functions_bessel_derivative_parallel(double __pyx_v
                   {
                       __pyx_v_i = (int)(0 + 1 * __pyx_t_2);
 
-                      /* "cython_functions.pyx":67
+                      /* "cython_functions.pyx":76
  *     cdef int i
- *     for i in prange(arg.shape[0]):
+ *     for i in prange(arg.shape[0], num_threads = None):
  *         out[i] = 0.5*(csc.jv(order-1, arg[i])-csc.jv(order+1, arg[i]))             # <<<<<<<<<<<<<<
  * 
- * 
+ * @cython.boundscheck(False)
  */
                       __pyx_t_4 = __pyx_v_i;
                       __pyx_t_5 = __pyx_v_i;
@@ -3180,7 +3267,7 @@ static void __pyx_f_16cython_functions_bessel_derivative_parallel(double __pyx_v
       #define unlikely(x) __builtin_expect(!!(x), 0)
   #endif
 
-  /* "cython_functions.pyx":63
+  /* "cython_functions.pyx":72
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * cdef void bessel_derivative_parallel(double order, double[:] arg,             # <<<<<<<<<<<<<<
@@ -3195,7 +3282,96 @@ static void __pyx_f_16cython_functions_bessel_derivative_parallel(double __pyx_v
   __pyx_L0:;
 }
 
-/* "cython_functions.pyx":71
+/* "cython_functions.pyx":80
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * cdef void bessel_derivative_parallel32(float order, float[:] arg,             # <<<<<<<<<<<<<<
+ *                           float[:] out) nogil:
+ *     cdef int i
+ */
+
+static void __pyx_f_16cython_functions_bessel_derivative_parallel32(float __pyx_v_order, __Pyx_memviewslice __pyx_v_arg, __Pyx_memviewslice __pyx_v_out) {
+  int __pyx_v_i;
+  Py_ssize_t __pyx_t_1;
+  Py_ssize_t __pyx_t_2;
+  Py_ssize_t __pyx_t_3;
+  Py_ssize_t __pyx_t_4;
+  Py_ssize_t __pyx_t_5;
+  Py_ssize_t __pyx_t_6;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+
+  /* "cython_functions.pyx":83
+ *                           float[:] out) nogil:
+ *     cdef int i
+ *     for i in prange(arg.shape[0], num_threads = None):             # <<<<<<<<<<<<<<
+ *         out[i] = 0.5*(csc.jv(order-1, arg[i])-csc.jv(order+1, arg[i]))
+ * 
+ */
+  if (unlikely(!__pyx_v_arg.memview)) { __Pyx_RaiseUnboundMemoryviewSliceNogil("arg"); __PYX_ERR(0, 83, __pyx_L1_error) }
+  __pyx_t_1 = (__pyx_v_arg.shape[0]);
+  if ((1 == 0)) abort();
+  {
+      #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
+          #undef likely
+          #undef unlikely
+          #define likely(x)   (x)
+          #define unlikely(x) (x)
+      #endif
+      __pyx_t_3 = (__pyx_t_1 - 0 + 1 - 1/abs(1)) / 1;
+      if (__pyx_t_3 > 0)
+      {
+          #ifdef _OPENMP
+          #pragma omp parallel private(__pyx_t_4, __pyx_t_5, __pyx_t_6)
+          #endif /* _OPENMP */
+          {
+              #ifdef _OPENMP
+              #pragma omp for firstprivate(__pyx_v_i) lastprivate(__pyx_v_i)
+              #endif /* _OPENMP */
+              for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_3; __pyx_t_2++){
+                  {
+                      __pyx_v_i = (int)(0 + 1 * __pyx_t_2);
+
+                      /* "cython_functions.pyx":84
+ *     cdef int i
+ *     for i in prange(arg.shape[0], num_threads = None):
+ *         out[i] = 0.5*(csc.jv(order-1, arg[i])-csc.jv(order+1, arg[i]))             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+                      __pyx_t_4 = __pyx_v_i;
+                      __pyx_t_5 = __pyx_v_i;
+                      __pyx_t_6 = __pyx_v_i;
+                      *((float *) ( /* dim=0 */ (__pyx_v_out.data + __pyx_t_6 * __pyx_v_out.strides[0]) )) = (0.5 * (__pyx_fuse_1__pyx_f_5scipy_7special_14cython_special_jv((__pyx_v_order - 1.0), (*((float *) ( /* dim=0 */ (__pyx_v_arg.data + __pyx_t_4 * __pyx_v_arg.strides[0]) ))), 0) - __pyx_fuse_1__pyx_f_5scipy_7special_14cython_special_jv((__pyx_v_order + 1.0), (*((float *) ( /* dim=0 */ (__pyx_v_arg.data + __pyx_t_5 * __pyx_v_arg.strides[0]) ))), 0)));
+                  }
+              }
+          }
+      }
+  }
+  #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
+      #undef likely
+      #undef unlikely
+      #define likely(x)   __builtin_expect(!!(x), 1)
+      #define unlikely(x) __builtin_expect(!!(x), 0)
+  #endif
+
+  /* "cython_functions.pyx":80
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * cdef void bessel_derivative_parallel32(float order, float[:] arg,             # <<<<<<<<<<<<<<
+ *                           float[:] out) nogil:
+ *     cdef int i
+ */
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_WriteUnraisable("cython_functions.bessel_derivative_parallel32", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
+  __pyx_L0:;
+}
+
+/* "cython_functions.pyx":88
  * 
  * 
  * def Jvp(order, arg):             # <<<<<<<<<<<<<<
@@ -3238,11 +3414,11 @@ static PyObject *__pyx_pw_16cython_functions_5Jvp(PyObject *__pyx_self, PyObject
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_arg)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("Jvp", 1, 2, 2, 1); __PYX_ERR(0, 71, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("Jvp", 1, 2, 2, 1); __PYX_ERR(0, 88, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "Jvp") < 0)) __PYX_ERR(0, 71, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "Jvp") < 0)) __PYX_ERR(0, 88, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -3255,7 +3431,7 @@ static PyObject *__pyx_pw_16cython_functions_5Jvp(PyObject *__pyx_self, PyObject
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("Jvp", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 71, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("Jvp", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 88, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("cython_functions.Jvp", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3271,6 +3447,7 @@ static PyObject *__pyx_pw_16cython_functions_5Jvp(PyObject *__pyx_self, PyObject
 static PyObject *__pyx_pf_16cython_functions_4Jvp(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_order, PyObject *__pyx_v_arg) {
   PyObject *__pyx_v_sh = NULL;
   Py_ssize_t __pyx_v_d;
+  PyObject *__pyx_v_dtyp = NULL;
   PyObject *__pyx_v_out = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -3289,59 +3466,71 @@ static PyObject *__pyx_pf_16cython_functions_4Jvp(CYTHON_UNUSED PyObject *__pyx_
   __Pyx_RefNannySetupContext("Jvp", 0);
   __Pyx_INCREF(__pyx_v_arg);
 
-  /* "cython_functions.pyx":72
+  /* "cython_functions.pyx":89
  * 
  * def Jvp(order, arg):
  *     sh = arg.shape             # <<<<<<<<<<<<<<
  *     d = len(sh)
- *     if d ==1:
+ *     dtyp = arg.dtype
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_arg, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 72, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_arg, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 89, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_sh = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "cython_functions.pyx":73
+  /* "cython_functions.pyx":90
  * def Jvp(order, arg):
  *     sh = arg.shape
  *     d = len(sh)             # <<<<<<<<<<<<<<
+ *     dtyp = arg.dtype
  *     if d ==1:
- *         out = np.empty_like(arg, dtype='double')
  */
-  __pyx_t_2 = PyObject_Length(__pyx_v_sh); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_t_2 = PyObject_Length(__pyx_v_sh); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 90, __pyx_L1_error)
   __pyx_v_d = __pyx_t_2;
 
-  /* "cython_functions.pyx":74
+  /* "cython_functions.pyx":91
  *     sh = arg.shape
  *     d = len(sh)
+ *     dtyp = arg.dtype             # <<<<<<<<<<<<<<
+ *     if d ==1:
+ *         out = np.empty_like(arg, dtype=dtyp)
+ */
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_arg, __pyx_n_s_dtype); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 91, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_v_dtyp = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "cython_functions.pyx":92
+ *     d = len(sh)
+ *     dtyp = arg.dtype
  *     if d ==1:             # <<<<<<<<<<<<<<
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_derivative_parallel(order, arg, out)
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':
  */
   __pyx_t_3 = ((__pyx_v_d == 1) != 0);
   if (__pyx_t_3) {
 
-    /* "cython_functions.pyx":75
- *     d = len(sh)
+    /* "cython_functions.pyx":93
+ *     dtyp = arg.dtype
  *     if d ==1:
- *         out = np.empty_like(arg, dtype='double')             # <<<<<<<<<<<<<<
- *         bessel_derivative_parallel(order, arg, out)
- *     if d == 2:
+ *         out = np.empty_like(arg, dtype=dtyp)             # <<<<<<<<<<<<<<
+ *         if dtyp == 'double':
+ *             bessel_derivative_parallel(order, arg, out)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 75, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 93, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 75, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 93, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 75, __pyx_L1_error)
+    __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 93, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_INCREF(__pyx_v_arg);
     __Pyx_GIVEREF(__pyx_v_arg);
     PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_arg);
-    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 75, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 93, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_n_u_double) < 0) __PYX_ERR(0, 75, __pyx_L1_error)
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 75, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_v_dtyp) < 0) __PYX_ERR(0, 93, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 93, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -3349,53 +3538,94 @@ static PyObject *__pyx_pf_16cython_functions_4Jvp(CYTHON_UNUSED PyObject *__pyx_
     __pyx_v_out = __pyx_t_6;
     __pyx_t_6 = 0;
 
-    /* "cython_functions.pyx":76
+    /* "cython_functions.pyx":94
  *     if d ==1:
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_derivative_parallel(order, arg, out)             # <<<<<<<<<<<<<<
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             bessel_derivative_parallel(order, arg, out)
+ *         else:
+ */
+    __pyx_t_3 = (__Pyx_PyUnicode_Equals(__pyx_v_dtyp, __pyx_n_u_double, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 94, __pyx_L1_error)
+    if (__pyx_t_3) {
+
+      /* "cython_functions.pyx":95
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':
+ *             bessel_derivative_parallel(order, arg, out)             # <<<<<<<<<<<<<<
+ *         else:
+ *             bessel_derivative_parallel(order, arg, out)
+ */
+      __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_v_order); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 95, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 95, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 95, __pyx_L1_error)
+      __pyx_f_16cython_functions_bessel_derivative_parallel(__pyx_t_7, __pyx_t_8, __pyx_t_9);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
+      __pyx_t_8.memview = NULL;
+      __pyx_t_8.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
+      __pyx_t_9.memview = NULL;
+      __pyx_t_9.data = NULL;
+
+      /* "cython_functions.pyx":94
+ *     if d ==1:
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             bessel_derivative_parallel(order, arg, out)
+ *         else:
+ */
+      goto __pyx_L4;
+    }
+
+    /* "cython_functions.pyx":97
+ *             bessel_derivative_parallel(order, arg, out)
+ *         else:
+ *             bessel_derivative_parallel(order, arg, out)             # <<<<<<<<<<<<<<
  *     if d == 2:
  *         arg = np.ravel(arg)
  */
-    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_v_order); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 76, __pyx_L1_error)
-    __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 76, __pyx_L1_error)
-    __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 76, __pyx_L1_error)
-    __pyx_f_16cython_functions_bessel_derivative_parallel(__pyx_t_7, __pyx_t_8, __pyx_t_9);
-    __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
-    __pyx_t_8.memview = NULL;
-    __pyx_t_8.data = NULL;
-    __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
-    __pyx_t_9.memview = NULL;
-    __pyx_t_9.data = NULL;
+    /*else*/ {
+      __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_v_order); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 97, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 97, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 97, __pyx_L1_error)
+      __pyx_f_16cython_functions_bessel_derivative_parallel(__pyx_t_7, __pyx_t_9, __pyx_t_8);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
+      __pyx_t_9.memview = NULL;
+      __pyx_t_9.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
+      __pyx_t_8.memview = NULL;
+      __pyx_t_8.data = NULL;
+    }
+    __pyx_L4:;
 
-    /* "cython_functions.pyx":74
- *     sh = arg.shape
+    /* "cython_functions.pyx":92
  *     d = len(sh)
+ *     dtyp = arg.dtype
  *     if d ==1:             # <<<<<<<<<<<<<<
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_derivative_parallel(order, arg, out)
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':
  */
   }
 
-  /* "cython_functions.pyx":77
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_derivative_parallel(order, arg, out)
+  /* "cython_functions.pyx":98
+ *         else:
+ *             bessel_derivative_parallel(order, arg, out)
  *     if d == 2:             # <<<<<<<<<<<<<<
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')
+ *         out = np.empty_like(arg, dtype=dtyp)
  */
   __pyx_t_3 = ((__pyx_v_d == 2) != 0);
   if (__pyx_t_3) {
 
-    /* "cython_functions.pyx":78
- *         bessel_derivative_parallel(order, arg, out)
+    /* "cython_functions.pyx":99
+ *             bessel_derivative_parallel(order, arg, out)
  *     if d == 2:
  *         arg = np.ravel(arg)             # <<<<<<<<<<<<<<
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_derivative_parallel(order, arg, out)
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 78, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 99, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ravel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 78, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ravel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 99, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_5 = NULL;
@@ -3410,33 +3640,33 @@ static PyObject *__pyx_pf_16cython_functions_4Jvp(CYTHON_UNUSED PyObject *__pyx_
     }
     __pyx_t_6 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_5, __pyx_v_arg) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_v_arg);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 78, __pyx_L1_error)
+    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 99, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF_SET(__pyx_v_arg, __pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "cython_functions.pyx":79
+    /* "cython_functions.pyx":100
  *     if d == 2:
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')             # <<<<<<<<<<<<<<
- *         bessel_derivative_parallel(order, arg, out)
- *         out.reshape(sh)
+ *         out = np.empty_like(arg, dtype=dtyp)             # <<<<<<<<<<<<<<
+ *         if dtyp == 'double':
+ *             bessel_derivative_parallel(order, arg, out)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 79, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 100, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 79, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 100, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 79, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 100, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_INCREF(__pyx_v_arg);
     __Pyx_GIVEREF(__pyx_v_arg);
     PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_v_arg);
-    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 79, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 100, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_n_u_double) < 0) __PYX_ERR(0, 79, __pyx_L1_error)
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_6, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 79, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_v_dtyp) < 0) __PYX_ERR(0, 100, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_6, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 100, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -3444,32 +3674,73 @@ static PyObject *__pyx_pf_16cython_functions_4Jvp(CYTHON_UNUSED PyObject *__pyx_
     __Pyx_XDECREF_SET(__pyx_v_out, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "cython_functions.pyx":80
+    /* "cython_functions.pyx":101
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_derivative_parallel(order, arg, out)             # <<<<<<<<<<<<<<
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             bessel_derivative_parallel(order, arg, out)
+ *         else:
+ */
+    __pyx_t_3 = (__Pyx_PyUnicode_Equals(__pyx_v_dtyp, __pyx_n_u_double, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 101, __pyx_L1_error)
+    if (__pyx_t_3) {
+
+      /* "cython_functions.pyx":102
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':
+ *             bessel_derivative_parallel(order, arg, out)             # <<<<<<<<<<<<<<
+ *         else:
+ *             bessel_derivative_parallel(order, arg, out)
+ */
+      __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_v_order); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 102, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 102, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 102, __pyx_L1_error)
+      __pyx_f_16cython_functions_bessel_derivative_parallel(__pyx_t_7, __pyx_t_8, __pyx_t_9);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
+      __pyx_t_8.memview = NULL;
+      __pyx_t_8.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
+      __pyx_t_9.memview = NULL;
+      __pyx_t_9.data = NULL;
+
+      /* "cython_functions.pyx":101
+ *         arg = np.ravel(arg)
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             bessel_derivative_parallel(order, arg, out)
+ *         else:
+ */
+      goto __pyx_L6;
+    }
+
+    /* "cython_functions.pyx":104
+ *             bessel_derivative_parallel(order, arg, out)
+ *         else:
+ *             bessel_derivative_parallel(order, arg, out)             # <<<<<<<<<<<<<<
  *         out.reshape(sh)
  *     return out
  */
-    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_v_order); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 80, __pyx_L1_error)
-    __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 80, __pyx_L1_error)
-    __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 80, __pyx_L1_error)
-    __pyx_f_16cython_functions_bessel_derivative_parallel(__pyx_t_7, __pyx_t_9, __pyx_t_8);
-    __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
-    __pyx_t_9.memview = NULL;
-    __pyx_t_9.data = NULL;
-    __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
-    __pyx_t_8.memview = NULL;
-    __pyx_t_8.data = NULL;
+    /*else*/ {
+      __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_v_order); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 104, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 104, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 104, __pyx_L1_error)
+      __pyx_f_16cython_functions_bessel_derivative_parallel(__pyx_t_7, __pyx_t_9, __pyx_t_8);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
+      __pyx_t_9.memview = NULL;
+      __pyx_t_9.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
+      __pyx_t_8.memview = NULL;
+      __pyx_t_8.data = NULL;
+    }
+    __pyx_L6:;
 
-    /* "cython_functions.pyx":81
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_derivative_parallel(order, arg, out)
+    /* "cython_functions.pyx":105
+ *         else:
+ *             bessel_derivative_parallel(order, arg, out)
  *         out.reshape(sh)             # <<<<<<<<<<<<<<
  *     return out
  * 
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_out, __pyx_n_s_reshape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 81, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_out, __pyx_n_s_reshape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 105, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_6 = NULL;
     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_5))) {
@@ -3483,34 +3754,34 @@ static PyObject *__pyx_pf_16cython_functions_4Jvp(CYTHON_UNUSED PyObject *__pyx_
     }
     __pyx_t_4 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_6, __pyx_v_sh) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_v_sh);
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 105, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "cython_functions.pyx":77
- *         out = np.empty_like(arg, dtype='double')
- *         bessel_derivative_parallel(order, arg, out)
+    /* "cython_functions.pyx":98
+ *         else:
+ *             bessel_derivative_parallel(order, arg, out)
  *     if d == 2:             # <<<<<<<<<<<<<<
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')
+ *         out = np.empty_like(arg, dtype=dtyp)
  */
   }
 
-  /* "cython_functions.pyx":82
- *         bessel_derivative_parallel(order, arg, out)
+  /* "cython_functions.pyx":106
+ *             bessel_derivative_parallel(order, arg, out)
  *         out.reshape(sh)
  *     return out             # <<<<<<<<<<<<<<
  * 
  * #pralellized sine function
  */
   __Pyx_XDECREF(__pyx_r);
-  if (unlikely(!__pyx_v_out)) { __Pyx_RaiseUnboundLocalError("out"); __PYX_ERR(0, 82, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_out)) { __Pyx_RaiseUnboundLocalError("out"); __PYX_ERR(0, 106, __pyx_L1_error) }
   __Pyx_INCREF(__pyx_v_out);
   __pyx_r = __pyx_v_out;
   goto __pyx_L0;
 
-  /* "cython_functions.pyx":71
+  /* "cython_functions.pyx":88
  * 
  * 
  * def Jvp(order, arg):             # <<<<<<<<<<<<<<
@@ -3530,6 +3801,7 @@ static PyObject *__pyx_pf_16cython_functions_4Jvp(CYTHON_UNUSED PyObject *__pyx_
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_sh);
+  __Pyx_XDECREF(__pyx_v_dtyp);
   __Pyx_XDECREF(__pyx_v_out);
   __Pyx_XDECREF(__pyx_v_arg);
   __Pyx_XGIVEREF(__pyx_r);
@@ -3537,7 +3809,7 @@ static PyObject *__pyx_pf_16cython_functions_4Jvp(CYTHON_UNUSED PyObject *__pyx_
   return __pyx_r;
 }
 
-/* "cython_functions.pyx":88
+/* "cython_functions.pyx":112
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * cdef void sin_parallel( double[:] arg,             # <<<<<<<<<<<<<<
@@ -3556,14 +3828,14 @@ static void __pyx_f_16cython_functions_sin_parallel(__Pyx_memviewslice __pyx_v_a
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
 
-  /* "cython_functions.pyx":91
+  /* "cython_functions.pyx":115
  *                           double[:] out) nogil:
  *     cdef int i
- *     for i in prange(arg.shape[0]):             # <<<<<<<<<<<<<<
+ *     for i in prange(arg.shape[0], num_threads = None):             # <<<<<<<<<<<<<<
  *         out[i] = sin(arg[i])
  * 
  */
-  if (unlikely(!__pyx_v_arg.memview)) { __Pyx_RaiseUnboundMemoryviewSliceNogil("arg"); __PYX_ERR(0, 91, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_arg.memview)) { __Pyx_RaiseUnboundMemoryviewSliceNogil("arg"); __PYX_ERR(0, 115, __pyx_L1_error) }
   __pyx_t_1 = (__pyx_v_arg.shape[0]);
   if ((1 == 0)) abort();
   {
@@ -3587,12 +3859,12 @@ static void __pyx_f_16cython_functions_sin_parallel(__Pyx_memviewslice __pyx_v_a
                   {
                       __pyx_v_i = (int)(0 + 1 * __pyx_t_2);
 
-                      /* "cython_functions.pyx":92
+                      /* "cython_functions.pyx":116
  *     cdef int i
- *     for i in prange(arg.shape[0]):
+ *     for i in prange(arg.shape[0], num_threads = None):
  *         out[i] = sin(arg[i])             # <<<<<<<<<<<<<<
  * 
- * def Sin(arg):
+ * @cython.boundscheck(False)
  */
                       __pyx_t_4 = __pyx_v_i;
                       __pyx_t_5 = __pyx_v_i;
@@ -3609,7 +3881,7 @@ static void __pyx_f_16cython_functions_sin_parallel(__Pyx_memviewslice __pyx_v_a
       #define unlikely(x) __builtin_expect(!!(x), 0)
   #endif
 
-  /* "cython_functions.pyx":88
+  /* "cython_functions.pyx":112
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * cdef void sin_parallel( double[:] arg,             # <<<<<<<<<<<<<<
@@ -3624,7 +3896,94 @@ static void __pyx_f_16cython_functions_sin_parallel(__Pyx_memviewslice __pyx_v_a
   __pyx_L0:;
 }
 
-/* "cython_functions.pyx":94
+/* "cython_functions.pyx":120
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * cdef void sin_parallel32( float[:] arg,             # <<<<<<<<<<<<<<
+ *                           float[:] out) nogil:
+ *     cdef int i
+ */
+
+static void __pyx_f_16cython_functions_sin_parallel32(__Pyx_memviewslice __pyx_v_arg, __Pyx_memviewslice __pyx_v_out) {
+  int __pyx_v_i;
+  Py_ssize_t __pyx_t_1;
+  Py_ssize_t __pyx_t_2;
+  Py_ssize_t __pyx_t_3;
+  Py_ssize_t __pyx_t_4;
+  Py_ssize_t __pyx_t_5;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+
+  /* "cython_functions.pyx":123
+ *                           float[:] out) nogil:
+ *     cdef int i
+ *     for i in prange(arg.shape[0], num_threads = None):             # <<<<<<<<<<<<<<
+ *         out[i] = sin(arg[i])
+ * 
+ */
+  if (unlikely(!__pyx_v_arg.memview)) { __Pyx_RaiseUnboundMemoryviewSliceNogil("arg"); __PYX_ERR(0, 123, __pyx_L1_error) }
+  __pyx_t_1 = (__pyx_v_arg.shape[0]);
+  if ((1 == 0)) abort();
+  {
+      #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
+          #undef likely
+          #undef unlikely
+          #define likely(x)   (x)
+          #define unlikely(x) (x)
+      #endif
+      __pyx_t_3 = (__pyx_t_1 - 0 + 1 - 1/abs(1)) / 1;
+      if (__pyx_t_3 > 0)
+      {
+          #ifdef _OPENMP
+          #pragma omp parallel private(__pyx_t_4, __pyx_t_5)
+          #endif /* _OPENMP */
+          {
+              #ifdef _OPENMP
+              #pragma omp for firstprivate(__pyx_v_i) lastprivate(__pyx_v_i)
+              #endif /* _OPENMP */
+              for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_3; __pyx_t_2++){
+                  {
+                      __pyx_v_i = (int)(0 + 1 * __pyx_t_2);
+
+                      /* "cython_functions.pyx":124
+ *     cdef int i
+ *     for i in prange(arg.shape[0], num_threads = None):
+ *         out[i] = sin(arg[i])             # <<<<<<<<<<<<<<
+ * 
+ * def Sin(arg):
+ */
+                      __pyx_t_4 = __pyx_v_i;
+                      __pyx_t_5 = __pyx_v_i;
+                      *((float *) ( /* dim=0 */ (__pyx_v_out.data + __pyx_t_5 * __pyx_v_out.strides[0]) )) = sin((*((float *) ( /* dim=0 */ (__pyx_v_arg.data + __pyx_t_4 * __pyx_v_arg.strides[0]) ))));
+                  }
+              }
+          }
+      }
+  }
+  #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
+      #undef likely
+      #undef unlikely
+      #define likely(x)   __builtin_expect(!!(x), 1)
+      #define unlikely(x) __builtin_expect(!!(x), 0)
+  #endif
+
+  /* "cython_functions.pyx":120
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * cdef void sin_parallel32( float[:] arg,             # <<<<<<<<<<<<<<
+ *                           float[:] out) nogil:
+ *     cdef int i
+ */
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_WriteUnraisable("cython_functions.sin_parallel32", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
+  __pyx_L0:;
+}
+
+/* "cython_functions.pyx":126
  *         out[i] = sin(arg[i])
  * 
  * def Sin(arg):             # <<<<<<<<<<<<<<
@@ -3649,6 +4008,7 @@ static PyObject *__pyx_pw_16cython_functions_7Sin(PyObject *__pyx_self, PyObject
 static PyObject *__pyx_pf_16cython_functions_6Sin(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_arg) {
   PyObject *__pyx_v_sh = NULL;
   Py_ssize_t __pyx_v_d;
+  PyObject *__pyx_v_dtyp = NULL;
   PyObject *__pyx_v_out = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -3660,65 +4020,79 @@ static PyObject *__pyx_pf_16cython_functions_6Sin(CYTHON_UNUSED PyObject *__pyx_
   PyObject *__pyx_t_6 = NULL;
   __Pyx_memviewslice __pyx_t_7 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_t_8 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_t_9 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_t_10 = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("Sin", 0);
   __Pyx_INCREF(__pyx_v_arg);
 
-  /* "cython_functions.pyx":95
+  /* "cython_functions.pyx":127
  * 
  * def Sin(arg):
  *     sh = arg.shape             # <<<<<<<<<<<<<<
  *     d = len(sh)
- *     if d ==1:
+ *     dtyp = arg.dtype
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_arg, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_arg, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_sh = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "cython_functions.pyx":96
+  /* "cython_functions.pyx":128
  * def Sin(arg):
  *     sh = arg.shape
  *     d = len(sh)             # <<<<<<<<<<<<<<
+ *     dtyp = arg.dtype
  *     if d ==1:
- *         out = np.empty_like(arg, dtype='double')
  */
-  __pyx_t_2 = PyObject_Length(__pyx_v_sh); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 96, __pyx_L1_error)
+  __pyx_t_2 = PyObject_Length(__pyx_v_sh); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 128, __pyx_L1_error)
   __pyx_v_d = __pyx_t_2;
 
-  /* "cython_functions.pyx":97
+  /* "cython_functions.pyx":129
  *     sh = arg.shape
  *     d = len(sh)
+ *     dtyp = arg.dtype             # <<<<<<<<<<<<<<
+ *     if d ==1:
+ *         out = np.empty_like(arg, dtype=dtyp)
+ */
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_arg, __pyx_n_s_dtype); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 129, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_v_dtyp = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "cython_functions.pyx":130
+ *     d = len(sh)
+ *     dtyp = arg.dtype
  *     if d ==1:             # <<<<<<<<<<<<<<
- *         out = np.empty_like(arg, dtype='double')
- *         sin_parallel( arg, out)
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':
  */
   __pyx_t_3 = ((__pyx_v_d == 1) != 0);
   if (__pyx_t_3) {
 
-    /* "cython_functions.pyx":98
- *     d = len(sh)
+    /* "cython_functions.pyx":131
+ *     dtyp = arg.dtype
  *     if d ==1:
- *         out = np.empty_like(arg, dtype='double')             # <<<<<<<<<<<<<<
- *         sin_parallel( arg, out)
- *     if d == 2:
+ *         out = np.empty_like(arg, dtype=dtyp)             # <<<<<<<<<<<<<<
+ *         if dtyp == 'double':
+ *             sin_parallel( arg, out)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 98, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 131, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 98, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 131, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 98, __pyx_L1_error)
+    __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 131, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_INCREF(__pyx_v_arg);
     __Pyx_GIVEREF(__pyx_v_arg);
     PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_arg);
-    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 98, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 131, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_n_u_double) < 0) __PYX_ERR(0, 98, __pyx_L1_error)
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 98, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_v_dtyp) < 0) __PYX_ERR(0, 131, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 131, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -3726,52 +4100,92 @@ static PyObject *__pyx_pf_16cython_functions_6Sin(CYTHON_UNUSED PyObject *__pyx_
     __pyx_v_out = __pyx_t_6;
     __pyx_t_6 = 0;
 
-    /* "cython_functions.pyx":99
+    /* "cython_functions.pyx":132
  *     if d ==1:
- *         out = np.empty_like(arg, dtype='double')
- *         sin_parallel( arg, out)             # <<<<<<<<<<<<<<
- *     if d == 2:
- *         arg = np.ravel(arg)
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             sin_parallel( arg, out)
+ *         else:
  */
-    __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 99, __pyx_L1_error)
-    __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 99, __pyx_L1_error)
-    __pyx_f_16cython_functions_sin_parallel(__pyx_t_7, __pyx_t_8);
-    __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
-    __pyx_t_7.memview = NULL;
-    __pyx_t_7.data = NULL;
-    __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
-    __pyx_t_8.memview = NULL;
-    __pyx_t_8.data = NULL;
+    __pyx_t_3 = (__Pyx_PyUnicode_Equals(__pyx_v_dtyp, __pyx_n_u_double, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 132, __pyx_L1_error)
+    if (__pyx_t_3) {
 
-    /* "cython_functions.pyx":97
- *     sh = arg.shape
+      /* "cython_functions.pyx":133
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':
+ *             sin_parallel( arg, out)             # <<<<<<<<<<<<<<
+ *         else:
+ *             sin_parallel32( arg, out)
+ */
+      __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 133, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 133, __pyx_L1_error)
+      __pyx_f_16cython_functions_sin_parallel(__pyx_t_7, __pyx_t_8);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
+      __pyx_t_7.memview = NULL;
+      __pyx_t_7.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
+      __pyx_t_8.memview = NULL;
+      __pyx_t_8.data = NULL;
+
+      /* "cython_functions.pyx":132
+ *     if d ==1:
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             sin_parallel( arg, out)
+ *         else:
+ */
+      goto __pyx_L4;
+    }
+
+    /* "cython_functions.pyx":135
+ *             sin_parallel( arg, out)
+ *         else:
+ *             sin_parallel32( arg, out)             # <<<<<<<<<<<<<<
+ * 
+ *     if d == 2:
+ */
+    /*else*/ {
+      __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 135, __pyx_L1_error)
+      __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 135, __pyx_L1_error)
+      __pyx_f_16cython_functions_sin_parallel32(__pyx_t_9, __pyx_t_10);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
+      __pyx_t_9.memview = NULL;
+      __pyx_t_9.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_10, 1);
+      __pyx_t_10.memview = NULL;
+      __pyx_t_10.data = NULL;
+    }
+    __pyx_L4:;
+
+    /* "cython_functions.pyx":130
  *     d = len(sh)
+ *     dtyp = arg.dtype
  *     if d ==1:             # <<<<<<<<<<<<<<
- *         out = np.empty_like(arg, dtype='double')
- *         sin_parallel( arg, out)
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':
  */
   }
 
-  /* "cython_functions.pyx":100
- *         out = np.empty_like(arg, dtype='double')
- *         sin_parallel( arg, out)
+  /* "cython_functions.pyx":137
+ *             sin_parallel32( arg, out)
+ * 
  *     if d == 2:             # <<<<<<<<<<<<<<
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')
+ *         out = np.empty_like(arg, dtype=dtyp)
  */
   __pyx_t_3 = ((__pyx_v_d == 2) != 0);
   if (__pyx_t_3) {
 
-    /* "cython_functions.pyx":101
- *         sin_parallel( arg, out)
+    /* "cython_functions.pyx":138
+ * 
  *     if d == 2:
  *         arg = np.ravel(arg)             # <<<<<<<<<<<<<<
- *         out = np.empty_like(arg, dtype='double')
- *         sin_parallel( arg, out)
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 101, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 138, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ravel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 101, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ravel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 138, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_5 = NULL;
@@ -3786,33 +4200,33 @@ static PyObject *__pyx_pf_16cython_functions_6Sin(CYTHON_UNUSED PyObject *__pyx_
     }
     __pyx_t_6 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_5, __pyx_v_arg) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_v_arg);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 101, __pyx_L1_error)
+    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 138, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF_SET(__pyx_v_arg, __pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "cython_functions.pyx":102
+    /* "cython_functions.pyx":139
  *     if d == 2:
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')             # <<<<<<<<<<<<<<
- *         sin_parallel( arg, out)
- *     return out
+ *         out = np.empty_like(arg, dtype=dtyp)             # <<<<<<<<<<<<<<
+ *         if dtyp == 'double':
+ *             sin_parallel( arg, out)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 102, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 102, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 102, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_INCREF(__pyx_v_arg);
     __Pyx_GIVEREF(__pyx_v_arg);
     PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_v_arg);
-    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 102, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_n_u_double) < 0) __PYX_ERR(0, 102, __pyx_L1_error)
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_6, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 102, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_v_dtyp) < 0) __PYX_ERR(0, 139, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_6, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -3820,46 +4234,112 @@ static PyObject *__pyx_pf_16cython_functions_6Sin(CYTHON_UNUSED PyObject *__pyx_
     __Pyx_XDECREF_SET(__pyx_v_out, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "cython_functions.pyx":103
+    /* "cython_functions.pyx":140
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')
- *         sin_parallel( arg, out)             # <<<<<<<<<<<<<<
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             sin_parallel( arg, out)
+ *         else:
+ */
+    __pyx_t_3 = (__Pyx_PyUnicode_Equals(__pyx_v_dtyp, __pyx_n_u_double, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 140, __pyx_L1_error)
+    if (__pyx_t_3) {
+
+      /* "cython_functions.pyx":141
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':
+ *             sin_parallel( arg, out)             # <<<<<<<<<<<<<<
+ *         else:
+ *             sin_parallel32( arg, out)
+ */
+      __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 141, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 141, __pyx_L1_error)
+      __pyx_f_16cython_functions_sin_parallel(__pyx_t_8, __pyx_t_7);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
+      __pyx_t_8.memview = NULL;
+      __pyx_t_8.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
+      __pyx_t_7.memview = NULL;
+      __pyx_t_7.data = NULL;
+
+      /* "cython_functions.pyx":140
+ *         arg = np.ravel(arg)
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             sin_parallel( arg, out)
+ *         else:
+ */
+      goto __pyx_L6;
+    }
+
+    /* "cython_functions.pyx":143
+ *             sin_parallel( arg, out)
+ *         else:
+ *             sin_parallel32( arg, out)             # <<<<<<<<<<<<<<
+ *         out.reshape(sh)
+ *     return out
+ */
+    /*else*/ {
+      __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 143, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 143, __pyx_L1_error)
+      __pyx_f_16cython_functions_sin_parallel32(__pyx_t_10, __pyx_t_9);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_10, 1);
+      __pyx_t_10.memview = NULL;
+      __pyx_t_10.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
+      __pyx_t_9.memview = NULL;
+      __pyx_t_9.data = NULL;
+    }
+    __pyx_L6:;
+
+    /* "cython_functions.pyx":144
+ *         else:
+ *             sin_parallel32( arg, out)
+ *         out.reshape(sh)             # <<<<<<<<<<<<<<
  *     return out
  * 
  */
-    __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 103, __pyx_L1_error)
-    __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 103, __pyx_L1_error)
-    __pyx_f_16cython_functions_sin_parallel(__pyx_t_8, __pyx_t_7);
-    __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
-    __pyx_t_8.memview = NULL;
-    __pyx_t_8.data = NULL;
-    __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
-    __pyx_t_7.memview = NULL;
-    __pyx_t_7.data = NULL;
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_out, __pyx_n_s_reshape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 144, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_6 = NULL;
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_5))) {
+      __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_5);
+      if (likely(__pyx_t_6)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
+        __Pyx_INCREF(__pyx_t_6);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_5, function);
+      }
+    }
+    __pyx_t_4 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_6, __pyx_v_sh) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_v_sh);
+    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 144, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "cython_functions.pyx":100
- *         out = np.empty_like(arg, dtype='double')
- *         sin_parallel( arg, out)
+    /* "cython_functions.pyx":137
+ *             sin_parallel32( arg, out)
+ * 
  *     if d == 2:             # <<<<<<<<<<<<<<
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')
+ *         out = np.empty_like(arg, dtype=dtyp)
  */
   }
 
-  /* "cython_functions.pyx":104
- *         out = np.empty_like(arg, dtype='double')
- *         sin_parallel( arg, out)
+  /* "cython_functions.pyx":145
+ *             sin_parallel32( arg, out)
+ *         out.reshape(sh)
  *     return out             # <<<<<<<<<<<<<<
  * 
  * @cython.boundscheck(False)
  */
   __Pyx_XDECREF(__pyx_r);
-  if (unlikely(!__pyx_v_out)) { __Pyx_RaiseUnboundLocalError("out"); __PYX_ERR(0, 104, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_out)) { __Pyx_RaiseUnboundLocalError("out"); __PYX_ERR(0, 145, __pyx_L1_error) }
   __Pyx_INCREF(__pyx_v_out);
   __pyx_r = __pyx_v_out;
   goto __pyx_L0;
 
-  /* "cython_functions.pyx":94
+  /* "cython_functions.pyx":126
  *         out[i] = sin(arg[i])
  * 
  * def Sin(arg):             # <<<<<<<<<<<<<<
@@ -3875,10 +4355,13 @@ static PyObject *__pyx_pf_16cython_functions_6Sin(CYTHON_UNUSED PyObject *__pyx_
   __Pyx_XDECREF(__pyx_t_6);
   __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_10, 1);
   __Pyx_AddTraceback("cython_functions.Sin", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_sh);
+  __Pyx_XDECREF(__pyx_v_dtyp);
   __Pyx_XDECREF(__pyx_v_out);
   __Pyx_XDECREF(__pyx_v_arg);
   __Pyx_XGIVEREF(__pyx_r);
@@ -3886,7 +4369,7 @@ static PyObject *__pyx_pf_16cython_functions_6Sin(CYTHON_UNUSED PyObject *__pyx_
   return __pyx_r;
 }
 
-/* "cython_functions.pyx":108
+/* "cython_functions.pyx":149
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * cdef void cos_parallel( double[:] arg,             # <<<<<<<<<<<<<<
@@ -3905,14 +4388,14 @@ static void __pyx_f_16cython_functions_cos_parallel(__Pyx_memviewslice __pyx_v_a
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
 
-  /* "cython_functions.pyx":111
+  /* "cython_functions.pyx":152
  *                           double[:] out) nogil:
  *     cdef int i
- *     for i in prange(arg.shape[0]):             # <<<<<<<<<<<<<<
+ *     for i in prange(arg.shape[0], num_threads = None):             # <<<<<<<<<<<<<<
  *         out[i] = cos(arg[i])
  * 
  */
-  if (unlikely(!__pyx_v_arg.memview)) { __Pyx_RaiseUnboundMemoryviewSliceNogil("arg"); __PYX_ERR(0, 111, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_arg.memview)) { __Pyx_RaiseUnboundMemoryviewSliceNogil("arg"); __PYX_ERR(0, 152, __pyx_L1_error) }
   __pyx_t_1 = (__pyx_v_arg.shape[0]);
   if ((1 == 0)) abort();
   {
@@ -3936,12 +4419,12 @@ static void __pyx_f_16cython_functions_cos_parallel(__Pyx_memviewslice __pyx_v_a
                   {
                       __pyx_v_i = (int)(0 + 1 * __pyx_t_2);
 
-                      /* "cython_functions.pyx":112
+                      /* "cython_functions.pyx":153
  *     cdef int i
- *     for i in prange(arg.shape[0]):
+ *     for i in prange(arg.shape[0], num_threads = None):
  *         out[i] = cos(arg[i])             # <<<<<<<<<<<<<<
  * 
- * def Cos(arg):
+ * @cython.boundscheck(False)
  */
                       __pyx_t_4 = __pyx_v_i;
                       __pyx_t_5 = __pyx_v_i;
@@ -3958,7 +4441,7 @@ static void __pyx_f_16cython_functions_cos_parallel(__Pyx_memviewslice __pyx_v_a
       #define unlikely(x) __builtin_expect(!!(x), 0)
   #endif
 
-  /* "cython_functions.pyx":108
+  /* "cython_functions.pyx":149
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * cdef void cos_parallel( double[:] arg,             # <<<<<<<<<<<<<<
@@ -3973,7 +4456,94 @@ static void __pyx_f_16cython_functions_cos_parallel(__Pyx_memviewslice __pyx_v_a
   __pyx_L0:;
 }
 
-/* "cython_functions.pyx":114
+/* "cython_functions.pyx":157
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * cdef void cos_parallel32( float[:] arg,             # <<<<<<<<<<<<<<
+ *                           float[:] out) nogil:
+ *     cdef int i
+ */
+
+static void __pyx_f_16cython_functions_cos_parallel32(__Pyx_memviewslice __pyx_v_arg, __Pyx_memviewslice __pyx_v_out) {
+  int __pyx_v_i;
+  Py_ssize_t __pyx_t_1;
+  Py_ssize_t __pyx_t_2;
+  Py_ssize_t __pyx_t_3;
+  Py_ssize_t __pyx_t_4;
+  Py_ssize_t __pyx_t_5;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+
+  /* "cython_functions.pyx":160
+ *                           float[:] out) nogil:
+ *     cdef int i
+ *     for i in prange(arg.shape[0], num_threads = None):             # <<<<<<<<<<<<<<
+ *         out[i] = cos(arg[i])
+ * 
+ */
+  if (unlikely(!__pyx_v_arg.memview)) { __Pyx_RaiseUnboundMemoryviewSliceNogil("arg"); __PYX_ERR(0, 160, __pyx_L1_error) }
+  __pyx_t_1 = (__pyx_v_arg.shape[0]);
+  if ((1 == 0)) abort();
+  {
+      #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
+          #undef likely
+          #undef unlikely
+          #define likely(x)   (x)
+          #define unlikely(x) (x)
+      #endif
+      __pyx_t_3 = (__pyx_t_1 - 0 + 1 - 1/abs(1)) / 1;
+      if (__pyx_t_3 > 0)
+      {
+          #ifdef _OPENMP
+          #pragma omp parallel private(__pyx_t_4, __pyx_t_5)
+          #endif /* _OPENMP */
+          {
+              #ifdef _OPENMP
+              #pragma omp for firstprivate(__pyx_v_i) lastprivate(__pyx_v_i)
+              #endif /* _OPENMP */
+              for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_3; __pyx_t_2++){
+                  {
+                      __pyx_v_i = (int)(0 + 1 * __pyx_t_2);
+
+                      /* "cython_functions.pyx":161
+ *     cdef int i
+ *     for i in prange(arg.shape[0], num_threads = None):
+ *         out[i] = cos(arg[i])             # <<<<<<<<<<<<<<
+ * 
+ * def Cos(arg):
+ */
+                      __pyx_t_4 = __pyx_v_i;
+                      __pyx_t_5 = __pyx_v_i;
+                      *((float *) ( /* dim=0 */ (__pyx_v_out.data + __pyx_t_5 * __pyx_v_out.strides[0]) )) = cos((*((float *) ( /* dim=0 */ (__pyx_v_arg.data + __pyx_t_4 * __pyx_v_arg.strides[0]) ))));
+                  }
+              }
+          }
+      }
+  }
+  #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
+      #undef likely
+      #undef unlikely
+      #define likely(x)   __builtin_expect(!!(x), 1)
+      #define unlikely(x) __builtin_expect(!!(x), 0)
+  #endif
+
+  /* "cython_functions.pyx":157
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * cdef void cos_parallel32( float[:] arg,             # <<<<<<<<<<<<<<
+ *                           float[:] out) nogil:
+ *     cdef int i
+ */
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_WriteUnraisable("cython_functions.cos_parallel32", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
+  __pyx_L0:;
+}
+
+/* "cython_functions.pyx":163
  *         out[i] = cos(arg[i])
  * 
  * def Cos(arg):             # <<<<<<<<<<<<<<
@@ -3998,6 +4568,7 @@ static PyObject *__pyx_pw_16cython_functions_9Cos(PyObject *__pyx_self, PyObject
 static PyObject *__pyx_pf_16cython_functions_8Cos(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_arg) {
   PyObject *__pyx_v_sh = NULL;
   Py_ssize_t __pyx_v_d;
+  PyObject *__pyx_v_dtyp = NULL;
   PyObject *__pyx_v_out = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -4009,65 +4580,79 @@ static PyObject *__pyx_pf_16cython_functions_8Cos(CYTHON_UNUSED PyObject *__pyx_
   PyObject *__pyx_t_6 = NULL;
   __Pyx_memviewslice __pyx_t_7 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_t_8 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_t_9 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_t_10 = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("Cos", 0);
   __Pyx_INCREF(__pyx_v_arg);
 
-  /* "cython_functions.pyx":115
+  /* "cython_functions.pyx":164
  * 
  * def Cos(arg):
  *     sh = arg.shape             # <<<<<<<<<<<<<<
  *     d = len(sh)
- *     if d ==1:
+ *     dtyp = arg.dtype
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_arg, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_arg, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 164, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_sh = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "cython_functions.pyx":116
+  /* "cython_functions.pyx":165
  * def Cos(arg):
  *     sh = arg.shape
  *     d = len(sh)             # <<<<<<<<<<<<<<
+ *     dtyp = arg.dtype
  *     if d ==1:
- *         out = np.empty_like(arg, dtype='double')
  */
-  __pyx_t_2 = PyObject_Length(__pyx_v_sh); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 116, __pyx_L1_error)
+  __pyx_t_2 = PyObject_Length(__pyx_v_sh); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 165, __pyx_L1_error)
   __pyx_v_d = __pyx_t_2;
 
-  /* "cython_functions.pyx":117
+  /* "cython_functions.pyx":166
  *     sh = arg.shape
  *     d = len(sh)
+ *     dtyp = arg.dtype             # <<<<<<<<<<<<<<
+ *     if d ==1:
+ *         out = np.empty_like(arg, dtype=dtyp)
+ */
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_arg, __pyx_n_s_dtype); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 166, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_v_dtyp = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "cython_functions.pyx":167
+ *     d = len(sh)
+ *     dtyp = arg.dtype
  *     if d ==1:             # <<<<<<<<<<<<<<
- *         out = np.empty_like(arg, dtype='double')
- *         cos_parallel( arg, out)
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':
  */
   __pyx_t_3 = ((__pyx_v_d == 1) != 0);
   if (__pyx_t_3) {
 
-    /* "cython_functions.pyx":118
- *     d = len(sh)
+    /* "cython_functions.pyx":168
+ *     dtyp = arg.dtype
  *     if d ==1:
- *         out = np.empty_like(arg, dtype='double')             # <<<<<<<<<<<<<<
- *         cos_parallel( arg, out)
- *     if d == 2:
+ *         out = np.empty_like(arg, dtype=dtyp)             # <<<<<<<<<<<<<<
+ *         if dtyp == 'double':
+ *             cos_parallel( arg, out)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 168, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 168, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 168, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_INCREF(__pyx_v_arg);
     __Pyx_GIVEREF(__pyx_v_arg);
     PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_arg);
-    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 168, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_n_u_double) < 0) __PYX_ERR(0, 118, __pyx_L1_error)
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 118, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_v_dtyp) < 0) __PYX_ERR(0, 168, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 168, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -4075,52 +4660,92 @@ static PyObject *__pyx_pf_16cython_functions_8Cos(CYTHON_UNUSED PyObject *__pyx_
     __pyx_v_out = __pyx_t_6;
     __pyx_t_6 = 0;
 
-    /* "cython_functions.pyx":119
+    /* "cython_functions.pyx":169
  *     if d ==1:
- *         out = np.empty_like(arg, dtype='double')
- *         cos_parallel( arg, out)             # <<<<<<<<<<<<<<
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             cos_parallel( arg, out)
+ *         else:
+ */
+    __pyx_t_3 = (__Pyx_PyUnicode_Equals(__pyx_v_dtyp, __pyx_n_u_double, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 169, __pyx_L1_error)
+    if (__pyx_t_3) {
+
+      /* "cython_functions.pyx":170
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':
+ *             cos_parallel( arg, out)             # <<<<<<<<<<<<<<
+ *         else:
+ *             cos_parallel32( arg, out)
+ */
+      __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 170, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 170, __pyx_L1_error)
+      __pyx_f_16cython_functions_cos_parallel(__pyx_t_7, __pyx_t_8);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
+      __pyx_t_7.memview = NULL;
+      __pyx_t_7.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
+      __pyx_t_8.memview = NULL;
+      __pyx_t_8.data = NULL;
+
+      /* "cython_functions.pyx":169
+ *     if d ==1:
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             cos_parallel( arg, out)
+ *         else:
+ */
+      goto __pyx_L4;
+    }
+
+    /* "cython_functions.pyx":172
+ *             cos_parallel( arg, out)
+ *         else:
+ *             cos_parallel32( arg, out)             # <<<<<<<<<<<<<<
  *     if d == 2:
  *         arg = np.ravel(arg)
  */
-    __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 119, __pyx_L1_error)
-    __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 119, __pyx_L1_error)
-    __pyx_f_16cython_functions_cos_parallel(__pyx_t_7, __pyx_t_8);
-    __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
-    __pyx_t_7.memview = NULL;
-    __pyx_t_7.data = NULL;
-    __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
-    __pyx_t_8.memview = NULL;
-    __pyx_t_8.data = NULL;
+    /*else*/ {
+      __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 172, __pyx_L1_error)
+      __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 172, __pyx_L1_error)
+      __pyx_f_16cython_functions_cos_parallel32(__pyx_t_9, __pyx_t_10);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
+      __pyx_t_9.memview = NULL;
+      __pyx_t_9.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_10, 1);
+      __pyx_t_10.memview = NULL;
+      __pyx_t_10.data = NULL;
+    }
+    __pyx_L4:;
 
-    /* "cython_functions.pyx":117
- *     sh = arg.shape
+    /* "cython_functions.pyx":167
  *     d = len(sh)
+ *     dtyp = arg.dtype
  *     if d ==1:             # <<<<<<<<<<<<<<
- *         out = np.empty_like(arg, dtype='double')
- *         cos_parallel( arg, out)
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':
  */
   }
 
-  /* "cython_functions.pyx":120
- *         out = np.empty_like(arg, dtype='double')
- *         cos_parallel( arg, out)
+  /* "cython_functions.pyx":173
+ *         else:
+ *             cos_parallel32( arg, out)
  *     if d == 2:             # <<<<<<<<<<<<<<
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')
+ *         out = np.empty_like(arg, dtype=dtyp)
  */
   __pyx_t_3 = ((__pyx_v_d == 2) != 0);
   if (__pyx_t_3) {
 
-    /* "cython_functions.pyx":121
- *         cos_parallel( arg, out)
+    /* "cython_functions.pyx":174
+ *             cos_parallel32( arg, out)
  *     if d == 2:
  *         arg = np.ravel(arg)             # <<<<<<<<<<<<<<
- *         out = np.empty_like(arg, dtype='double')
- *         cos_parallel( arg, out)
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 121, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 174, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ravel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 121, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ravel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_5 = NULL;
@@ -4135,33 +4760,33 @@ static PyObject *__pyx_pf_16cython_functions_8Cos(CYTHON_UNUSED PyObject *__pyx_
     }
     __pyx_t_6 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_5, __pyx_v_arg) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_v_arg);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 121, __pyx_L1_error)
+    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 174, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF_SET(__pyx_v_arg, __pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "cython_functions.pyx":122
+    /* "cython_functions.pyx":175
  *     if d == 2:
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')             # <<<<<<<<<<<<<<
- *         cos_parallel( arg, out)
- *     return out
+ *         out = np.empty_like(arg, dtype=dtyp)             # <<<<<<<<<<<<<<
+ *         if dtyp == 'double':
+ *             cos_parallel( arg, out)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 122, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 175, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 122, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_empty_like); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 175, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 122, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 175, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_INCREF(__pyx_v_arg);
     __Pyx_GIVEREF(__pyx_v_arg);
     PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_v_arg);
-    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 122, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 175, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_n_u_double) < 0) __PYX_ERR(0, 122, __pyx_L1_error)
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_6, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 122, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_v_dtyp) < 0) __PYX_ERR(0, 175, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_6, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 175, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -4169,43 +4794,109 @@ static PyObject *__pyx_pf_16cython_functions_8Cos(CYTHON_UNUSED PyObject *__pyx_
     __Pyx_XDECREF_SET(__pyx_v_out, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "cython_functions.pyx":123
+    /* "cython_functions.pyx":176
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')
- *         cos_parallel( arg, out)             # <<<<<<<<<<<<<<
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             cos_parallel( arg, out)
+ *         else:
+ */
+    __pyx_t_3 = (__Pyx_PyUnicode_Equals(__pyx_v_dtyp, __pyx_n_u_double, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 176, __pyx_L1_error)
+    if (__pyx_t_3) {
+
+      /* "cython_functions.pyx":177
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':
+ *             cos_parallel( arg, out)             # <<<<<<<<<<<<<<
+ *         else:
+ *             cos_parallel32( arg, out)
+ */
+      __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 177, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 177, __pyx_L1_error)
+      __pyx_f_16cython_functions_cos_parallel(__pyx_t_8, __pyx_t_7);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
+      __pyx_t_8.memview = NULL;
+      __pyx_t_8.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
+      __pyx_t_7.memview = NULL;
+      __pyx_t_7.data = NULL;
+
+      /* "cython_functions.pyx":176
+ *         arg = np.ravel(arg)
+ *         out = np.empty_like(arg, dtype=dtyp)
+ *         if dtyp == 'double':             # <<<<<<<<<<<<<<
+ *             cos_parallel( arg, out)
+ *         else:
+ */
+      goto __pyx_L6;
+    }
+
+    /* "cython_functions.pyx":179
+ *             cos_parallel( arg, out)
+ *         else:
+ *             cos_parallel32( arg, out)             # <<<<<<<<<<<<<<
+ *         out.reshape(sh)
  *     return out
  */
-    __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 123, __pyx_L1_error)
-    __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 123, __pyx_L1_error)
-    __pyx_f_16cython_functions_cos_parallel(__pyx_t_8, __pyx_t_7);
-    __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
-    __pyx_t_8.memview = NULL;
-    __pyx_t_8.data = NULL;
-    __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
-    __pyx_t_7.memview = NULL;
-    __pyx_t_7.data = NULL;
+    /*else*/ {
+      __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_v_arg, PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 179, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_v_out, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 179, __pyx_L1_error)
+      __pyx_f_16cython_functions_cos_parallel32(__pyx_t_10, __pyx_t_9);
+      __PYX_XDEC_MEMVIEW(&__pyx_t_10, 1);
+      __pyx_t_10.memview = NULL;
+      __pyx_t_10.data = NULL;
+      __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
+      __pyx_t_9.memview = NULL;
+      __pyx_t_9.data = NULL;
+    }
+    __pyx_L6:;
 
-    /* "cython_functions.pyx":120
- *         out = np.empty_like(arg, dtype='double')
- *         cos_parallel( arg, out)
+    /* "cython_functions.pyx":180
+ *         else:
+ *             cos_parallel32( arg, out)
+ *         out.reshape(sh)             # <<<<<<<<<<<<<<
+ *     return out
+ */
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_out, __pyx_n_s_reshape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 180, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_6 = NULL;
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_5))) {
+      __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_5);
+      if (likely(__pyx_t_6)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
+        __Pyx_INCREF(__pyx_t_6);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_5, function);
+      }
+    }
+    __pyx_t_4 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_6, __pyx_v_sh) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_v_sh);
+    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 180, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+    /* "cython_functions.pyx":173
+ *         else:
+ *             cos_parallel32( arg, out)
  *     if d == 2:             # <<<<<<<<<<<<<<
  *         arg = np.ravel(arg)
- *         out = np.empty_like(arg, dtype='double')
+ *         out = np.empty_like(arg, dtype=dtyp)
  */
   }
 
-  /* "cython_functions.pyx":124
- *         out = np.empty_like(arg, dtype='double')
- *         cos_parallel( arg, out)
+  /* "cython_functions.pyx":181
+ *             cos_parallel32( arg, out)
+ *         out.reshape(sh)
  *     return out             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  if (unlikely(!__pyx_v_out)) { __Pyx_RaiseUnboundLocalError("out"); __PYX_ERR(0, 124, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_out)) { __Pyx_RaiseUnboundLocalError("out"); __PYX_ERR(0, 181, __pyx_L1_error) }
   __Pyx_INCREF(__pyx_v_out);
   __pyx_r = __pyx_v_out;
   goto __pyx_L0;
 
-  /* "cython_functions.pyx":114
+  /* "cython_functions.pyx":163
  *         out[i] = cos(arg[i])
  * 
  * def Cos(arg):             # <<<<<<<<<<<<<<
@@ -4221,10 +4912,13 @@ static PyObject *__pyx_pf_16cython_functions_8Cos(CYTHON_UNUSED PyObject *__pyx_
   __Pyx_XDECREF(__pyx_t_6);
   __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_10, 1);
   __Pyx_AddTraceback("cython_functions.Cos", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_sh);
+  __Pyx_XDECREF(__pyx_v_dtyp);
   __Pyx_XDECREF(__pyx_v_out);
   __Pyx_XDECREF(__pyx_v_arg);
   __Pyx_XGIVEREF(__pyx_r);
@@ -18053,6 +18747,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_d, __pyx_k_d, sizeof(__pyx_k_d), 0, 0, 1, 1},
   {&__pyx_n_s_dict, __pyx_k_dict, sizeof(__pyx_k_dict), 0, 0, 1, 1},
   {&__pyx_n_u_double, __pyx_k_double, sizeof(__pyx_k_double), 0, 1, 0, 1},
+  {&__pyx_n_s_dtyp, __pyx_k_dtyp, sizeof(__pyx_k_dtyp), 0, 0, 1, 1},
   {&__pyx_n_s_dtype, __pyx_k_dtype, sizeof(__pyx_k_dtype), 0, 0, 1, 1},
   {&__pyx_n_s_dtype_is_object, __pyx_k_dtype_is_object, sizeof(__pyx_k_dtype_is_object), 0, 0, 1, 1},
   {&__pyx_n_s_empty_like, __pyx_k_empty_like, sizeof(__pyx_k_empty_like), 0, 0, 1, 1},
@@ -18123,7 +18818,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 20, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 133, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 148, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(1, 151, __pyx_L1_error)
@@ -18332,65 +19027,65 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__18);
   __Pyx_GIVEREF(__pyx_tuple__18);
 
-  /* "cython_functions.pyx":22
+  /* "cython_functions.pyx":23
  *             out[i,j] = 0.25j*csc.hankel1(0, k*fabs(x[i,j] - y[i,j]))
  * 
  * def parallel_G(k, x, y):             # <<<<<<<<<<<<<<
  *     out = np.empty_like(x, dtype='complex128')
  *     _parallel_G(k, x, y, out)
  */
-  __pyx_tuple__19 = PyTuple_Pack(4, __pyx_n_s_k, __pyx_n_s_x, __pyx_n_s_y, __pyx_n_s_out); if (unlikely(!__pyx_tuple__19)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_tuple__19 = PyTuple_Pack(4, __pyx_n_s_k, __pyx_n_s_x, __pyx_n_s_y, __pyx_n_s_out); if (unlikely(!__pyx_tuple__19)) __PYX_ERR(0, 23, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__19);
   __Pyx_GIVEREF(__pyx_tuple__19);
-  __pyx_codeobj__20 = (PyObject*)__Pyx_PyCode_New(3, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__19, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_BasisModules_cython_functions_py, __pyx_n_s_parallel_G, 22, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__20)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_codeobj__20 = (PyObject*)__Pyx_PyCode_New(3, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__19, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_BasisModules_cython_functions_py, __pyx_n_s_parallel_G, 23, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__20)) __PYX_ERR(0, 23, __pyx_L1_error)
 
-  /* "cython_functions.pyx":46
- *             out[i, j] = csc.jv(order, arg[i, j])
+  /* "cython_functions.pyx":48
+ *         out[i] = csc.jv(order, arg[i])
  * 
  * def Jv(order, arg):             # <<<<<<<<<<<<<<
  *     sh = arg.shape
  *     d = len(sh)
  */
-  __pyx_tuple__21 = PyTuple_Pack(5, __pyx_n_s_order, __pyx_n_s_arg, __pyx_n_s_sh, __pyx_n_s_d, __pyx_n_s_out); if (unlikely(!__pyx_tuple__21)) __PYX_ERR(0, 46, __pyx_L1_error)
+  __pyx_tuple__21 = PyTuple_Pack(6, __pyx_n_s_order, __pyx_n_s_arg, __pyx_n_s_sh, __pyx_n_s_d, __pyx_n_s_dtyp, __pyx_n_s_out); if (unlikely(!__pyx_tuple__21)) __PYX_ERR(0, 48, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__21);
   __Pyx_GIVEREF(__pyx_tuple__21);
-  __pyx_codeobj__22 = (PyObject*)__Pyx_PyCode_New(2, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__21, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_BasisModules_cython_functions_py, __pyx_n_s_Jv, 46, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__22)) __PYX_ERR(0, 46, __pyx_L1_error)
+  __pyx_codeobj__22 = (PyObject*)__Pyx_PyCode_New(2, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__21, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_BasisModules_cython_functions_py, __pyx_n_s_Jv, 48, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__22)) __PYX_ERR(0, 48, __pyx_L1_error)
 
-  /* "cython_functions.pyx":71
+  /* "cython_functions.pyx":88
  * 
  * 
  * def Jvp(order, arg):             # <<<<<<<<<<<<<<
  *     sh = arg.shape
  *     d = len(sh)
  */
-  __pyx_tuple__23 = PyTuple_Pack(5, __pyx_n_s_order, __pyx_n_s_arg, __pyx_n_s_sh, __pyx_n_s_d, __pyx_n_s_out); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_tuple__23 = PyTuple_Pack(6, __pyx_n_s_order, __pyx_n_s_arg, __pyx_n_s_sh, __pyx_n_s_d, __pyx_n_s_dtyp, __pyx_n_s_out); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 88, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__23);
   __Pyx_GIVEREF(__pyx_tuple__23);
-  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(2, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_BasisModules_cython_functions_py, __pyx_n_s_Jvp, 71, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(2, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_BasisModules_cython_functions_py, __pyx_n_s_Jvp, 88, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 88, __pyx_L1_error)
 
-  /* "cython_functions.pyx":94
+  /* "cython_functions.pyx":126
  *         out[i] = sin(arg[i])
  * 
  * def Sin(arg):             # <<<<<<<<<<<<<<
  *     sh = arg.shape
  *     d = len(sh)
  */
-  __pyx_tuple__25 = PyTuple_Pack(4, __pyx_n_s_arg, __pyx_n_s_sh, __pyx_n_s_d, __pyx_n_s_out); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(0, 94, __pyx_L1_error)
+  __pyx_tuple__25 = PyTuple_Pack(5, __pyx_n_s_arg, __pyx_n_s_sh, __pyx_n_s_d, __pyx_n_s_dtyp, __pyx_n_s_out); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__25);
   __Pyx_GIVEREF(__pyx_tuple__25);
-  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__25, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_BasisModules_cython_functions_py, __pyx_n_s_Sin, 94, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(0, 94, __pyx_L1_error)
+  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(1, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__25, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_BasisModules_cython_functions_py, __pyx_n_s_Sin, 126, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(0, 126, __pyx_L1_error)
 
-  /* "cython_functions.pyx":114
+  /* "cython_functions.pyx":163
  *         out[i] = cos(arg[i])
  * 
  * def Cos(arg):             # <<<<<<<<<<<<<<
  *     sh = arg.shape
  *     d = len(sh)
  */
-  __pyx_tuple__27 = PyTuple_Pack(4, __pyx_n_s_arg, __pyx_n_s_sh, __pyx_n_s_d, __pyx_n_s_out); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_tuple__27 = PyTuple_Pack(5, __pyx_n_s_arg, __pyx_n_s_sh, __pyx_n_s_d, __pyx_n_s_dtyp, __pyx_n_s_out); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__27);
   __Pyx_GIVEREF(__pyx_tuple__27);
-  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_BasisModules_cython_functions_py, __pyx_n_s_Cos, 114, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(1, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_BasisModules_cython_functions_py, __pyx_n_s_Cos, 163, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 163, __pyx_L1_error)
 
   /* "View.MemoryView":286
  *         return self.name
@@ -18836,64 +19531,64 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "cython_functions.pyx":22
+  /* "cython_functions.pyx":23
  *             out[i,j] = 0.25j*csc.hankel1(0, k*fabs(x[i,j] - y[i,j]))
  * 
  * def parallel_G(k, x, y):             # <<<<<<<<<<<<<<
  *     out = np.empty_like(x, dtype='complex128')
  *     _parallel_G(k, x, y, out)
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_16cython_functions_1parallel_G, NULL, __pyx_n_s_cython_functions); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_16cython_functions_1parallel_G, NULL, __pyx_n_s_cython_functions); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 23, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_parallel_G, __pyx_t_1) < 0) __PYX_ERR(0, 22, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_parallel_G, __pyx_t_1) < 0) __PYX_ERR(0, 23, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "cython_functions.pyx":46
- *             out[i, j] = csc.jv(order, arg[i, j])
+  /* "cython_functions.pyx":48
+ *         out[i] = csc.jv(order, arg[i])
  * 
  * def Jv(order, arg):             # <<<<<<<<<<<<<<
  *     sh = arg.shape
  *     d = len(sh)
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_16cython_functions_3Jv, NULL, __pyx_n_s_cython_functions); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 46, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_16cython_functions_3Jv, NULL, __pyx_n_s_cython_functions); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 48, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Jv, __pyx_t_1) < 0) __PYX_ERR(0, 46, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Jv, __pyx_t_1) < 0) __PYX_ERR(0, 48, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "cython_functions.pyx":71
+  /* "cython_functions.pyx":88
  * 
  * 
  * def Jvp(order, arg):             # <<<<<<<<<<<<<<
  *     sh = arg.shape
  *     d = len(sh)
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_16cython_functions_5Jvp, NULL, __pyx_n_s_cython_functions); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_16cython_functions_5Jvp, NULL, __pyx_n_s_cython_functions); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 88, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Jvp, __pyx_t_1) < 0) __PYX_ERR(0, 71, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Jvp, __pyx_t_1) < 0) __PYX_ERR(0, 88, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "cython_functions.pyx":94
+  /* "cython_functions.pyx":126
  *         out[i] = sin(arg[i])
  * 
  * def Sin(arg):             # <<<<<<<<<<<<<<
  *     sh = arg.shape
  *     d = len(sh)
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_16cython_functions_7Sin, NULL, __pyx_n_s_cython_functions); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 94, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_16cython_functions_7Sin, NULL, __pyx_n_s_cython_functions); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Sin, __pyx_t_1) < 0) __PYX_ERR(0, 94, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Sin, __pyx_t_1) < 0) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "cython_functions.pyx":114
+  /* "cython_functions.pyx":163
  *         out[i] = cos(arg[i])
  * 
  * def Cos(arg):             # <<<<<<<<<<<<<<
  *     sh = arg.shape
  *     d = len(sh)
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_16cython_functions_9Cos, NULL, __pyx_n_s_cython_functions); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_16cython_functions_9Cos, NULL, __pyx_n_s_cython_functions); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Cos, __pyx_t_1) < 0) __PYX_ERR(0, 114, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Cos, __pyx_t_1) < 0) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "cython_functions.pyx":1
@@ -19566,6 +20261,155 @@ static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *memslice,
     }
 }
 
+/* BytesEquals */
+static CYTHON_INLINE int __Pyx_PyBytes_Equals(PyObject* s1, PyObject* s2, int equals) {
+#if CYTHON_COMPILING_IN_PYPY
+    return PyObject_RichCompareBool(s1, s2, equals);
+#else
+    if (s1 == s2) {
+        return (equals == Py_EQ);
+    } else if (PyBytes_CheckExact(s1) & PyBytes_CheckExact(s2)) {
+        const char *ps1, *ps2;
+        Py_ssize_t length = PyBytes_GET_SIZE(s1);
+        if (length != PyBytes_GET_SIZE(s2))
+            return (equals == Py_NE);
+        ps1 = PyBytes_AS_STRING(s1);
+        ps2 = PyBytes_AS_STRING(s2);
+        if (ps1[0] != ps2[0]) {
+            return (equals == Py_NE);
+        } else if (length == 1) {
+            return (equals == Py_EQ);
+        } else {
+            int result;
+#if CYTHON_USE_UNICODE_INTERNALS
+            Py_hash_t hash1, hash2;
+            hash1 = ((PyBytesObject*)s1)->ob_shash;
+            hash2 = ((PyBytesObject*)s2)->ob_shash;
+            if (hash1 != hash2 && hash1 != -1 && hash2 != -1) {
+                return (equals == Py_NE);
+            }
+#endif
+            result = memcmp(ps1, ps2, (size_t)length);
+            return (equals == Py_EQ) ? (result == 0) : (result != 0);
+        }
+    } else if ((s1 == Py_None) & PyBytes_CheckExact(s2)) {
+        return (equals == Py_NE);
+    } else if ((s2 == Py_None) & PyBytes_CheckExact(s1)) {
+        return (equals == Py_NE);
+    } else {
+        int result;
+        PyObject* py_result = PyObject_RichCompare(s1, s2, equals);
+        if (!py_result)
+            return -1;
+        result = __Pyx_PyObject_IsTrue(py_result);
+        Py_DECREF(py_result);
+        return result;
+    }
+#endif
+}
+
+/* UnicodeEquals */
+static CYTHON_INLINE int __Pyx_PyUnicode_Equals(PyObject* s1, PyObject* s2, int equals) {
+#if CYTHON_COMPILING_IN_PYPY
+    return PyObject_RichCompareBool(s1, s2, equals);
+#else
+#if PY_MAJOR_VERSION < 3
+    PyObject* owned_ref = NULL;
+#endif
+    int s1_is_unicode, s2_is_unicode;
+    if (s1 == s2) {
+        goto return_eq;
+    }
+    s1_is_unicode = PyUnicode_CheckExact(s1);
+    s2_is_unicode = PyUnicode_CheckExact(s2);
+#if PY_MAJOR_VERSION < 3
+    if ((s1_is_unicode & (!s2_is_unicode)) && PyString_CheckExact(s2)) {
+        owned_ref = PyUnicode_FromObject(s2);
+        if (unlikely(!owned_ref))
+            return -1;
+        s2 = owned_ref;
+        s2_is_unicode = 1;
+    } else if ((s2_is_unicode & (!s1_is_unicode)) && PyString_CheckExact(s1)) {
+        owned_ref = PyUnicode_FromObject(s1);
+        if (unlikely(!owned_ref))
+            return -1;
+        s1 = owned_ref;
+        s1_is_unicode = 1;
+    } else if (((!s2_is_unicode) & (!s1_is_unicode))) {
+        return __Pyx_PyBytes_Equals(s1, s2, equals);
+    }
+#endif
+    if (s1_is_unicode & s2_is_unicode) {
+        Py_ssize_t length;
+        int kind;
+        void *data1, *data2;
+        if (unlikely(__Pyx_PyUnicode_READY(s1) < 0) || unlikely(__Pyx_PyUnicode_READY(s2) < 0))
+            return -1;
+        length = __Pyx_PyUnicode_GET_LENGTH(s1);
+        if (length != __Pyx_PyUnicode_GET_LENGTH(s2)) {
+            goto return_ne;
+        }
+#if CYTHON_USE_UNICODE_INTERNALS
+        {
+            Py_hash_t hash1, hash2;
+        #if CYTHON_PEP393_ENABLED
+            hash1 = ((PyASCIIObject*)s1)->hash;
+            hash2 = ((PyASCIIObject*)s2)->hash;
+        #else
+            hash1 = ((PyUnicodeObject*)s1)->hash;
+            hash2 = ((PyUnicodeObject*)s2)->hash;
+        #endif
+            if (hash1 != hash2 && hash1 != -1 && hash2 != -1) {
+                goto return_ne;
+            }
+        }
+#endif
+        kind = __Pyx_PyUnicode_KIND(s1);
+        if (kind != __Pyx_PyUnicode_KIND(s2)) {
+            goto return_ne;
+        }
+        data1 = __Pyx_PyUnicode_DATA(s1);
+        data2 = __Pyx_PyUnicode_DATA(s2);
+        if (__Pyx_PyUnicode_READ(kind, data1, 0) != __Pyx_PyUnicode_READ(kind, data2, 0)) {
+            goto return_ne;
+        } else if (length == 1) {
+            goto return_eq;
+        } else {
+            int result = memcmp(data1, data2, (size_t)(length * kind));
+            #if PY_MAJOR_VERSION < 3
+            Py_XDECREF(owned_ref);
+            #endif
+            return (equals == Py_EQ) ? (result == 0) : (result != 0);
+        }
+    } else if ((s1 == Py_None) & s2_is_unicode) {
+        goto return_ne;
+    } else if ((s2 == Py_None) & s1_is_unicode) {
+        goto return_ne;
+    } else {
+        int result;
+        PyObject* py_result = PyObject_RichCompare(s1, s2, equals);
+        #if PY_MAJOR_VERSION < 3
+        Py_XDECREF(owned_ref);
+        #endif
+        if (!py_result)
+            return -1;
+        result = __Pyx_PyObject_IsTrue(py_result);
+        Py_DECREF(py_result);
+        return result;
+    }
+return_eq:
+    #if PY_MAJOR_VERSION < 3
+    Py_XDECREF(owned_ref);
+    #endif
+    return (equals == Py_EQ);
+return_ne:
+    #if PY_MAJOR_VERSION < 3
+    Py_XDECREF(owned_ref);
+    #endif
+    return (equals == Py_NE);
+#endif
+}
+
 /* PyCFunctionFastCall */
 #if CYTHON_FAST_PYCCALL
 static CYTHON_INLINE PyObject * __Pyx_PyCFunction_FastCall(PyObject *func_obj, PyObject **args, Py_ssize_t nargs) {
@@ -19976,155 +20820,6 @@ bad:
     return;
 }
 #endif
-
-/* BytesEquals */
-static CYTHON_INLINE int __Pyx_PyBytes_Equals(PyObject* s1, PyObject* s2, int equals) {
-#if CYTHON_COMPILING_IN_PYPY
-    return PyObject_RichCompareBool(s1, s2, equals);
-#else
-    if (s1 == s2) {
-        return (equals == Py_EQ);
-    } else if (PyBytes_CheckExact(s1) & PyBytes_CheckExact(s2)) {
-        const char *ps1, *ps2;
-        Py_ssize_t length = PyBytes_GET_SIZE(s1);
-        if (length != PyBytes_GET_SIZE(s2))
-            return (equals == Py_NE);
-        ps1 = PyBytes_AS_STRING(s1);
-        ps2 = PyBytes_AS_STRING(s2);
-        if (ps1[0] != ps2[0]) {
-            return (equals == Py_NE);
-        } else if (length == 1) {
-            return (equals == Py_EQ);
-        } else {
-            int result;
-#if CYTHON_USE_UNICODE_INTERNALS
-            Py_hash_t hash1, hash2;
-            hash1 = ((PyBytesObject*)s1)->ob_shash;
-            hash2 = ((PyBytesObject*)s2)->ob_shash;
-            if (hash1 != hash2 && hash1 != -1 && hash2 != -1) {
-                return (equals == Py_NE);
-            }
-#endif
-            result = memcmp(ps1, ps2, (size_t)length);
-            return (equals == Py_EQ) ? (result == 0) : (result != 0);
-        }
-    } else if ((s1 == Py_None) & PyBytes_CheckExact(s2)) {
-        return (equals == Py_NE);
-    } else if ((s2 == Py_None) & PyBytes_CheckExact(s1)) {
-        return (equals == Py_NE);
-    } else {
-        int result;
-        PyObject* py_result = PyObject_RichCompare(s1, s2, equals);
-        if (!py_result)
-            return -1;
-        result = __Pyx_PyObject_IsTrue(py_result);
-        Py_DECREF(py_result);
-        return result;
-    }
-#endif
-}
-
-/* UnicodeEquals */
-static CYTHON_INLINE int __Pyx_PyUnicode_Equals(PyObject* s1, PyObject* s2, int equals) {
-#if CYTHON_COMPILING_IN_PYPY
-    return PyObject_RichCompareBool(s1, s2, equals);
-#else
-#if PY_MAJOR_VERSION < 3
-    PyObject* owned_ref = NULL;
-#endif
-    int s1_is_unicode, s2_is_unicode;
-    if (s1 == s2) {
-        goto return_eq;
-    }
-    s1_is_unicode = PyUnicode_CheckExact(s1);
-    s2_is_unicode = PyUnicode_CheckExact(s2);
-#if PY_MAJOR_VERSION < 3
-    if ((s1_is_unicode & (!s2_is_unicode)) && PyString_CheckExact(s2)) {
-        owned_ref = PyUnicode_FromObject(s2);
-        if (unlikely(!owned_ref))
-            return -1;
-        s2 = owned_ref;
-        s2_is_unicode = 1;
-    } else if ((s2_is_unicode & (!s1_is_unicode)) && PyString_CheckExact(s1)) {
-        owned_ref = PyUnicode_FromObject(s1);
-        if (unlikely(!owned_ref))
-            return -1;
-        s1 = owned_ref;
-        s1_is_unicode = 1;
-    } else if (((!s2_is_unicode) & (!s1_is_unicode))) {
-        return __Pyx_PyBytes_Equals(s1, s2, equals);
-    }
-#endif
-    if (s1_is_unicode & s2_is_unicode) {
-        Py_ssize_t length;
-        int kind;
-        void *data1, *data2;
-        if (unlikely(__Pyx_PyUnicode_READY(s1) < 0) || unlikely(__Pyx_PyUnicode_READY(s2) < 0))
-            return -1;
-        length = __Pyx_PyUnicode_GET_LENGTH(s1);
-        if (length != __Pyx_PyUnicode_GET_LENGTH(s2)) {
-            goto return_ne;
-        }
-#if CYTHON_USE_UNICODE_INTERNALS
-        {
-            Py_hash_t hash1, hash2;
-        #if CYTHON_PEP393_ENABLED
-            hash1 = ((PyASCIIObject*)s1)->hash;
-            hash2 = ((PyASCIIObject*)s2)->hash;
-        #else
-            hash1 = ((PyUnicodeObject*)s1)->hash;
-            hash2 = ((PyUnicodeObject*)s2)->hash;
-        #endif
-            if (hash1 != hash2 && hash1 != -1 && hash2 != -1) {
-                goto return_ne;
-            }
-        }
-#endif
-        kind = __Pyx_PyUnicode_KIND(s1);
-        if (kind != __Pyx_PyUnicode_KIND(s2)) {
-            goto return_ne;
-        }
-        data1 = __Pyx_PyUnicode_DATA(s1);
-        data2 = __Pyx_PyUnicode_DATA(s2);
-        if (__Pyx_PyUnicode_READ(kind, data1, 0) != __Pyx_PyUnicode_READ(kind, data2, 0)) {
-            goto return_ne;
-        } else if (length == 1) {
-            goto return_eq;
-        } else {
-            int result = memcmp(data1, data2, (size_t)(length * kind));
-            #if PY_MAJOR_VERSION < 3
-            Py_XDECREF(owned_ref);
-            #endif
-            return (equals == Py_EQ) ? (result == 0) : (result != 0);
-        }
-    } else if ((s1 == Py_None) & s2_is_unicode) {
-        goto return_ne;
-    } else if ((s2 == Py_None) & s1_is_unicode) {
-        goto return_ne;
-    } else {
-        int result;
-        PyObject* py_result = PyObject_RichCompare(s1, s2, equals);
-        #if PY_MAJOR_VERSION < 3
-        Py_XDECREF(owned_ref);
-        #endif
-        if (!py_result)
-            return -1;
-        result = __Pyx_PyObject_IsTrue(py_result);
-        Py_DECREF(py_result);
-        return result;
-    }
-return_eq:
-    #if PY_MAJOR_VERSION < 3
-    Py_XDECREF(owned_ref);
-    #endif
-    return (equals == Py_EQ);
-return_ne:
-    #if PY_MAJOR_VERSION < 3
-    Py_XDECREF(owned_ref);
-    #endif
-    return (equals == Py_NE);
-#endif
-}
 
 /* None */
 static CYTHON_INLINE Py_ssize_t __Pyx_div_Py_ssize_t(Py_ssize_t a, Py_ssize_t b) {
@@ -23001,6 +23696,29 @@ __pyx_fail:
     retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
                                                  PyBUF_RECORDS_RO | writable_flag, 1,
                                                  &__Pyx_TypeInfo_double, stack,
+                                                 &result, obj);
+    if (unlikely(retcode == -1))
+        goto __pyx_fail;
+    return result;
+__pyx_fail:
+    result.memview = NULL;
+    result.data = NULL;
+    return result;
+}
+
+/* ObjectToMemviewSlice */
+  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_float(PyObject *obj, int writable_flag) {
+    __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
+    __Pyx_BufFmt_StackElem stack[1];
+    int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
+    int retcode;
+    if (obj == Py_None) {
+        result.memview = (struct __pyx_memoryview_obj *) Py_None;
+        return result;
+    }
+    retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
+                                                 PyBUF_RECORDS_RO | writable_flag, 1,
+                                                 &__Pyx_TypeInfo_float, stack,
                                                  &result, obj);
     if (unlikely(retcode == -1))
         goto __pyx_fail;

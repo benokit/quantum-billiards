@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy
+import time
 
 from . import Utils as ut
 
@@ -233,7 +234,7 @@ def decomposition_method(k, basis, bnd_pts, length, eps = 0.5e-15, return_vector
         tension = 1/mu[-1]
     return tension
 
-def scaling_method(k, dk, basis, bnd_pts, eps = 0.5e-15, return_vector = False, show_matrix=False):
+def scaling_method(k, dk, basis, bnd_pts, eps = 0.5e-15, return_vector = False, show_matrix=False, print_info = False):
     """Solver for the scaling method.
 
     Calculates the basis superpositions and wavenumbers that correspond to the eigenstates
@@ -263,6 +264,9 @@ def scaling_method(k, dk, basis, bnd_pts, eps = 0.5e-15, return_vector = False, 
     show_matrix : bool
         If True plots the tension matrix by using the plot_matrix function.
         (default is False)
+    print_info : bool
+        If True prints memory size of matrix in bytes and information on evaluation times.
+        (default is False)
 
     Returns
     -------
@@ -273,29 +277,42 @@ def scaling_method(k, dk, basis, bnd_pts, eps = 0.5e-15, return_vector = False, 
     X : numpy array
         (optional) Eigenvectors representing eigenfunction solutions.     
     """
-    #evaluate points on boundary
     bnd_x, bnd_y, nx, ny, weights = bnd_pts.x, bnd_pts.y, bnd_pts.nx, bnd_pts.ny, bnd_pts.ds
     rn = (bnd_x * nx + bnd_y * ny)
     sm_weights = weights / rn
     
+    
     #construct fredholm matrix
+    start_time = time.time()
     B = basis.evaluate_basis(k, bnd_x, bnd_y)
     T = sm_weights * B
     F = np.matmul(T, np.transpose(B))
-    
+    if print_info:
+        print("F matrix construction time: %s s" % (time.time() - start_time), flush=True)
+        print("Size of F matrix: %s, %s Mb" % (F.shape , F.nbytes/1e6) )
 
+    start_time = time.time()
     DB = basis.evaluate_df_dk(k, bnd_x, bnd_y)
     Fk = np.matmul(T, np.transpose(DB))
     Fk = Fk + np.transpose(Fk)
+    if print_info:
+        print("Fk matrix construction time: %s s" % (time.time() - start_time), flush=True)
+        print("Size of Fk matrix: %s, %s Mb" % (Fk.shape , Fk.nbytes/1e6) )
+    
     if show_matrix:
         plt.subplot(1,2,1)
         plot_matrix(F)
         plt.subplot(1,2,2)
         plot_matrix(Fk)
         plt.tight_layout()
-
+    
+   
     if return_vector:
+        start_time = time.time()
         d, S = np.linalg.eigh(F)
+        if print_info:
+            print("F matrix diagonalisation time: %s s" % (time.time() - start_time), flush=True)
+    
         # indices of relevant eigenvectors
         if eps:
             ind = (d / np.max(d)) > eps
@@ -304,7 +321,13 @@ def scaling_method(k, dk, basis, bnd_pts, eps = 0.5e-15, return_vector = False, 
             S = S[:,ind]
             S = q * S
         Fk = np.transpose(S).dot(Fk).dot(S)
+
+        start_time = time.time()
         mu, Z = np.linalg.eigh(Fk)
+        if print_info:
+            print("Fk matrix diagonalisation time: %s s" % (time.time() - start_time), flush=True)
+            print("Size of truncated Fk matrix: %s, %s Mb" % (Fk.shape , Fk.nbytes/1e6) )
+        
         ks = k - 2 / mu
         
         ind = np.abs(ks - k) <= dk
@@ -318,7 +341,10 @@ def scaling_method(k, dk, basis, bnd_pts, eps = 0.5e-15, return_vector = False, 
         X = S.dot(Z)
         return ks, ten, X
     else:
+        start_time = time.time()
         d, S = np.linalg.eigh(F)
+        if print_info:
+            print("F matrix diagonalisation time: %s s" % (time.time() - start_time), flush=True)
         # indeces of relevant eigenvectors
         if eps:
             ind = (d / np.max(d)) > eps 
@@ -326,7 +352,12 @@ def scaling_method(k, dk, basis, bnd_pts, eps = 0.5e-15, return_vector = False, 
             S = S[:,ind]
             S = q * S
         Fk = np.transpose(S).dot(Fk).dot(S)
+        start_time = time.time()
         mu = np.linalg.eigvalsh(Fk)
+        
+        if print_info:
+            print("Fk matrix diagonalisation time: %s s" % (time.time() - start_time), flush=True)
+            print("Size of truncated Fk matrix: %s, %s Mb" % (Fk.shape , Fk.nbytes/1e6) )
         ks = k - 2 / mu
         ind = np.abs(ks - k) <= dk
         ks = ks[ind]
@@ -335,3 +366,5 @@ def scaling_method(k, dk, basis, bnd_pts, eps = 0.5e-15, return_vector = False, 
         ks = ks[ind]
         ten = ten[ind]
         return ks, ten
+
+    
