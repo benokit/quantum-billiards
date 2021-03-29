@@ -204,7 +204,7 @@ class wavefunctions:
         H = hf.husimiOnGrid(k, s, ds, u, qs, ps)
         return H
 
-    def plot_amplitude_histogram(self, k, vec = None, grid = 400, bins = 20, delta = 5, kind = "square"):
+    def plot_amplitude_histogram(self, k, vec = None, grid = 400, bins = 20, delta = 5, kind = "real"):
         #grid size
         L = self.billiard.length
         sym_x = self.sym_x
@@ -251,7 +251,7 @@ class wavefunctions:
 
 
 
-    def plot_probability(self, k, vec = None, grid = 400, cmap='binary', plot_exterior = False, delta = 5, plot_full=False, axis=False):
+    def plot_probability(self, k, vec = None, g = 5, cmap='binary', plot_exterior = False, delta = 5, plot_full=False, axis=False, dtype = np.float32, col_max = 1):
         """Plots the probability distribution of the wavefunction at wavevector k.
         The wavefunction is computed using the plane wave decomposition method.
         - k is the eigen wavenumber  
@@ -265,9 +265,11 @@ class wavefunctions:
                                                 evaluate_virtual = True, evaluate_sym=True, normal=False, midpts = False)
         boundary_x, boundary_y = bnd_pts.x, bnd_pts.y
         xmin, xmax, ymin, ymax = ut.define_plot_area(boundary_x, boundary_y, sym_x, sym_y)
+        grid_x = max(int(g*np.abs(xmax-xmin)*k/(2*np.pi)), 200)
+        grid_y = max(int(g*np.abs(ymax-ymin)*k/(2*np.pi)), 200)
         #coordinates for plot
-        q = np.linspace(xmin, xmax, grid+1)
-        q2  = np.linspace(ymin, ymax, grid+1)
+        q = np.linspace(xmin, xmax, grid_x+1, dtype = dtype)
+        q2  = np.linspace(ymin, ymax, grid_y+1, dtype = dtype)
         Xplot = q
         Yplot = q2
            
@@ -285,14 +287,14 @@ class wavefunctions:
         inside = path.contains_points(points) #indices of points inside polygon
 
         if plot_exterior:
-            psi = self.psi(k, xx, yy, delta=delta, vec = vec)
+            psi = self.psi(k, xx, yy, delta=delta, vec = vec).astype(dtype)
             repsi = psi.real
             impsi = psi.imag
             Z = repsi*repsi + impsi*impsi
             vmax = np.max(Z[inside])
-            Z = np.reshape(Z, (grid,grid))
+            Z = np.reshape(Z, (grid_y,grid_x))
             if plot_full:
-                psi = np.reshape(psi, (grid,grid))
+                psi = np.reshape(psi, (grid_y,grid_x))
                 psi = ut.reflect_wavefunction(psi, sym_x, sym_y)
                 repsi = psi.real
                 impsi = psi.imag
@@ -300,15 +302,15 @@ class wavefunctions:
 
         else:
             #calculate probability    
-            psi = np.zeros(grid*grid)
-            psi[inside] = self.psi(k, xx[inside], yy[inside], delta=delta, vec = vec)
-            psi = np.reshape(psi, (grid,grid))
+            psi = np.zeros(grid_x*grid_y, dtype = dtype)
+            psi[inside] = self.psi(k, xx[inside], yy[inside], delta=delta, vec = vec).astype(dtype)
+            psi = np.reshape(psi, (grid_y,grid_x))
             if plot_full:
                 psi = ut.reflect_wavefunction(psi, sym_x, sym_y)
             repsi = psi.real
             impsi = psi.imag
             Z = repsi*repsi + impsi*impsi
-            vmax = np.max(Z)*0.5
+            vmax = np.max(Z)
 
 
         if plot_full:
@@ -336,7 +338,7 @@ class wavefunctions:
             ax.axis('off')
 
         #plot probability
-        plt.pcolormesh(Xplot, Yplot, Z, cmap=cmap, vmin=0, vmax=vmax)
+        plt.pcolormesh(Xplot, Yplot, Z, cmap=cmap, vmin=0, vmax=vmax*col_max)
 
     #not yet final version!!!!!!!!!!!!!!!!
     def plot_boundary_function(self, k, delta = 5, vec = None, plot_curve_bounds = True, midpts=False):

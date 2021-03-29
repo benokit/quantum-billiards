@@ -167,7 +167,7 @@ class spectrum:
         self.billiard = copy.deepcopy(billiard)
         self.basis = copy.deepcopy(basis)
 
-    def compute_k(self, k0, dk, solver = "DM", point_density = 100, Mi= 100, scale_basis = None, eps = 0.5e-15 ):
+    def compute_k(self, k0, dk, solver = "DM", delta = 5, Mi= 100, scale_basis = None, eps = 0.5e-15 ):
         """Computes the minimal tension solution on given wavenumber interval by using the selected method.
 
         The function is a wrapper for all the implemented solver functions in the solver module.
@@ -224,7 +224,9 @@ class spectrum:
                 #print(b)
             self.basis.set_basis_size([int(np.ceil(k0*L*i/(2*np.pi))) for i in b])
         
-        bnd_pts = self.billiard.evaluate_boundary(point_density, evaluate_virtual = False,  midpts = True, normal = True, weights = True)
+        M =  k0*delta/(2*np.pi)       
+
+        bnd_pts = self.billiard.evaluate_boundary(M, evaluate_virtual = False,  midpts = True, normal = True, weights = True)
 
         if solver == "DM":
             res = optimize.minimize_scalar(lambda k: solvers.decomposition_method
