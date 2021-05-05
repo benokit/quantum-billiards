@@ -6,25 +6,10 @@ from scipy import special
 from scipy import optimize
 from scipy import interpolate
 
-def n_weyl(L, A, k, k1=None):
-    if k1 is not None:
-        return n_weyl(L, A, k1) - n_weyl(L, A, k)
-    return (A*k**2 - L*k)/(4*np.pi)
 
-def n_states(z):
-    zz = np.sort(z)
-    f = lambda x: np.count_nonzero(zz <= x)
-    return np.vectorize(f)
-
-def check_weyl(L, A, ks, kmin, kmax, m = 10):
-    count_fun = n_states(ks) #defines function
-    x = np.linspace(kmin,kmax,m)
-    n = count_fun(x) #number of states < x
-    #print(n)
-    N = n_weyl(L, A, x[0],x) #number of states in interval
-    #print(N)
-    #plot(x,n-N)
-    return x, n-N
+# U distribution
+def distU(ws):
+    return (2 / m.pi) * np.arccos(np.sqrt(1 - ws))
 
 #define cumulative density function
 def ecdf(z):
@@ -32,6 +17,25 @@ def ecdf(z):
     n = 1 + zz.size
     f = lambda x: np.count_nonzero(zz <= x) / n
     return np.vectorize(f)
+
+def P(s, smin = 0, smax = 4, grid = 50):
+    h, bins = np.histogram(s, bins=grid, range=(smin,smax), density=True)
+    return h, (bins[1:] + bins[:-1])/2
+
+def W(s, smin = 0, smax = 4, grid = 200):
+    z = s / np.mean(s)
+    Wz = ecdf(z)
+    x = np.linspace(smin, smax, grid)
+    y = Wz(x)
+    return x, y
+
+def U(s, smin = 0, smax = 4, grid = 200):
+    z = s / np.mean(s)
+    Wz = ecdf(z)
+    x = np.linspace(smin, smax, grid)
+    Uf = lambda zz: distU(Wz(zz))
+    y = Uf(x)
+    return x, y
 
 # brody distribution
 def brodyP(beta, s):
@@ -44,9 +48,7 @@ def brodyW(beta, s):
     a = m.gamma ((beta + 2) / (beta + 1)) ** (beta + 1)
     return 1 - np.exp(-a * np.power(s, beta + 1))
 
-# U distribution
-def distU(ws):
-    return (2 / m.pi) * np.arccos(np.sqrt(1 - ws))
+
 
 # U brody distribution
 def brodyU(beta, s):
