@@ -4,6 +4,10 @@ sys.path.append("..")
 from ..CoreModules import Utils as ut
 from ..CoreModules import Curve as cv
 from ..CoreModules import Billiard as bil
+from ..CoreModules import Spectrum as sp
+from ..CoreModules import Wavefunctions as wf
+from ..BasisModules import FourierBessel_cy as fb
+from ..BasisModules import RealPlaneWaves_cy as rpw
 from . import Geometry as geo
 
 
@@ -20,3 +24,14 @@ def make_stadium_quarter(eps, virtual_axes = True ):
     area = 0.25 * np.pi + eps
 
     return bil.billiard(curves, area)
+
+def make_solvers(eps, sym_x, sym_y, basis_type = "rpw", scale_basis = 3):
+    stadium = make_stadium_quarter(eps, virtual_axes=True)
+    if basis_type == "rpw":
+        basis = rpw.make_RPW_basis(sym_x = sym_x, sym_y = sym_y)
+    elif basis_type == "fb":
+        basis = fb.make_FBq_basis(sym_x, sym_y)
+    
+    evp = sp.spectrum(stadium, basis)
+    waf = wf.wavefunctions(stadium, basis, scale_basis=scale_basis, sym_x=sym_x, sym_y=sym_y)
+    return evp, waf

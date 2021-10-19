@@ -1,6 +1,8 @@
 #!python
 #cython: language_level=3
 
+# run with python3 setup.py build_ext --inplace
+
 from libc.math cimport sin, cos, fabs
 cimport cython
 from cython.parallel cimport prange

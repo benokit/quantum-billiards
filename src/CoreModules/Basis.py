@@ -112,12 +112,49 @@ class basis:
         for i in range(sz):
             n = self.basis_size[i]
             bf = self.basis_functions[i]
-            A =  np.array([bf.f(j,k,x,y,n = n) for j in range(n)])/np.sqrt(n)
+            A =  np.array([bf.f(j,k,x,y,n = n) for j in range(n)])
             #js = [j for j in range(n)]
-            #A = np.array(list(map(lambda j: bf.f(j,k,x,y,n = n), js)))/np.sqrt(n)
+            #A = np.array(list(map(lambda j: bf.f(j,k,x,y,n = n), js)))
             result.append(A)
-    
+        
         return np.concatenate(result)
+
+    def evaluate_gradient(self, k, x, y):
+        """
+        Evaluates gradient and returns matrix of values of the gradient each basis function at each point.
+        
+        Parameters
+        ----------
+        k : float
+            The wavenumber.
+        x : float or numpy array
+            The x coordinates of the evaluation points.
+        y : float or numpy array
+            The y coordinates of the evaluation points.
+
+        Returns
+        -------
+        A : numpy array
+            Matrix of basis function values. The size of the matrix is (n,m),
+            where n is the basis dimension and m is the number of evaluation points.
+            The matrix element A[i,j] is the basis function with index i,
+            evaluated at point j.
+        """
+        result = []
+        sz = len(self.basis_size)
+        for i in range(sz):
+            n = self.basis_size[i]
+            bf = self.basis_functions[i]
+            A =  np.array([bf.grad_f(j,k,x,y,n = n) for j in range(n)])
+            #js = [j for j in range(n)]
+            #A = np.array(list(map(lambda j: bf.f(j,k,x,y,n = n), js)))
+            result.append(A)
+        G = np.concatenate(result)
+        A, B =np.split(G,2,axis = 1)
+        dim, trash, npts = A.shape
+        G_x = A.reshape(dim,npts) 
+        G_y = B.reshape(dim,npts)
+        return G_x, G_y
     
     def evaluate_u(self, k, x, y, nx, ny):
         """
@@ -149,9 +186,9 @@ class basis:
         for i in range(sz):
             n = self.basis_size[i]
             bf = self.basis_functions[i]
-            #A =  np.array([bf.u_f(j,k,x,y,nx,ny,n = n) for j in range(n)])/np.sqrt(n)
+            #A =  np.array([bf.u_f(j,k,x,y,nx,ny,n = n) for j in range(n)])
             js = [j for j in range(n)]
-            A = np.array(list(map(lambda j: bf.u_f(j,k,x,y,nx,ny,n = n), js)))/np.sqrt(n)
+            A = np.array(list(map(lambda j: bf.u_f(j,k,x,y,nx,ny,n = n), js)))
             result.append(A)
     
         return np.concatenate(result)
@@ -182,9 +219,9 @@ class basis:
         for i in range(sz):
             n = self.basis_size[i]
             bf = self.basis_functions[i]
-            #A =  np.array([bf.df_dk(j,k,x,y, n = n) for j in range(n)])/np.sqrt(n)
+            #A =  np.array([bf.df_dk(j,k,x,y, n = n) for j in range(n)])
             js = [j for j in range(n)]
-            A = np.array(list(map(lambda j: bf.df_dk(j,k,x,y, n = n), js)))/np.sqrt(n)
+            A = np.array(list(map(lambda j: bf.df_dk(j,k,x,y, n = n), js)))
             result.append(A)
     
         return np.concatenate(result)
@@ -202,7 +239,9 @@ class basis:
         k : float
             The wavenumber.
         """
-        self.basis_functions[kind].plot_fun(i,k, cmap=cmap, xlim = xlim, ylim= ylim)
+        n = int(self.basis_size[kind])
+        #print(n)
+        self.basis_functions[kind].plot_fun(i,k,n =n, cmap=cmap, xlim = xlim, ylim= ylim)
 
     def plot_basis(self, k):
         """Visualisation function. Plots first 9 basis functions of each kind.
