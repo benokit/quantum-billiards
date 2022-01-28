@@ -4,7 +4,7 @@ In order tu use the much faster parallelized cython versions of the basis functi
 
 python3 setup.py build_ext --inplace
 
-from the source folder.
+from the src folder.
 
 The main functionality includes:
 - computation of billiard spectra
