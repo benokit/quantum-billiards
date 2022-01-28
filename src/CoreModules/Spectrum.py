@@ -224,7 +224,10 @@ class spectrum:
                 #print(b)
             self.basis.set_basis_size([int(np.ceil(k0*L*i/(2*np.pi))) for i in b])
         
-        M =  k0*delta/(2*np.pi)       
+        if not isinstance(delta, list):
+            M =  k0*delta/(2*np.pi)
+        else:
+            M = [k0*i/(2*np.pi) for i in delta]      
 
         bnd_pts = self.billiard.evaluate_boundary(M, evaluate_virtual = False,  midpts = True, normal = True, weights = True)
 
@@ -296,13 +299,17 @@ class spectrum:
         tensions : float
             The tension at the evaluation points.    
         """ 
-
-        M =  kmax*delta/(2*np.pi)       
+        k0 = kmax
+        if not isinstance(delta, list):
+            M =  k0*delta/(2*np.pi)
+        else:
+            M = [k0*i/(2*np.pi) for i in delta]      
+ 
         bnd_pts = self.billiard.evaluate_boundary(M, evaluate_virtual = False, midpts = True, normal = True, weights = True)
         
         L = self.billiard.length
         n_funct = len(self.basis.basis_functions)
-        k0 = kmax
+        
         if scale_basis is not None:
             if not isinstance(scale_basis, list):
                 b = np.array([scale_basis for i in range(n_funct)])
@@ -394,7 +401,11 @@ class spectrum:
 
         L = self.billiard.length      
         #compute boundary points
-        M =  k2*delta/(2*np.pi)
+        if not isinstance(delta, list):
+            M =  k2*delta/(2*np.pi)
+        else:
+            M = [k2*i/(2*np.pi) for i in delta]      
+       
 
         bnd_pts = self.billiard.evaluate_boundary(M, evaluate_virtual = False, midpts = True, normal = True, weights = True)
         
@@ -467,7 +478,10 @@ class spectrum:
         """
         L = self.billiard.length      
         #compute boundary points
-        M =  k0*delta/(2*np.pi)
+        if not isinstance(delta, list):
+            M =  k0*delta/(2*np.pi)
+        else:
+            M = [k0*i/(2*np.pi) for i in delta]      
         start_time = time.time()
         bnd_pts = self.billiard.evaluate_boundary(M, evaluate_virtual = False, midpts = True, normal = True, weights = True)
         if print_info:
@@ -488,7 +502,7 @@ class spectrum:
 
 
 
-    def correct_spectrum(self, ks, dk, solver= "DM", point_density = 100, Mi= 100 , scale_basis = None, eps = 1e-16):
+    def correct_spectrum(self, ks, dks, solver= "DM", delta = 5, Mi= 100 , scale_basis = None, eps = 0.5e-15):
         """Corrects the values of the given eigenvalues by locally minimizing the tension.
 
         !!!Beta version!!!
@@ -529,9 +543,8 @@ class spectrum:
         tensions : numpy array
             The tensions of the found eigenstates.
         """
-        
-        res = [self.compute_k(k0, dk, solver = solver, point_density = point_density,
-                            Mi= Mi, scale_basis = scale_basis, eps = eps) for k0 in ks]
+        res = [self.compute_k(k0, dk, solver = solver, delta = delta,
+                            Mi= Mi, scale_basis = scale_basis, eps = eps) for k0,dk in zip(ks,dks)]
         spect, tensions = np.transpose(np.array(res))
         return spect, tensions
 

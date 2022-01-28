@@ -172,7 +172,7 @@ class curve:
     
     
 
-    def plot_curve(self, M = 50, normal = True, color= "k"):
+    def plot_curve(self, M = 50, normal = True, color= "k", lw = 1.0):
         """Visualisation function. Plots the curve and optionally the normal vectors.
         
         Parameters
@@ -192,9 +192,9 @@ class curve:
         #ymin = np.min(y) - 0.15
         #ymax = np.max(y) + 0.15
         if self.virtual:
-            plt.plot(x, y, color = color, ls="--")
+            plt.plot(x, y, color = color, ls="--", lw = lw)
         else:
-            plt.plot(x, y, color = color)
+            plt.plot(x, y, color = color, lw = lw)
             if normal:
                 plt.quiver(x,y,nx,ny)
         #ax = plt.gca()

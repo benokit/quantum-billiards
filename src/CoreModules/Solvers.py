@@ -186,8 +186,8 @@ def decomposition_method(k, basis, bnd_pts, length, eps = 0.5e-15, return_vector
     bnd_x, bnd_y, nx, ny, weights = bnd_pts.x, bnd_pts.y, bnd_pts.nx, bnd_pts.ny, bnd_pts.ds
     #weights = ut.integration_weights(bnd_s, billiard.length)
     rn = (bnd_x * nx + bnd_y * ny)
-    u_weights = weights/length * rn /(2*k**2) #changed *area !!!
-    
+    #u_weights = weights/length * rn /(2*k**2) #changed *area !!!
+    u_weights = weights * rn /(2*k**2) #changed *area !!!
     #construct fredholm matrix
     B = basis.evaluate_basis(k, bnd_x, bnd_y)
     T = weights * B
@@ -275,7 +275,7 @@ def scaling_method(k, dk, basis, bnd_pts, eps = 0.5e-15, return_vector = False, 
     ten: numpy array
         The tensions of the eigenfunction solutions.
     X : numpy array
-        (optional) Eigenvectors representing eigenfunction solutions.     
+        (optional) Eigenvectors representing eigenfunction solutions. Each row is one eigenvector.    
     """
     bnd_x, bnd_y, nx, ny, weights = bnd_pts.x, bnd_pts.y, bnd_pts.nx, bnd_pts.ny, bnd_pts.ds
     rn = (bnd_x * nx + bnd_y * ny)
@@ -339,6 +339,7 @@ def scaling_method(k, dk, basis, bnd_pts, eps = 0.5e-15, return_vector = False, 
         ten = ten[ind]
         Z = Z[:,ind]
         X = S.dot(Z)
+        X = np.sqrt([ten])*X
         return ks, ten, X
     else:
         start_time = time.time()

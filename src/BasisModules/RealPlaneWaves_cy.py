@@ -1,21 +1,22 @@
 import numpy as np
-from cython_functions import Sin, Cos
+
 import sys
 sys.path.append("..")
+from ..cython_functions import Sin, Cos
 from ..CoreModules import BasisFunction as bf
 from ..CoreModules import Basis as ba
 
 def RealPlaneWave(i,k,x,y, dphi = 0.1, angle = 0, phase = 0):
     alpha = angle + i*dphi
-    vx = Cos(alpha)
-    vy = Sin(alpha)
+    vx = np.cos(alpha)
+    vy = np.sin(alpha)
     arg = vx*x + vy*y
     return Sin(k*arg + phase)
 
 def RPW_gradient(i,k,x,y, dphi = 0.1, angle = 0, phase = 0):
     alpha = angle + i*dphi
-    vx = Cos(alpha)
-    vy = Sin(alpha)
+    vx = np.cos(alpha)
+    vy = np.sin(alpha)
     arg = vx*x + vy*y
     grd = Cos(k*arg + phase)
     
@@ -23,8 +24,8 @@ def RPW_gradient(i,k,x,y, dphi = 0.1, angle = 0, phase = 0):
 
 def RPW_dk(i,k,x,y, dphi = 0.1, angle = 0, phase = 0):
     alpha = angle + i*dphi
-    vx = Cos(alpha)
-    vy = Sin(alpha)
+    vx = np.cos(alpha)
+    vy = np.sin(alpha)
     arg = vx*x + vy*y
     return arg*Cos(k*arg + phase)
 
@@ -32,8 +33,8 @@ def RPW_dk(i,k,x,y, dphi = 0.1, angle = 0, phase = 0):
 
 def RPW_sym(i,k,x,y, dphi = 0.1, sym_x = "odd", sym_y = "odd"):
     alpha = (i+1)*dphi
-    vx = Cos(alpha)
-    vy = Sin(alpha)
+    vx = np.cos(alpha)
+    vy = np.sin(alpha)
 
     if sym_x == "odd" and sym_y == "odd":
         return Sin(k*vx*x)* Sin(k*vy*y)
@@ -49,8 +50,8 @@ def RPW_sym(i,k,x,y, dphi = 0.1, sym_x = "odd", sym_y = "odd"):
 
 def RPW_sym_grad(i,k,x,y, dphi = 0.1, sym_x = "odd", sym_y = "odd"):
     alpha = (i+1)*dphi
-    vx = Cos(alpha)
-    vy = Sin(alpha)
+    vx = np.cos(alpha)
+    vy = np.sin(alpha)
 
     if sym_x == "odd" and sym_y == "odd":
         dx = k*vx* Cos(k*vx*x)* Sin(k*vy*y)
@@ -76,8 +77,8 @@ def RPW_sym_grad(i,k,x,y, dphi = 0.1, sym_x = "odd", sym_y = "odd"):
 
 def RPW_sym_dk(i,k,x,y, dphi = 0.1, sym_x = "odd", sym_y = "odd"):
     alpha = (i+1)*dphi
-    vx = Cos(alpha)
-    vy = Sin(alpha)
+    vx = np.cos(alpha)
+    vy = np.sin(alpha)
 
     if sym_x == "odd" and sym_y == "odd":
         return vx*x*Cos(k*vx*x)*Sin(k*vy*y) + vy*y*Sin(k*vx*x)*Cos(k*vy*y)
@@ -99,7 +100,7 @@ def RPW_angles(i,n):
     return {"dphi":dphi}
 
 def RPW_angles_sym_xy(i,n):
-    dphi = np.pi/2/(n+1)
+    dphi = np.pi/(2*(n+1))
     return {"dphi":dphi}
 
 def make_RPW_basis(sym_x = None, sym_y = None, dist_fun = None):

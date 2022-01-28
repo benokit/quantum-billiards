@@ -183,8 +183,35 @@ class billiard:
                     bnd_s = np.concatenate([bnd_s, s])
                     bnd_ds = np.concatenate([bnd_ds, ds])
         
-
         return points(bnd_x, bnd_y, normal_x, normal_y, bnd_s, bnd_ds)
+
+    def xyn_sample(self, s):
+        crv_bounds = [0]
+        bound = 0
+        for crv in self.curves:
+            bound = bound + crv.length
+            crv_bounds.append(bound)
+
+        bnd_x = np.array([])
+        bnd_y = np.array([])
+        normal_x = np.array([])
+        normal_y = np.array([])
+        for i in range(len(self.curves)):
+            if i ==0:
+                idx = np.all([s>=crv_bounds[i], s<= crv_bounds[i+1]], axis = 0)
+            else:
+                idx = np.all([s>crv_bounds[i], s<= crv_bounds[i+1]], axis = 0)
+            s_interval = s[idx]
+            crv = self.curves[i]
+            t_values = (s_interval-crv_bounds[i])/crv.length
+            x, y = np.array(crv.r(t_values))
+            nx, ny = np.array(crv.normal(t_values))
+            bnd_x = np.concatenate([bnd_x, x])
+            bnd_y = np.concatenate([bnd_y, y])
+            normal_x = np.concatenate([normal_x, nx])
+            normal_y = np.concatenate([normal_y, ny])
+        return bnd_x, bnd_y, normal_x, normal_y
+        
 
     def random_interior_points(self, M, bnd_pts_dens = 20):
         """Evaluates a number of random points inside the billiard table.
@@ -206,7 +233,7 @@ class billiard:
             A points object that represents the interior points.
         """
         L = self.length
-        res = self.evaluate_boundary(2*np.pi*bnd_pts_dens/L)
+        res = self.evaluate_boundary(2*np.pi*bnd_pts_dens/L, evaluate_virtual=True, evaluate_sym=True)
         boundary_x = res.x
         boundary_y = res.y
         #weights = ut.integration_weights(bnd_s, billiard.length)
@@ -243,7 +270,7 @@ class billiard:
             A points object that represents the interior points.
         """
         L = self.length
-        res = self.evaluate_boundary(2*np.pi*bnd_pts_dens/L)
+        res = self.evaluate_boundary(2*np.pi*bnd_pts_dens/L, evaluate_virtual=True, evaluate_sym=True)
         boundary_x = res.x
         boundary_y = res.y
         #weights = ut.integration_weights(bnd_s, billiard.length)
@@ -265,7 +292,7 @@ class billiard:
         inside = path.contains_points(pts) #finds points inside polygon 
         return points(X[inside], Y[inside])
     
-    def plot_boundary(self, M = 10, normal = True, color = "k", origin = True):
+    def plot_boundary(self, M = 10, normal = True, color = "k", origin = True, axis = True, lw = 1.0, limits = True):
         """Visualisation function. Plots the billiard table boundary.
 
         Parameters
@@ -294,13 +321,19 @@ class billiard:
         ymax = np.max(y) + 0.15
         for i in range(len(self.curves)):
             crv = self.curves[i]
-            crv.plot_curve(M = int(2*np.pi*M/(L/crv.arc_length(1))), normal = normal, color = color )
+            crv.plot_curve(M = int(2*np.pi*M/(L/crv.arc_length(1))), normal = normal, color = color, lw = lw )
        
         ax = plt.gca()
         ax.set_aspect('equal', 'box')
         if origin:
             plt.plot([0],[0], "kx")
-        plt.xlim(xmin,xmax)
-        plt.ylim(ymin,ymax)
+        
+        if limits:
+            plt.xlim(xmin,xmax)
+            plt.ylim(ymin,ymax)
+        
+        if not axis:
+            ax = plt.gca()#plt.axes(xlim=(-1-eps-0.05, 1+eps+0.05), ylim=(-1-eps, 1+eps))
+            ax.axis('off')
 
     

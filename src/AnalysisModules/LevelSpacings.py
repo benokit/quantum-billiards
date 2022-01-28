@@ -23,14 +23,14 @@ def P(s, smin = 0, smax = 4, grid = 50):
     return h, (bins[1:] + bins[:-1])/2
 
 def W(s, smin = 0, smax = 4, grid = 200):
-    z = s / np.mean(s)
+    z = s #/ np.mean(s)
     Wz = ecdf(z)
     x = np.linspace(smin, smax, grid)
     y = Wz(x)
     return x, y
 
 def U(s, smin = 0, smax = 4, grid = 200):
-    z = s / np.mean(s)
+    z = s #/ np.mean(s)
     Wz = ecdf(z)
     x = np.linspace(smin, smax, grid)
     Uf = lambda zz: distU(Wz(zz))
@@ -103,55 +103,25 @@ def brodyBRFit(s, rho = 0, fixedRho = True):
         funk = lambda par: np.sum(np.power(brodyBRW(par[0], par[1], x) - y, 2))
         res = optimize.minimize(funk, [0.5, 0.5], bounds = [(0,1), (0,1)], method = 'L-BFGS-B')
         return res.x[0], res.x[1]
-    
-# ploting P
-def plotBrodyFitP(s, nbins = 50, r=4, grid = 200):
-    z = s / np.mean(s)
-    beta = brodyFit(z)
-    plt.hist(z, histtype='step', normed=True, bins=nbins, range=(0,r))
-    x = np.linspace(0, r, grid)
-    plt.plot(x, brodyP(beta, x))
-    #plt.show()
-    return beta
-    
-# ploting W
-def plotBrodyFitW(s, wsmin = 0, wsmax = 3, grid = 500):
-    z = s / np.mean(s)
-    beta = brodyFit(z)
-    Wz = ecdf(z)
-    x = np.linspace(wsmin, wsmax, grid)
-    y = Wz(x)
-    plt.plot(x, y)
-    plt.plot(x, brodyW(beta, x))
-    #plt.show()
-    return beta
-    
-# ploting W
-def plotBrodyFitW_loglog(s, wsmin = 0, wsmax = 1):
-    z = s / np.mean(s)
-    beta = brodyFit(z)
-    Wz = ecdf(z)
-    x = np.linspace(wsmin, wsmax, 1000)
-    y = Wz(x)
-    plt.plot(np.log10(x), np.log10(y))
-    plt.plot(np.log10(x), np.log10(brodyW(beta, x)))
-    #plt.show()
-    
-# ploting U
-def plotBrodyFitU(s, wsmin = 0, wsmax = 3):
-    z = s / np.mean(s)
-    beta = brodyFit(z)
-    Wz = ecdf(z)
-    Uf = lambda zz: distU(Wz(zz))
-    Zmin = np.min(z)
-    Zmax = np.max(z)
-    Umin = Uf(Zmin)
-    Umax = Uf(Zmax)
-    Uerr = 1 / (m.pi * m.sqrt(z.size))
-    zz = np.linspace(Zmin, Zmax, 1000)
-    ux = np.linspace(Umin, Umax, 200)
-    zx = interpolate.spline(brodyU(beta, zz), zz, ux)
-    y = Uf(zx) - brodyU(beta,zx)
-    plt.plot(ux, y)
-    plt.fill_between(ux, y + Uerr, y - Uerr)
-    #plt.show()
+
+#Wigner-Dyson distributions
+def wdP(s):
+    return brodyP(1, s)
+
+def wdW(s):
+    return brodyW(1, s)
+
+def wdU(s):
+    return brodyU(1, s)
+
+#semi-poisson distributions
+def spP(s):
+    return 4*s*np.exp(-2*s)
+
+#cumulative 
+def spW(s):
+    return 1 - (2*s+1)*np.exp(-2*s)
+
+# U 
+def spU(s):
+    return distU(spW(s))
