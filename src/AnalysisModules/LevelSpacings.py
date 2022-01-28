@@ -23,14 +23,14 @@ def P(s, smin = 0, smax = 4, grid = 50):
     return h, (bins[1:] + bins[:-1])/2
 
 def W(s, smin = 0, smax = 4, grid = 200):
-    z = s / np.mean(s)
+    z = s #/ np.mean(s)
     Wz = ecdf(z)
     x = np.linspace(smin, smax, grid)
     y = Wz(x)
     return x, y
 
 def U(s, smin = 0, smax = 4, grid = 200):
-    z = s / np.mean(s)
+    z = s #/ np.mean(s)
     Wz = ecdf(z)
     x = np.linspace(smin, smax, grid)
     Uf = lambda zz: distU(Wz(zz))

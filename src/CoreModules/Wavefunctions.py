@@ -20,7 +20,19 @@ class wavefunctions:
 
     def eigenvector(self, k, bnd_pts = None, delta = 5, Mi = 100):
         L = self.billiard.length
+        n_funct = len(self.basis.basis_functions)
         A = self.billiard.area
+
+        if self.scale_basis is not None:
+            if not isinstance(self.scale_basis, list):
+                b = np.array([self.scale_basis for i in range(n_funct)])
+                #print("is not list")
+                #print(b)
+            else:
+                b = self.scale_basis
+                #print(b)
+            self.basis.set_basis_size([int(np.ceil(k*L*i/(2*np.pi))) for i in b])
+
         if bnd_pts is None:
             if not isinstance(delta, list):
                 M =  k*delta/(2*np.pi)
@@ -30,14 +42,26 @@ class wavefunctions:
                                                       midpts = True, normal = True, weights = True)
         if self.solver == "DM":
             ten, vec = sol.decomposition_method(k, self.basis, bnd_pts, L,  eps = self.eps, return_vector = True)
-        if self.solver == "PSM":
+        if self.solver == "PSM": #does not work!
             int_pts = self.billiard.random_interior_points(Mi)
             ten, vec = sol.particular_solutions_method(k, self.basis, bnd_pts, int_pts, eps = self.eps, return_vector = True)
         return vec
 
     def scaling_eigenvectors(self, k0, dk, bnd_pts = None, delta = 5, return_ks = True):
-        #L = self.billiard.length
+        L = self.billiard.length
+        n_funct = len(self.basis.basis_functions)
         #A = self.billiard.area
+        if self.scale_basis is not None:
+            if not isinstance(self.scale_basis, list):
+                b = np.array([self.scale_basis for i in range(n_funct)])
+                #print("is not list")
+                #print(b)
+            else:
+                b = self.scale_basis
+                #print(b)
+            self.basis.set_basis_size([int(np.ceil(k0*L*i/(2*np.pi))) for i in b])
+
+
         if bnd_pts is None:
             if not isinstance(delta, list):
                 M =  k0*delta/(2*np.pi)

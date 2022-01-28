@@ -31,8 +31,8 @@ def triangle_corrners(gamma, chi , x0 = 0, y0 = 0, h = 1):
     return np.array(x), np.array(y)
 
 
-def make_solvers(gamma, chi, basis_type = "fb", scale_basis = 1.5, min_size = 200):
-    x, y = triangle_corrners(gamma, chi)
+def make_solvers(gamma, chi, h = 1, basis_type = "fb", scale_basis = 1.5, min_size = 200, virual_edges_waf = False):
+    x, y = triangle_corrners(gamma, chi, h = h)
 
     def angle(u,v):
         "Returns angle between vectors"
@@ -64,7 +64,10 @@ def make_solvers(gamma, chi, basis_type = "fb", scale_basis = 1.5, min_size = 20
     x, y = rotate(phi0, x, y)
     fb_basis = fb.make_FBca_basis(par_list=[{"x0" : 0, "y0" : 0, "nu" : nu, "phi0" :0}])
     
-    triangle_waf = poly.make_polygon(x,y, virtual = [False, False, False])
+    if virual_edges_waf:
+        triangle_waf = poly.make_polygon(x,y, virtual = [True, False, True])
+    else:
+        triangle_waf = poly.make_polygon(x,y, virtual = [False, False, False])
     waf = wf.wavefunctions(triangle_waf, fb_basis, scale_basis=scale_basis)
     triangle_evp = poly.make_polygon(x,y, virtual = [True, False, True])
     evp = sp.spectrum(triangle_evp, fb_basis)

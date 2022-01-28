@@ -143,25 +143,24 @@ class billiard_spectrum_script:
             print("Directory cleaned!")
     #return all_ks, all_ten
 
-    def filter_parameters(self, par_list):
+    def filter_parameters(self):
         def check_if_exists(par):
             filename = self.folder + r"/spectral_piece" + par.string + self.sym_string() + ".csv"
             return os.path.exists(filename)
         
-        check = [check_if_exists(par) for par in par_list]
+        check = [check_if_exists(par) for par in self.par_list]
         filtered_list = []
         for i in range(len(check)):
             if not check[i]:
-                filtered_list.append(par_list[i])
+                filtered_list.append(self.par_list[i])
         self.par_list = filtered_list
-
-
 
 
     def run_script(self, n_processes, filter_pieces=False, delete_pieces = False):
         evp = self.make_evp()
         self.build_parameter_list(evp)
-        
+        if filter_pieces:
+            self.filter_parameters()
         #pool = Pool(processes = n_processes)
         start = time.time()
         #pool.map(self.compute, self.par_list)
